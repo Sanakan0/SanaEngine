@@ -1,0 +1,10 @@
+project(GUI)
+
+file(GLOB_RECURSE SRC *.cpp *.h)
+add_library(GUI STATIC ${SRC})
+target_include_directories(GUI PUBLIC include)
+target_include_directories(GUI PRIVATE ../Editor/include)
+# target_include_directories(GUI PRIVATE ../Render/include)
+# target_include_directories(GUI PRIVATE ../Wnd/include)
+# target_include_directories(GUI PRIVATE ../Core/include)
+target_link_libraries(GUI PUBLIC imgui Render Wnd Core)

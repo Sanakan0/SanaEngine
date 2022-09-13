@@ -1,0 +1,7 @@
+project(Wnd)
+file(GLOB_RECURSE SRC *.cpp *.h)
+add_library(Wnd STATIC ${SRC})
+# target_include_directories(Wnd PRIVATE ../Core/include)
+# target_include_directories(Wnd PRIVATE ../GUI/include)
+target_include_directories(Wnd PUBLIC include)
+target_link_libraries(Wnd PUBLIC glfw GLAD Core GUI)

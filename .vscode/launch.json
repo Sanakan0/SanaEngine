@@ -1,0 +1,24 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "name":"CL sanaengine debug",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "C:\\Users\\cnt0\\GAO\\SanaEngine\\build\\Editor\\Editor.exe",
+            "symbolSearchPath": "C:\\Symbols;C:\\SymbolDir2",
+            "console": "integratedTerminal",
+            "logging": {
+              "moduleLoad": false,
+              "trace": true
+            },
+            "visualizerFile": "${workspaceFolder}/my.natvis",
+            "cwd": "${workspaceRoot}"
+        }
+    ]
+
+}
