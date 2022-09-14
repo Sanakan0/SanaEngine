@@ -1,14 +1,14 @@
 project(SanaEngine)
 set(CMAKE_CXX_STANDARD 17)
-#find_library(GLFW glfw3 lib)
-find_library(ASSIMP assimp-vc142-mtd lib)
-#include_directories(include)
+
+
+
 add_subdirectory(dependencies/glfw)
 add_subdirectory(dependencies/imgui)
 add_subdirectory(dependencies/GLAD)
 add_subdirectory(dependencies/glm)
-#add_subdirectory(GLAD)
-#add_subdirectory(imgui)
+add_subdirectory(dependencies/assimp)
+
 add_subdirectory(Wnd)
 add_subdirectory(GUI)
 add_subdirectory(Core)
