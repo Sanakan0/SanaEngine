@@ -9,8 +9,8 @@ class GLShaderLoader{
 public:
     GLShaderLoader() = delete;
     static GLShader* LoadFromFile(const std::string& pth);
-    static GLShader* LoadFromStr();
-    static void KillShader();
+    static GLShader* LoadFromStr(const std::string& vshader,const std::string& fshader);
+    static void KillShader(GLShader*& shaderp);
 private:
     static std::pair<std::string,std::string> ParseShader(const std::string& pth);
     static uint32_t CreateProgram(const std::string& v_shader,const std::string& f_shader);

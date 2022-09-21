@@ -1,14 +1,14 @@
-#include "SRender/Resources/GLMesh.h"
+#include "SRender/Resources/SMesh.h"
 #include <memory>
 namespace SRender::Resources{
 
-GLMesh::GLMesh(std::vector <Vertex>& vs, std::vector <unsigned int>& vidx) {
-	setup(vs,vidx);
+SMesh::SMesh(std::vector <Vertex>& vs, std::vector <unsigned int>& vidx):vs_(vs),vidx_(vidx) {
+	CreateBuf(vs,vidx);
 }
 
-void GLMesh::setup(std::vector <Vertex>& vs, std::vector <unsigned int> &vidx) {
-	vs_ = std::move(vs);
-	vidx_ = std::move(vidx);
+void SMesh::CreateBuf(std::vector <Vertex>& vs, std::vector <unsigned int> &vidx) {
+	// vs_ = std::move(vs);
+	// vidx_ = std::move(vidx);
 	glGenVertexArrays(1, &vao_);
 	glGenBuffers(1, &vbo_);
 	glGenBuffers(1, &ebo_);
@@ -29,10 +29,10 @@ void GLMesh::setup(std::vector <Vertex>& vs, std::vector <unsigned int> &vidx) {
 	glBindVertexArray(0);
 }
 
-void GLMesh::Bind() {
+void SMesh::Bind() {
     glBindVertexArray(vao_);
 }
-void GLMesh::UnBind(){
+void SMesh::UnBind(){
     glBindVertexArray(0);
 }
 

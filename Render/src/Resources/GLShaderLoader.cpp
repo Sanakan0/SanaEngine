@@ -1,4 +1,5 @@
 #include "SRender/Resources/GLShaderLoader.h"
+#include "SRender/Resources/GLShader.h"
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -6,14 +7,22 @@ namespace SRender::Resources{
 
 std::string GLShaderLoader::file_path_;
 
+void GLShaderLoader::KillShader(GLShader *&shaderp){
+    delete shaderp;
+    shaderp = nullptr;
+}
+
+GLShader* GLShaderLoader::LoadFromStr(const std::string &vshader, const std::string &fshader){
+    uint32_t programid = CreateProgram(vshader,fshader);
+    return programid?new GLShader("",programid):nullptr;
+}
+
 GLShader* GLShaderLoader::LoadFromFile(const std::string& pth){
     file_path_=pth;
     auto[vshader,fshader] = ParseShader(pth);
     uint32_t programid = CreateProgram(vshader,fshader);
-    if (programid){
-        return new GLShader(pth,programid);
-    }
-    return nullptr;
+    
+    return programid?new GLShader(pth,programid):nullptr;
 }
 
 uint32_t GLShaderLoader::CreateProgram(const std::string& v_shader,const std::string& f_shader){

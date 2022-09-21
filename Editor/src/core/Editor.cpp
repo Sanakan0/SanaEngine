@@ -30,6 +30,7 @@ void Editor::Run(){
 
 void Editor::PreTick(){
     rtcontext_.wndcontext_->pollevents();
+    rtcontext_.uimanager_->StartAFrame();
 }
 
 void Editor::Tick(float deltat){
@@ -53,5 +54,5 @@ void Editor::PostTick(){
 }
 
 void Editor::SetUpUI(){
-     rtcontext_.uimanager_->CreatePanel<SEditor::Panels::SceneView>("Scene View");
+     rtcontext_.uimanager_->CreatePanel<SEditor::Panels::SceneView>("Scene View",rtcontext_);
 }

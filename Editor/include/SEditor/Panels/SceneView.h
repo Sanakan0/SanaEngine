@@ -1,16 +1,17 @@
 #pragma once
 #include<SRender/Buffers/GLFrameBuffer.h>
 #include<SEditor/Panels/SView.h>
-
+#include<SEditor/Core/RuntimeContext.h>
 namespace SEditor::Panels{
 
 class SceneView:public SView{
 public:
-    SceneView();
+    SceneView(Core::RuntimeContext& rtcontext);
     ~SceneView();
-    virtual void LogicTick(float deltat) override;
-    virtual void RenderImpl() override;
-    
+    void LogicTick(float deltat);
+    void RenderTick();
+private:
+    Core::RuntimeContext& rtcontext_;
     
 };
 

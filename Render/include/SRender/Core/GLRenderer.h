@@ -1,8 +1,11 @@
 #pragma once
-#include "SRender/Resources/GLMesh.h"
-#include "glad/glad.h"
+#include "SRender/Core/GLRenderer.h"
+#include "SRender/Resources/GLShader.h"
+#include "SRender/Resources/SMesh.h"
+#include <SRender/Settings/GLSet.h>
+#include <cstddef>
+#include <memory>
 namespace SRender::Core{
-
 
 
 
@@ -10,15 +13,28 @@ class GLRenderer{
 public:
     GLRenderer();
     ~GLRenderer();
-    void Draw(Resources::GLMesh& mesh,GLenum mode);
-    void SetClearColor(float r,float g,float b,float a=1.0);
+    void Draw(Resources::SMesh& mesh,Setting::SPrimitive mode);
+    void SetClearColor(float r,float g,float b,float a=1.0){glClearColor(r,g,b,a);};
     void ClearBuffer(bool colorbuf = 1,bool depthbuf = 1, bool stencilbuf = 1);
-    void SetCullFace();
-    void SetViewPort(unsigned int x,unsigned int y,unsigned int w,unsigned int h);
-    
+    void SetCullFace(Setting::SCullFace cullface){glCullFace(static_cast<GLenum>(cullface));};
+    void SetViewPort(unsigned int x,unsigned int y,unsigned int w,unsigned int h){glViewport(x,y,w,h);};
+    void SetRasterizationMode(Setting::SRasterization mode){ glPolygonMode(GL_FRONT_AND_BACK,static_cast<GLenum>(mode)); };
+    void SetRasterizationLineWdith(float width){glLineWidth(width);};
 
     
 };
 
+
+class GLShapeDrawer{
+public:
+    GLShapeDrawer(GLRenderer& renderer);
+    ~GLShapeDrawer(){};
+    void SetViewPrj(const glm::mat4& viewprj);
+    void DrawLine(const glm::vec3& start,const glm::vec3& end,const glm::vec3& color,float width=1.0f);
+private:
+    std::unique_ptr<Resources::SMesh> linemeshp_=nullptr;
+    std::unique_ptr<Resources::GLShader> lineshader_=nullptr;
+    GLRenderer& renderer_;
+};
 
 }

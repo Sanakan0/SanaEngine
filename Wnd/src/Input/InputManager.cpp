@@ -15,6 +15,7 @@ void InputManager::UpdateMouse(){
     left_btn_ = GetGlfwMouseState(GLFW_MOUSE_BUTTON_LEFT);
     right_btn_ = GetGlfwMouseState(GLFW_MOUSE_BUTTON_RIGHT);
     curpos_=GetCursorPos();
+   
     if(mid_btn_||left_btn_||right_btn_){
         if(!first_mouse_pressed_){
             first_mouse_pressed_=true;

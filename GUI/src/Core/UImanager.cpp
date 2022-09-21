@@ -1,4 +1,5 @@
 #include"SGUI/Core/UImanager.h"
+#include "imgui/imgui.h"
 #include<iostream>
 namespace SGUI::Core{
 
@@ -168,12 +169,12 @@ void UImanager::EnableDocking(bool flg){
     else  ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_DockingEnable;
 }
 
-void UImanager::RenderTick(){
+void UImanager::StartAFrame(){
     if (!panels_.size()) return;
     ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
-
+    //auto& io = ImGui::GetIO();
     if (dockspace_on_){
         ImGuiViewport* viewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(viewport->Pos);
@@ -188,11 +189,15 @@ void UImanager::RenderTick(){
         ImGui::End();
         ImGui::PopStyleVar(3);      
     }
+}
+
+void UImanager::RenderTick(){
     ImGui::ShowDemoWindow();
     for (auto& panel : panels_){
         panel->DrawTick();
     }
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+   
 }
 }

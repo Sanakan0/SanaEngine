@@ -62,4 +62,6 @@ float Cameraa::CalcDisPerPix(int w,int h){
 	return dis*tan(fov_ / 2 * PI / 180)*2/h;
 }
 
+
+
 }

@@ -8,7 +8,6 @@ Application::Application():editor_(rtcontext_){}
 Application::~Application(){}
 
 void Application::Run(){
-    std::cout << "runconsole\n";
     editor_.Run();
 }
 

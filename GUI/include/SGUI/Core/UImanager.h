@@ -6,7 +6,7 @@
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
 #include "SGUI/Panels/Panel.h"
-#include <SEditor/Panels/SceneView.h>
+//#include <SEditor/Panels/SceneView.h>
 #include <unordered_map>
 namespace SGUI::Core{
 
@@ -18,9 +18,9 @@ public:
     template<typename T,typename... Args>
     void CreatePanel(const std::string& id,Args&&... args){
         panels_.push_back(std::make_unique<T>(std::forward<Args>(args)...));
-        if constexpr (std::is_base_of<SEditor::Panels::SView,T>::value){
-            panelmap_.emplace(id,panels_.size()-1);
-        }
+        //if constexpr (std::is_base_of<SEditor::Panels::SView,T>::value){
+        panelmap_.emplace(id,panels_.size()-1);
+        //}
         
     }
     template<typename T>
@@ -28,6 +28,7 @@ public:
         return *static_cast<T*>(panels_[panelmap_[id]].get());
     }
     void ApplyStyle();
+    void StartAFrame();
     void RenderTick();
     void EnableDocking(bool flg);
     bool dock_state_;

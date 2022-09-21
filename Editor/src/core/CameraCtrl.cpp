@@ -16,9 +16,9 @@ void CameraCtrl::HandleInputs(float delta_time){
     }
     //std::cout << inputmanager_.curpos_.first << " " << inputmanager_.curpos_.second <<"     < \r";
     if (inputmanager_.mid_btn_){
-        auto&[dx,dy] = inputmanager_.cursordelta_;
+        auto[dx,dy] = inputmanager_.GetCursorDelta();
         if (inputmanager_.GetGlfwKeyState(GLFW_KEY_LEFT_SHIFT)){
-            auto&[w,h] = view_.canvas_size_;
+            auto[w,h] = view_.canvas_size_;
             float apix = cam_.CalcDisPerPix(w,h);
             cam_.translate(glm::vec3(-dx*apix,dy*apix,0));
         }else{

@@ -16,15 +16,15 @@ struct Vertex {
 
 
 // this will MOVE DATA IN
-class GLMesh {
+class SMesh {
 public:
 	unsigned int vao_, vbo_, ebo_;
 	std::vector <Vertex> vs_;
 	std::vector <unsigned int> vidx_;
-	GLMesh(std::vector <Vertex>& vs, std::vector <unsigned int> &vidx);
+	SMesh(std::vector <Vertex>& vs, std::vector <unsigned int> &vidx);
 	void Bind();
     void UnBind();
-	void setup(std::vector <Vertex>& vs, std::vector <unsigned int> &vidx);
+	void CreateBuf(std::vector <Vertex>& vs, std::vector <unsigned int> &vidx);
 };
 
 
