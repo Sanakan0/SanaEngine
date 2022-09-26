@@ -28,12 +28,17 @@ public:
 class GLShapeDrawer{
 public:
     GLShapeDrawer(GLRenderer& renderer);
-    ~GLShapeDrawer(){};
+    ~GLShapeDrawer();
     void SetViewPrj(const glm::mat4& viewprj);
     void DrawLine(const glm::vec3& start,const glm::vec3& end,const glm::vec3& color,float width=1.0f);
+    void DrawGrid();
 private:
+    void InitGridShader();
+    void InitLineShader();
     std::unique_ptr<Resources::SMesh> linemeshp_=nullptr;
+    std::unique_ptr<Resources::SMesh> panelmeshp_=nullptr;
     std::unique_ptr<Resources::GLShader> lineshader_=nullptr;
+    std::unique_ptr<Resources::GLShader> gridshader_=nullptr;
     GLRenderer& renderer_;
 };
 

@@ -6,11 +6,11 @@
 namespace SRender::Resources{
 
 class SModel{
-friend class SModelLoader;
 public:
-    SModel();
+    SModel(std::string path);
     ~SModel();
     std::string path_;
+    std::vector<SMesh*>& GetMeshes(){return meshes_;}
 private:
     std::vector<SMesh*>meshes_;
 

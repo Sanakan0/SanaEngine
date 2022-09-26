@@ -6,6 +6,12 @@ SMesh::SMesh(std::vector <Vertex>& vs, std::vector <unsigned int>& vidx):vs_(vs)
 	CreateBuf(vs,vidx);
 }
 
+SMesh::~SMesh(){
+	glDeleteVertexArrays(1,&vao_);
+	glDeleteBuffers(1,&vbo_);
+	glDeleteBuffers(1,&ebo_);
+}
+
 void SMesh::CreateBuf(std::vector <Vertex>& vs, std::vector <unsigned int> &vidx) {
 	// vs_ = std::move(vs);
 	// vidx_ = std::move(vidx);
@@ -22,10 +28,10 @@ void SMesh::CreateBuf(std::vector <Vertex>& vs, std::vector <unsigned int> &vidx
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)0); //vertic
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex,norm)); //norm
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex,texcoord)); //texcoord
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex,norm)); //norm
 	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex,texcoord)); //texcoord
+	glEnableVertexAttribArray(1);
 	glBindVertexArray(0);
 }
 

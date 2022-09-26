@@ -81,11 +81,11 @@ std::pair<std::string,std::string> GLShaderLoader::ParseShader(const std::string
     std::string tmpline;
     std::stringstream ss[2];
     while(std::getline(input,tmpline)){
-        if (tmpline.find("#VERTEX")){
+        if (tmpline.find("#VERTEX")!=std::string::npos){
             type = shaderT::VERT;
-        }else if (tmpline.find("#FRAGMENT")){
+        }else if (tmpline.find("#FRAGMENT")!=std::string::npos){
             type = shaderT::FRAG;
-        }else if (type == shaderT::NONE){
+        }else if (type != shaderT::NONE){
             ss[static_cast <int> (type)] << tmpline << "\n";
         }
     }
