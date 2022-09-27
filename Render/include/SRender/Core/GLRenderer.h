@@ -29,7 +29,6 @@ class GLShapeDrawer{
 public:
     GLShapeDrawer(GLRenderer& renderer);
     ~GLShapeDrawer();
-    void SetViewPrj(const glm::mat4& viewprj);
     void DrawLine(const glm::vec3& start,const glm::vec3& end,const glm::vec3& color,float width=1.0f);
     void DrawGrid();
 private:

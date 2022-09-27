@@ -8,9 +8,9 @@ Cameraa::Cameraa() {
 }
 
 void Cameraa::reset() {
-	campos = glm::vec3(0, 0, 5);
+	campos = glm::vec3(5, 5, 5);
 	camcenter = glm::vec3(0, 0, 0);
-	camright = glm::vec3(1, 0, 0);
+	camright = glm::vec3(1, 0, -1);
 	worldup = glm::vec3(0, 1, 0);
 }
 

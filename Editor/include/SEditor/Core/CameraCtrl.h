@@ -26,7 +26,7 @@ private:
     int left_btn_=0;
     int right_btn_=0;
     float around_speed_=0.4f;
-    float zoom_speed_=0.1f;
+    float zoom_speed_=0.05f;
 };
 
 }

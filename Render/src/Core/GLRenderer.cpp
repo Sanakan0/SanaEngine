@@ -33,11 +33,7 @@ void GLRenderer::ClearBuffer(bool colorbuf,bool depthbuf, bool stencilbuf){
 }
 namespace SRender::Core{
 
-void GLShapeDrawer::SetViewPrj(const glm::mat4 &viewprj){
-    lineshader_->Bind();
-    lineshader_->SetUniMat4("viewprj", viewprj);
-    lineshader_->Unbind();
-}
+
 
 void GLShapeDrawer::DrawLine(const glm::vec3 &start, const glm::vec3 &end, const glm::vec3 &color,float width){
     lineshader_->Bind();
@@ -86,14 +82,13 @@ void GLShapeDrawer::InitLineShader(){
 uniform vec3 start;
 uniform vec3 end;
 layout (std140,binding = 0) uniform EngineUBO{
-    mat4    ubo_View;
-    mat4    ubo_Projection;
+    mat4    ubo_PrjViewMat;
     vec3    ubo_ViewPos;
 };
 void main()
 {
 	vec3 position = gl_VertexID == 0 ? start : end;
-    gl_Position = ubo_Projection * ubo_View * vec4(position, 1.0);
+    gl_Position = ubo_PrjViewMat * vec4(position, 1.0);
 }
 
 )";
@@ -148,13 +143,12 @@ out VS_OUT{
 }vs_out;
 
 layout (std140,binding = 0) uniform EngineUBO{
-    mat4    ubo_View;
-    mat4    ubo_Projection;
+    mat4    ubo_PrjViewMat;
     vec3    ubo_ViewPos;
 };
 
 vec3 CalcWorldPos(vec3 pos){
-    vec4 tmp = inverse(ubo_View)*inverse(ubo_Projection)*vec4(pos,1.0);
+    vec4 tmp = inverse(ubo_PrjViewMat)*vec4(pos,1.0);
     return tmp.xyz/tmp.w;
 }
 
@@ -168,8 +162,7 @@ void main(){
     std::string fshader=R"(
 #version 430 core
 layout (std140,binding = 0) uniform EngineUBO{
-    mat4    ubo_View;
-    mat4    ubo_Projection;
+    mat4    ubo_PrjViewMat;
     vec3    ubo_ViewPos;
 };
 in VS_OUT{
@@ -179,15 +172,15 @@ in VS_OUT{
 
 out vec4 FRAGMENT_COLOR;
 
-float CalcDepth(){
-    float t=-fs_in.nearpoint.y/(fs_in.farpoint.y-fs_in.nearpoint.y);
-    float k=(ubo_ViewPos.y-fs_in.farpoint.y)/(ubo_ViewPos.y-fs_in.nearpoint.y);
-    return (((k+1)*t-1)/((k-1)*t+1)+1)/2;
-}
+// float CalcDepth(){
+//     float t=-fs_in.nearpoint.y/(fs_in.farpoint.y-fs_in.nearpoint.y);
+//     float k=(ubo_ViewPos.y-fs_in.farpoint.y)/(ubo_ViewPos.y-fs_in.nearpoint.y);
+//     return (((k+1)*t-1)/((k-1)*t+1)+1)/2;
+// }
 
-float CalcDepth1(vec3 fragpos){
-    vec4 ndcpos = ubo_Projection*ubo_View*vec4(fragpos,1.0);
-    return ndcpos.z/ndcpos.w;
+float CalcDepth(vec3 fragpos){
+    vec4 ndcpos = ubo_PrjViewMat*vec4(fragpos,1.0);
+    return (ndcpos.z/ndcpos.w+1)/2;
 }
 
 float CalcGrid(vec3 fragpos,float scale){
@@ -195,17 +188,40 @@ float CalcGrid(vec3 fragpos,float scale){
     vec2 grid = abs(fract(coord-0.5)-0.5)/fwidth(coord);
     float line = min(grid.x,grid.y);
     return 1.0 - min(line,1.0);
+}
+float CalcXline(vec3 fragpos){
+    float line = abs(fragpos.z)/fwidth(fragpos.z);
+    
+    return 1.0 - min(line,1.0);
+}
 
+float MultiGrid(vec3 fragpos,float dis,float a,float b,float c){
+    const float ga = CalcGrid(fragpos,a);
+    const float gb = CalcGrid(fragpos,b);
+    const float gc = CalcGrid(fragpos,c);
+    
+    const float d0 = 10;
+    const float d1 = 40;
+    const float d2 = 160;
+    const float d3 = 640;
+
+    const float a01 = clamp( (dis-d0)/(d1-d0),0.0,1.0 );
+    const float a12 = clamp((dis-d1)/(d2-d1),0.0,1.0 );
+    const float a23 = clamp((dis-d2)/(d3-d2),0.0,1.0 );
+    return mix(mix(mix(ga,gb,a01),gc,a12),0,a23);
 }
 
 void main(){
     
-    //float t = -ubo_ViewPos.y/(fs_in.farpoint.y-ubo_ViewPos.y);
-    //vec3 fragpos = t*(fs_in.farpoint-ubo_ViewPos)+ubo_ViewPos;
-    float t=-fs_in.nearpoint.y/(fs_in.farpoint.y-fs_in.nearpoint.y);
-    vec3 fragpos = t*(fs_in.farpoint-fs_in.nearpoint)+fs_in.nearpoint;
-    gl_FragDepth = CalcDepth1(fragpos);
-    FRAGMENT_COLOR = vec4(0.2,0.2,0.2,CalcGrid(fragpos,8)*float(t>0));
+    float t = -ubo_ViewPos.y/(fs_in.farpoint.y-ubo_ViewPos.y);
+    vec3 fragpos = t*(fs_in.farpoint-ubo_ViewPos)+ubo_ViewPos;
+    float dis = length(fragpos-ubo_ViewPos);
+    float grid0 = MultiGrid(fragpos,dis,1,4,16);
+    gl_FragDepth = CalcDepth(fragpos);
+
+    float red = clamp(1-abs(fragpos.z)/fwidth(fragpos.z)/2.5,0,1);
+    float green = clamp(1-abs(fragpos.x)/fwidth(fragpos.x)/2.5,0,1);
+    FRAGMENT_COLOR = vec4(0.3+red*0.2,0.3+green*0.2,0.3,(grid0+mix(red+green,0,clamp((dis-160)/(480),0.0,1.0 )))*float(t>0));
 
 }
 

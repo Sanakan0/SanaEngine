@@ -13,6 +13,11 @@ struct Vertex {
     float norm[3];
 };
 
+struct SBone{
+    glm::mat4 model;
+	int meshid;
+	int father;
+};
 
 
 // this will MOVE DATA IN

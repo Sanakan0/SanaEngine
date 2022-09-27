@@ -9,7 +9,7 @@
             "name":"CL sanaengine debug",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "C:\\Users\\cnt0\\GAO\\SanaEngine\\build\\Editor\\Editor.exe",
+            "program": "${workspaceFolder}/build/Editor/Editor.exe",
             "symbolSearchPath": "C:\\Symbols;C:\\SymbolDir2",
             "console": "externalTerminal",
             "logging": {
@@ -17,7 +17,7 @@
               "trace": true
             },
             "visualizerFile": "${workspaceFolder}/my.natvis",
-            "cwd": "${workspaceRoot}"
+            "cwd": "${workspaceFolder}/build/Editor/"
         }
     ]
 

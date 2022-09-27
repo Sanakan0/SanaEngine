@@ -30,23 +30,24 @@ void SceneView::RenderTick(){
     fbo_.Bind();
     auto& renderer = *(rtcontext_.core_renderer_);
     auto& shape_drawer = *(rtcontext_.shape_drawer_);
-    renderer.SetClearColor(0.2f, 0.3f, 0.3f);
+    renderer.SetClearColor(0.2f, 0.2f, 0.2f);
     renderer.ClearBuffer();
     
-    shape_drawer.DrawLine({0,0,0}, {1,0,0}, {1,0,0});
-    shape_drawer.DrawLine({0,0,0}, {0,1,0}, {0,1,0});
-    shape_drawer.DrawLine({0,0,0}, {0,0,1}, {0,0,1});
+    // shape_drawer.DrawLine({0,0,0}, {5,0,0}, {1,0,0});
+    // shape_drawer.DrawLine({0,0,0}, {0,5,0}, {0,1,0});
+    // shape_drawer.DrawLine({0,0,0}, {0,0,5}, {0,0,1});
    
-    shape_drawer.DrawGrid();
-    static SRender::Resources::SModel cube("C:\\Users\\cnt0\\GAO\\SanaEngine\\assets\\models\\cube.fbx");
-    static std::unique_ptr<SRender::Resources::GLShader> shaderp(SRender::Resources::GLShaderLoader::LoadFromFile( "C:\\Users\\cnt0\\GAO\\SanaEngine\\assets\\shaders\\test.glsl"));
+    
+    static SRender::Resources::SModel cube("..\\assets\\models\\GUN.fbx");
+    static std::unique_ptr<SRender::Resources::GLShader> shaderp(SRender::Resources::GLShaderLoader::LoadFromFile( "..\\assets\\shaders\\test.glsl"));
     shaderp->Bind();
+    auto tmp =cube.GetMeshes();
     for (auto i:cube.GetMeshes()){
         renderer.Draw(*i, SRender::Setting::SPrimitive::TRIANGLES);
     }
     shaderp->Unbind();
 
-
+    shape_drawer.DrawGrid();
     fbo_.Unbind();
 
 }

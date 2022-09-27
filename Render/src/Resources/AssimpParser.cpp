@@ -16,16 +16,28 @@ bool AssimpParser::LoadModel(std::string path, std::vector<SMesh *>& meshes){
 		return false;
 	}
 	//std::string dir = path.substr(0, path.find_last_of('/'));
+    for (int i=0;i<scene->mMeshes[0]->mNumBones;i++) std::cout <<scene->mMeshes[0]->mBones[i]->mName.C_Str()<<" ";
+    std::cout <<"\n";
     ProcessNode(scene->mRootNode, scene, meshes);
     return true;
 }
-
+static int depth=0;
 void AssimpParser::ProcessNode(const aiNode* node, const aiScene *scene,std::vector<SMesh*>& meshes){
+    std::cout<<std::string(depth*2,'-')<<node->mName.C_Str()<<std::endl;
+    depth++;
     for (uint32_t i=0;i<node->mNumMeshes;++i){
         ProcessMesh(scene->mMeshes[node->mMeshes[i]],scene,meshes);
     }
     for (uint32_t i=0;i<node->mNumChildren;++i){
         ProcessNode(node->mChildren[i], scene,meshes);
+    }
+    depth--;
+}
+
+void AssimpParser::ProcessBone(const aiMesh* mesh,const aiScene* scene,std::vector<SBone>& bones ){
+    for (uint32_t i=0;i<mesh->mNumBones;++i){
+        const aiBone* bone = mesh->mBones[i];
+        str2aibonep[std::string(bone->mName.C_Str())]=bone;
     }
 }
 
@@ -33,7 +45,7 @@ void AssimpParser::ProcessMesh(const aiMesh* mesh,const aiScene* scene,std::vect
     std::vector<Vertex> vs;
     std::vector<uint32_t> idx;
     //load vertices
-    for (uint32_t i=0;i<mesh->mNumVertices;i++){
+    for (uint32_t i=0;i<mesh->mNumVertices;++i){
         std::pair<float, float> tex_coord=(mesh->mTextureCoords[0])?std::make_pair(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y):std::make_pair(0.0f,0.0f);
         vs.push_back({
             {mesh->mVertices[i].x,mesh->mVertices[i].y,mesh->mVertices[i].z},
@@ -41,13 +53,16 @@ void AssimpParser::ProcessMesh(const aiMesh* mesh,const aiScene* scene,std::vect
             {mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z}
         });
     }
-    for (uint32_t i=0;i<mesh->mNumFaces;i++){
+    for (uint32_t i=0;i<mesh->mNumFaces;++i){
         const auto& face = mesh->mFaces[i];
-        for (uint32_t j=0;j<face.mNumIndices;j++)
+        for (uint32_t j=0;j<face.mNumIndices;++j)
             idx.push_back(face.mIndices[j]);
     }
     meshes.push_back(new SMesh(vs,idx));
+
+    
 }
+std::unordered_map<std::string,const aiBone*> AssimpParser::str2aibonep;
 
 
 }
