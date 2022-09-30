@@ -2,7 +2,7 @@
 
 namespace SRender::Resources{
 
-GLShader::GLShader(const std::string path,uint32_t programid):path_(path),id_(programid){
+GLShader::GLShader(const std::string path,uint32_t programid):id_(programid),path_(path){
 }
 
 GLShader::~GLShader(){

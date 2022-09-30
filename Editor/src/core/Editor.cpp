@@ -45,7 +45,7 @@ void Editor::LogicTick(float deltat){
 
 void Editor::RenderTick(float deltat){
     static auto& sceneview = rtcontext_.uimanager_->GetPanel<SEditor::Panels::SceneView>("Scene View");
-    sceneview.RenderTick();
+    sceneview.RenderTick(deltat);
     rtcontext_.uimanager_->RenderTick();
 }
 

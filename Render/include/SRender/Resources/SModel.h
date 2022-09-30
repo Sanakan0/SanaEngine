@@ -1,4 +1,5 @@
 #pragma once
+
 #include <glad/glad.h>
 #include <vector>
 #include <string>
@@ -6,20 +7,25 @@
 namespace SRender::Resources{
 
 
+
 class SModel{
+friend class SModelLoader;
 public:
-    SModel(std::string path);
+    SModel();
     ~SModel();
     std::string path_;
     std::vector<SMesh*>& GetMeshes(){return meshes_;}
+    std::vector<SJoint>& GetJoints(){return joints_;}
+    glm::mat4 modelmat_;
 private:
     std::vector<SMesh*>meshes_;
-    std::vector<SBone>bones_;
-    glm::mat4 modelmat_;
+    std::vector<SJoint>joints_;
+   
     glm::quat rotate_;
     glm::vec3 pos_;
 
 };
+
 
 
 }

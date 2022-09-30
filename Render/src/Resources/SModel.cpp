@@ -3,11 +3,12 @@
 
 namespace SRender::Resources{
 
-SModel::SModel(std::string path):path_(path){
-    AssimpParser::LoadModel(path, meshes_);
+SModel::SModel(){
+    
 }
 SModel::~SModel(){
     for (auto i:meshes_) delete i;
 }
+
 
 }

@@ -13,11 +13,11 @@ GLRenderer::~GLRenderer(){};
 
 void GLRenderer::Draw(Resources::SMesh& mesh,Setting::SPrimitive mode){
     mesh.Bind();
-    if (mesh.vidx_.size()>0){
+    if (mesh.IdxSize()>0){
         //glDrawElements(GL_TRIANGLES,mesh.vidx_.size(),)
-        glDrawElements(static_cast<GLenum>(mode),mesh.vidx_.size(),GL_UNSIGNED_INT,nullptr);
+        glDrawElements(static_cast<GLenum>(mode),mesh.IdxSize(),GL_UNSIGNED_INT,nullptr);
     }else{
-        glDrawArrays(static_cast<GLenum>(mode),0,mesh.vs_.size());
+        glDrawArrays(static_cast<GLenum>(mode),0,mesh.VertexSize());
     }
     mesh.UnBind();
 }
@@ -57,14 +57,65 @@ void GLShapeDrawer::DrawGrid(){
     gridshader_->Unbind();
 }
 
+void GLShapeDrawer::DrawArrow(const glm::mat4 &model_mat){
+    
+    arrowshader_->Bind();
+    renderer_.SetRasterizationMode(Setting::SRasterization::LINE);
+    arrowshader_->SetUniMat4("ModelMat", model_mat);
+    renderer_.Draw(*arrowmeshp_, Setting::SPrimitive::TRIANGLES);
+    renderer_.SetRasterizationMode(Setting::SRasterization::FILL);
+    arrowshader_->Unbind();
+}
+
 GLShapeDrawer::GLShapeDrawer(GLRenderer& renderer):renderer_(renderer){
     //std::vector <Vertex>& vs, std::vector <unsigned int> &vidx
     InitLineShader();
     InitGridShader();
+    InitArrowShader();
 }
 
 GLShapeDrawer::~GLShapeDrawer(){
     
+}
+
+void GLShapeDrawer::InitArrowShader(){
+    std::vector<Resources::Vertex> tmpv;
+    tmpv.push_back({
+        {0,1,0},
+        {0,0},
+        {0,0,0}
+    });
+    tmpv.push_back({
+        {0,0,0.5},
+        {0,0},
+        {0,0,0}
+    });
+    tmpv.push_back({
+        {0.5,0,0},
+        {0,0},
+        {0,0,0}
+    });
+    tmpv.push_back({
+        {0,0,-0.5},
+        {0,0},
+        {0,0,0}
+    });
+    tmpv.push_back({
+        {-0.5,0,0},
+        {0,0},
+        {0,0,0}
+    });
+    tmpv.push_back({
+        {0,-0.2,0},
+        {0,0},
+        {0,0,0}
+    });
+    std::vector<uint32_t> idx{0,2,1,0,3,2,0,4,3,0,1,4,5,1,2,5,2,3,5,3,4,5,4,1};
+    arrowmeshp_ = std::make_unique<Resources::SMesh>(tmpv,idx);
+
+    arrowshader_=std::unique_ptr<Resources::GLShader> (Resources::GLShaderLoader::LoadFromFile("../assets/shaders/test.glsl"));
+    assert(arrowshader_!=nullptr&&"ShapeDrawer.arrowshader create failed!");
+   
 }
 
 void GLShapeDrawer::InitLineShader(){
@@ -184,14 +235,9 @@ float CalcDepth(vec3 fragpos){
 }
 
 float CalcGrid(vec3 fragpos,float scale){
-    vec2 coord = fragpos.xz/scale;
+    vec2 coord = fragpos.xy/scale;
     vec2 grid = abs(fract(coord-0.5)-0.5)/fwidth(coord);
     float line = min(grid.x,grid.y);
-    return 1.0 - min(line,1.0);
-}
-float CalcXline(vec3 fragpos){
-    float line = abs(fragpos.z)/fwidth(fragpos.z);
-    
     return 1.0 - min(line,1.0);
 }
 
@@ -213,13 +259,13 @@ float MultiGrid(vec3 fragpos,float dis,float a,float b,float c){
 
 void main(){
     
-    float t = -ubo_ViewPos.y/(fs_in.farpoint.y-ubo_ViewPos.y);
+    float t = -ubo_ViewPos.z/(fs_in.farpoint.z-ubo_ViewPos.z);
     vec3 fragpos = t*(fs_in.farpoint-ubo_ViewPos)+ubo_ViewPos;
     float dis = length(fragpos-ubo_ViewPos);
     float grid0 = MultiGrid(fragpos,dis,1,4,16);
     gl_FragDepth = CalcDepth(fragpos);
 
-    float red = clamp(1-abs(fragpos.z)/fwidth(fragpos.z)/2.5,0,1);
+    float red = clamp(1-abs(fragpos.y)/fwidth(fragpos.y)/2.5,0,1);
     float green = clamp(1-abs(fragpos.x)/fwidth(fragpos.x)/2.5,0,1);
     FRAGMENT_COLOR = vec4(0.3+red*0.2,0.3+green*0.2,0.3,(grid0+mix(red+green,0,clamp((dis-160)/(480),0.0,1.0 )))*float(t>0));
 

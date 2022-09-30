@@ -12,6 +12,7 @@ friend class GLShaderLoader;
 public:
     GLShader(const std::string path,uint32_t programid);
     ~GLShader();
+    GLShader(const GLShader&) = delete;
     void Bind();
     void Unbind();
     void SetUniInt(const std::string& name, int val);

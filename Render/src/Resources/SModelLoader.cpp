@@ -1,19 +1,17 @@
-#include "SRender/Resources/SModelLoader.h"
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/matrix4x4.h>
-#include <assimp/postprocess.h>
+#include <SRender/Resources/SModelLoader.h>
+#include <SRender/Resources/AssimpParser.h>
 namespace SRender::Resources{
-
-bool SModelLoader::LoadModel(std::string path,std::vector<SMesh*> meshes){
-    Assimp::Importer import;
-    const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate );
-	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
-		return false;
-    
-
-
+void SModelLoader::LoadSimpleModel(std::string path, SModel &model){
+    AssimpParser parser;
+    model.path_=path;
+    parser.LoadModel(model.modelmat_,path,model.meshes_);
+    model.modelmat_=model.modelmat_;
 }
-
+void SModelLoader::LoadModelWithAnima(std::string path, SModel &model, std::vector<SAnimation> &animas){
+    AssimpParser parser;
+    model.path_=path;
+    parser.LoadModel(model.modelmat_,path,model.meshes_,model.joints_,animas);
+    model.modelmat_=model.modelmat_;
+}
 }

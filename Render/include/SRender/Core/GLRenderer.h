@@ -1,5 +1,4 @@
 #pragma once
-#include "SRender/Core/GLRenderer.h"
 #include "SRender/Resources/GLShader.h"
 #include "SRender/Resources/SMesh.h"
 #include <SRender/Settings/GLSet.h>
@@ -31,13 +30,17 @@ public:
     ~GLShapeDrawer();
     void DrawLine(const glm::vec3& start,const glm::vec3& end,const glm::vec3& color,float width=1.0f);
     void DrawGrid();
+    void DrawArrow(const glm::mat4& model_mat);
 private:
     void InitGridShader();
     void InitLineShader();
+    void InitArrowShader();
     std::unique_ptr<Resources::SMesh> linemeshp_=nullptr;
     std::unique_ptr<Resources::SMesh> panelmeshp_=nullptr;
+    std::unique_ptr<Resources::SMesh> arrowmeshp_=nullptr;
     std::unique_ptr<Resources::GLShader> lineshader_=nullptr;
     std::unique_ptr<Resources::GLShader> gridshader_=nullptr;
+    std::unique_ptr<Resources::GLShader> arrowshader_=nullptr;
     GLRenderer& renderer_;
 };
 

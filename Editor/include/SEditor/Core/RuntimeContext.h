@@ -1,4 +1,5 @@
 #pragma once
+#include "SRender/Core/EntityRenderer.h"
 #include <memory>
 #include <SWnd/context/context.h>
 #include <SGUI/Core/UImanager.h>
@@ -15,7 +16,8 @@ public:
     std::unique_ptr<SWnd::Context> wndcontext_;
     std::unique_ptr<SGUI::Core::UImanager> uimanager_;
     
-    std::unique_ptr<SRender::Core::GLRenderer> core_renderer_;
+    //std::unique_ptr<SRender::Core::GLRenderer> core_renderer_;
+    std::unique_ptr<SRender::Core::EntityRenderer> core_renderer_;
     std::unique_ptr<SRender::Core::GLShapeDrawer> shape_drawer_;
     std::unique_ptr<SRender::Buffers::GLUniformBuffer> editor_ubo_;
 

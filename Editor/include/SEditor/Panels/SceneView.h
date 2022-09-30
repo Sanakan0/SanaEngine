@@ -9,7 +9,7 @@ public:
     SceneView(Core::RuntimeContext& rtcontext);
     ~SceneView();
     void LogicTick(float deltat);
-    void RenderTick();
+    void RenderTick(float deltat);
 private:
     Core::RuntimeContext& rtcontext_;
     
