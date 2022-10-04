@@ -59,26 +59,33 @@ bool AssimpParser::LoadModel(glm::mat4& model_mat,std::string path, std::vector<
     model_mat=glm::transpose( glm::make_mat4x4(&ai_model_mat.a1));
     ProcessSkeleton(scene->mRootNode, scene, joints);
     ProcessAnimation(scene, sanimas, joints);
-    
     for (int i=0;i<vertex_data_w_.size();++i){
+        std::vector<std::vector<std::pair<uint32_t,float>>> tmp_weight(vertex_data_w_[i].size());
         aiMesh* aim=scene->mMeshes[aimeshofmesh_[i]];
         for (uint32_t j=0;j<aim->mNumBones;++j){
             aiBone* bone = aim->mBones[j];
             joints[name2jointidx_[std::string(bone->mName.C_Str())]].inverse_bind_mat=glm::transpose(glm::make_mat4x4(&bone->mOffsetMatrix.a1));
             uint32_t joint_idx = name2jointidx_[std::string(bone->mName.C_Str())];
-            int jointcnt=0;
             for (uint32_t k=0;k<bone->mNumWeights;++k){
                 if(bone->mWeights[k].mWeight==0) continue;
-                if(jointcnt>=4)break; //then need normalize
-                vertex_data_w_[i][bone->mWeights[k].mVertexId].joint_ids[jointcnt]=joint_idx;
-                vertex_data_w_[i][bone->mWeights[k].mVertexId].weights[jointcnt]=bone->mWeights[k].mWeight;
-                ++jointcnt;
+                tmp_weight[bone->mWeights[k].mVertexId].push_back({joint_idx,bone->mWeights[k].mWeight});
+                // vertex_data_w_[i][bone->mWeights[k].mVertexId].joint_ids[jointcnt]=joint_idx;
+                // vertex_data_w_[i][bone->mWeights[k].mVertexId].weights[jointcnt]=bone->mWeights[k].mWeight;
+                
                 //meshes[i]->weights_[bone->mWeights[k].mVertexId].push_back({joint_idx,bone->mWeights[k].mWeight});
             }
         }
+
+        for (int j=0;j<tmp_weight.size();++j){
+            for (int k=0;k<tmp_weight[j].size()&&k<4;++k){
+                vertex_data_w_[i][j].joint_ids[k]=tmp_weight[j][k].first;
+                vertex_data_w_[i][j].weights[k]=tmp_weight[j][k].second;
+            }
+        }
+
     }
     meshes.reserve(vertex_data_w_.size());
-    for (uint32_t i =0;i<vertex_data_w_.size();i++){
+    for (int i =0;i<vertex_data_w_.size();i++){
         meshes.push_back(new SMesh(vertex_data_w_[i],idx_data_[i]));
         //meshes.push_back(SMesh(vertex_data_w_[i],idx_data_[i]));
     }
@@ -127,7 +134,7 @@ void AssimpParser::ProcessSkeleton(const aiNode* node, const aiScene *scene,std:
             glm::mat4(1),
             -1
         });
-        name2jointidx_[std::string(node->mName.C_Str())] = joints.size()-1;
+        name2jointidx_[std::string(node->mName.C_Str())] =static_cast<uint32_t>( joints.size()-1);
         if (joints.size()>1){
             aiNode* pa = node->mParent;
             joints[joints.size()-1].parent = name2jointidx_[std::string(pa->mName.C_Str())];
@@ -223,22 +230,22 @@ void AssimpParser::ProcessAnimation(const aiScene *scene,std::vector<SAnimation>
                 auto& tmp = aninode->mPositionKeys[k];
                 sz=tmpjointani.trans_seq.size();
                 tmpjointani.trans_seq.push_back(
-                    {tmp.mTime/anima->mTicksPerSecond+sz>0?tmpjointani.trans_seq[sz-1].first:0,
+                    {tmp.mTime/anima->mTicksPerSecond,
                     {tmp.mValue.x,tmp.mValue.y,tmp.mValue.z}});
             }
             for (uint32_t k=0;k<aninode->mNumScalingKeys;++k){
                 auto& tmp = aninode->mScalingKeys[k];
                 sz=tmpjointani.scale_seq.size();
                 tmpjointani.scale_seq.push_back(
-                    {tmp.mTime/anima->mTicksPerSecond+sz>0?tmpjointani.scale_seq[sz-1].first:0,
+                    {tmp.mTime/anima->mTicksPerSecond,
                     {tmp.mValue.x,tmp.mValue.y,tmp.mValue.z}});
             }
             for (uint32_t k=0;k<aninode->mNumRotationKeys;++k){
                 auto& tmp = aninode->mRotationKeys[k];
                 sz=tmpjointani.orien_seq.size();
                 tmpjointani.orien_seq.push_back(
-                    {tmp.mTime/anima->mTicksPerSecond+sz>0?tmpjointani.orien_seq[sz-1].first:0,
-                    {tmp.mValue.x,tmp.mValue.y,tmp.mValue.z,tmp.mValue.w}});
+                    {tmp.mTime/anima->mTicksPerSecond,
+                    {tmp.mValue.w,tmp.mValue.x,tmp.mValue.y,tmp.mValue.z}});
             }
         }
         sanimas.emplace_back(anima->mName.C_Str(),anima->mDuration/anima->mTicksPerSecond,joint_animation);

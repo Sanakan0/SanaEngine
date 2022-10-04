@@ -6,6 +6,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <stdint.h>
 #include <string>
+#include <vcruntime.h>
 #include <vector>
 namespace SRender::Resources{
 struct SJoint{
@@ -13,7 +14,7 @@ struct SJoint{
 	glm::quat orien;
 	glm::vec3 scale;
     glm::mat4 inverse_bind_mat;
-	int parent;
+	int parent; //-1 if root
 };
 
 struct joint_weight_t{
@@ -48,10 +49,10 @@ public:
 	SMesh(std::vector <VertexWithWeight>& vs_w, std::vector <unsigned int> &vidx);
 	SMesh(const SMesh&) = delete;
 	~SMesh();
-	uint32_t VertexSize(){return vertex_size_;}
-	uint32_t IdxSize(){return idx_size_;}
+	size_t VertexSize(){return vertex_size_;}
+	size_t IdxSize(){return idx_size_;}
 	unsigned int vao_, vbo_, ebo_;
-	uint32_t vertex_size_,idx_size_;
+	size_t vertex_size_,idx_size_;
 
 	void Bind();
     void UnBind();

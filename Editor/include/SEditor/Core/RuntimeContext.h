@@ -1,4 +1,5 @@
 #pragma once
+#include "SRender/Buffers/GLShaderStorageBuffer.h"
 #include "SRender/Core/EntityRenderer.h"
 #include <memory>
 #include <SWnd/context/context.h>
@@ -20,7 +21,7 @@ public:
     std::unique_ptr<SRender::Core::EntityRenderer> core_renderer_;
     std::unique_ptr<SRender::Core::GLShapeDrawer> shape_drawer_;
     std::unique_ptr<SRender::Buffers::GLUniformBuffer> editor_ubo_;
-
+    std::unique_ptr<SRender::Buffers::GLShaderStorageBuffer> anima_ssbo_;
 };
 
 }

@@ -1,4 +1,5 @@
 #include "SEditor/Core/RuntimeContext.h"
+#include "SRender/Buffers/GLShaderStorageBuffer.h"
 #include "SRender/Core/EntityRenderer.h"
 #include "SRender/Core/GLRenderer.h"
 #include <SCore/Global/ServiceLocator.h>
@@ -24,8 +25,8 @@ RuntimeContext::RuntimeContext(){
         GL_STREAM_DRAW
     );
 
-
-
+    anima_ssbo_ = std::make_unique<SRender::Buffers::GLShaderStorageBuffer>();
+    anima_ssbo_->Bind(0);
     //upload service to servicelocator
     ServiceLocator::Provide<SWnd::Context>(*wndcontext_); 
     ServiceLocator::Provide<SGUI::Core::UImanager>(*uimanager_); 

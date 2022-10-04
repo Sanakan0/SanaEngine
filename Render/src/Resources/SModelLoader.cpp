@@ -11,7 +11,8 @@ void SModelLoader::LoadSimpleModel(std::string path, SModel &model){
 void SModelLoader::LoadModelWithAnima(std::string path, SModel &model, std::vector<SAnimation> &animas){
     AssimpParser parser;
     model.path_=path;
-    parser.LoadModel(model.modelmat_,path,model.meshes_,model.joints_,animas);
+    parser.LoadModel(model.modelmat_,path,model.meshes_,model.GetJoints(),animas);
     model.modelmat_=model.modelmat_;
+    for (auto& i : animas) i.modelp_ = &model;
 }
 }

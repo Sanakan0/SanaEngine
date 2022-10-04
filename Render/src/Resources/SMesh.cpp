@@ -60,7 +60,7 @@ void SMesh::CreateBuf(std::vector <VertexWithWeight>& vs_w, std::vector <unsigne
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(VertexWithWeight), (void *)offsetof(VertexWithWeight,texcoord)); //texcoord
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(3, 4, GL_UNSIGNED_INT, GL_FALSE, sizeof(VertexWithWeight), (void *)offsetof(VertexWithWeight,joint_ids)); //vertic
+	glVertexAttribIPointer(3, 4, GL_UNSIGNED_INT, sizeof(VertexWithWeight), (void *)offsetof(VertexWithWeight,joint_ids)); //vertic
 	glEnableVertexAttribArray(3);
 	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(VertexWithWeight), (void *)offsetof(VertexWithWeight,weights)); //vertic
 	glEnableVertexAttribArray(4);

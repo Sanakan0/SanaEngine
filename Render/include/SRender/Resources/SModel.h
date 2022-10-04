@@ -17,11 +17,14 @@ public:
     std::vector<SMesh*>& GetMeshes(){return meshes_;}
     std::vector<SJoint>& GetJoints(){return joints_;}
     glm::mat4 modelmat_;
-private:
     void CalcPalette();
+    void CalcDerivedJoint();
+    std::vector<glm::mat4>palette_;
+private:
+
     std::vector<SMesh*>meshes_;
     std::vector<SJoint>joints_;
-    std::vector<glm::mat4>palette_;
+    
     glm::quat rotate_;
     glm::vec3 pos_;
 

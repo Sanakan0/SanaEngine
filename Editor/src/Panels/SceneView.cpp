@@ -51,11 +51,17 @@ void SceneView::RenderTick(float deltat){
     static SRender::Resources::SModel model;
     static std::vector<SRender::Resources::SAnimation> animas;
     static int initflag=1;
-    if (initflag) SRender::Resources::SModelLoader::LoadModelWithAnima("..\\assets\\models\\GUN.fbx", model, animas),--initflag;
-    static std::unique_ptr<SRender::Resources::GLShader> shaderp(SRender::Resources::GLShaderLoader::LoadFromFile( "..\\assets\\shaders\\test.glsl"));
+    if (initflag) SRender::Resources::SModelLoader::LoadModelWithAnima("..\\assets\\models\\untitled.fbx", model, animas),--initflag;
+    static std::unique_ptr<SRender::Resources::GLShader> shaderp(SRender::Resources::GLShaderLoader::LoadFromFile( "..\\assets\\shaders\\animation.glsl"));
     
     //sgun.TickStatus(deltat);
+    animas[0].Play();
+    animas[0].Tick(deltat);
+    model.CalcDerivedJoint();
+    model.CalcPalette();
+    rtcontext_.anima_ssbo_->SendBlocks<glm::mat4>(model.palette_.data(), model.palette_.size()*sizeof(glm::mat4));
     
+
     shaderp->Bind();
     //auto& tmp =model.GetMeshes();
     shaderp->SetUniMat4("ModelMat", model.modelmat_);

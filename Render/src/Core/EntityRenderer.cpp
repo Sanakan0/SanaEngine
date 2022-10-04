@@ -7,8 +7,8 @@ namespace SRender::Core{
 
 void EntityRenderer::DrawSkeleton(Resources::SModel& model){
     glm::mat4 scale=  glm::scale(glm::mat4(1),glm::vec3(0.1));
-    for (const auto& i:model.GetJoints()){
-        shapedrawer_.DrawArrow(model.modelmat_*glm::inverse(i.inverse_bind_mat)*scale);
+    for (int i=0;i<model.GetJoints().size();++i){
+        shapedrawer_.DrawArrow(model.palette_[i]*glm::inverse(model.GetJoints()[i].inverse_bind_mat)*scale);
     }
 }
 

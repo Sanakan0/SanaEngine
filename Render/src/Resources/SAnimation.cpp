@@ -16,6 +16,7 @@ void SAnimation::Tick(float deltaT){
     
     if(!playing_) return;
     curtime_+=deltaT;
+
     if(playonce_ && curtime_>total_t_){
         curtime_=0;
         playing_=0;
@@ -29,8 +30,8 @@ void SAnimation::Tick(float deltaT){
         auto& jani = joint_animation_[i];
 
         while(!(jani.trans_seq[jani.t_curfrm].first<=curtime_&&jani.trans_seq[(jani.t_curfrm+1)%jani.trans_seq.size()].first>=curtime_)) jani.t_curfrm=(jani.t_curfrm+1)%jani.trans_seq.size();
-        while(!(jani.scale_seq[jani.s_curfrm].first<=curtime_&&jani.scale_seq[(jani.s_curfrm+1)%jani.scale_seq.size()].first>=curtime_)) jani.t_curfrm=(jani.t_curfrm+1)%jani.trans_seq.size();
-        while(!(jani.orien_seq[jani.o_curfrm].first<=curtime_&&jani.orien_seq[(jani.o_curfrm+1)%jani.orien_seq.size()].first>=curtime_)) jani.t_curfrm=(jani.t_curfrm+1)%jani.trans_seq.size();
+        while(!(jani.scale_seq[jani.s_curfrm].first<=curtime_&&jani.scale_seq[(jani.s_curfrm+1)%jani.scale_seq.size()].first>=curtime_)) jani.s_curfrm=(jani.s_curfrm+1)%jani.scale_seq.size();
+        while(!(jani.orien_seq[jani.o_curfrm].first<=curtime_&&jani.orien_seq[(jani.o_curfrm+1)%jani.orien_seq.size()].first>=curtime_)) jani.o_curfrm=(jani.o_curfrm+1)%jani.orien_seq.size();
         
         float alpha_t = (curtime_-jani.trans_seq[jani.t_curfrm].first)/
         (jani.trans_seq[jani.t_curfrm+1].first-jani.trans_seq[jani.t_curfrm].first);
