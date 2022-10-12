@@ -5,7 +5,10 @@
 namespace SRender::Resources{
 
 SAnimation::SAnimation(std::string name,float total_t,std::vector<joint_anima_t>& joint_animation):name_(name),total_t_(total_t), joint_animation_(std::move(joint_animation)){
-    for (auto& jani:joint_animation_){
+    for (auto& jani:joint_animation_){ //some modal dont give init joint data
+        if (jani.trans_seq.size()==0) jani.trans_seq.push_back({0,glm::vec3(0)});
+        if (jani.orien_seq.size()==0) jani.orien_seq.push_back({0,glm::quat(0,0,0,1)});
+        if (jani.scale_seq.size()==0) jani.scale_seq.push_back({0,glm::vec3(1)});
         jani.trans_seq.push_back({total_t,jani.trans_seq[jani.trans_seq.size()-1].second});
         jani.orien_seq.push_back({total_t,jani.orien_seq[jani.orien_seq.size()-1].second});
         jani.scale_seq.push_back({total_t,jani.scale_seq[jani.scale_seq.size()-1].second});
