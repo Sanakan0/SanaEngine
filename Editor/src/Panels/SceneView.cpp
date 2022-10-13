@@ -47,41 +47,53 @@ void SceneView::RenderTick(float deltat){
     // shape_drawer.DrawLine({0,0,0}, {0,0,5}, {0,0,1});
     
 
-    static SimpleJoint sgun;
+    static SimpleJoint sjoint;
     static SRender::Resources::SModel model;
     static std::vector<SRender::Resources::SAnimation> animas;
     static int initflag=1;
     if (initflag) SRender::Resources::SModelLoader::LoadModelWithAnima("..\\assets\\models\\Capoeira.fbx", model, animas),--initflag;
     static std::unique_ptr<SRender::Resources::GLShader> shaderp(SRender::Resources::GLShaderLoader::LoadFromFile( "..\\assets\\shaders\\animation.glsl"));
     
-    //sgun.TickStatus(deltat);
-    animas[0].Play();
-    animas[0].Tick(deltat);
-    model.CalcDerivedJoint();
-    model.CalcPalette();
-    rtcontext_.anima_ssbo_->SendBlocks<glm::mat4>(model.palette_.data(), model.palette_.size()*sizeof(glm::mat4));
+    // animas[0].Play();
+    // animas[0].Tick(deltat);
+    // model.CalcDerivedJoint();
+    // model.CalcPalette();
+    // rtcontext_.anima_ssbo_->SendBlocks<glm::mat4>(model.palette_.data(), model.palette_.size()*sizeof(glm::mat4));
     
 
-    shaderp->Bind();
-    //auto& tmp =model.GetMeshes();
-    shaderp->SetUniMat4("ModelMat", model.modelmat_);
-    for (auto i:model.GetMeshes()){
-        renderer.Draw(*i, SRender::Setting::SPrimitive::TRIANGLES);
-    }
-    shaderp->Unbind();
-    glDisable(GL_DEPTH_TEST);
-    renderer.DrawSkeleton(model);
-    glEnable(GL_DEPTH_TEST);
+    // shaderp->Bind();
+    // //auto& tmp =model.GetMeshes();
+    // shaderp->SetUniMat4("ModelMat", model.modelmat_);
+    // for (auto i:model.GetMeshes()){
+    //     renderer.Draw(*i, SRender::Setting::SPrimitive::TRIANGLES);
+    // }
+    // shaderp->Unbind();
+    // glDisable(GL_DEPTH_TEST);
+    // renderer.DrawSkeleton(model);
+    // glEnable(GL_DEPTH_TEST);
+
+
+    sjoint.Play();
+    sjoint.TickStatus(deltat);
+    shape_drawer.DrawArrow(sjoint.GetCurTickModelMat(glm::mat4(1)));
+
     shape_drawer.DrawGrid();
     fbo_.Unbind();
 
     //imgui debug
-    // ImGui::Text("hello");
-    // char out[20];
-    // sprintf(out, "t %f", deltat);
-    // ImGui::Text(out);
-    // ImGui::Button("shoot")?sgun.Shoot():0;
-    //
+    ImGui::Text("quaternion test");
+    char out[20];
+    sprintf(out, "t %f", deltat);
+    ImGui::Text(out);
+    float * midp = &sjoint.orien_keyfrm[1].x;
+    float * stp = &sjoint.orien_keyfrm[0].x;
+    float * edp = &sjoint.orien_keyfrm[2].x;
+    static float tmpf[4];
+    ImGui::InputFloat4("quat st", stp);
+    ImGui::DragFloat4("quat std", stp);
+    ImGui::InputFloat4("quat mid", midp);
+    ImGui::InputFloat4("quat ed", edp);
+    
 
 }
 

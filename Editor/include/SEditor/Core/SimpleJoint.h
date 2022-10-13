@@ -32,16 +32,17 @@ public:
     };
     ~SimpleJoint(){};
     void TickStatus(float deltat){
-        if (shooting){
+        if (playing){
             normalized_curtime_+=deltat/total_t_;
-            if (normalized_curtime_>=1){
-                normalized_curtime_=0;
-                shooting=false;
-            }
+            normalized_curtime_ -= floor(normalized_curtime_);
+            
+
             int oidx = normalized_curtime_/o_interv;
             int pidx = normalized_curtime_/p_interv;
             float oa = (normalized_curtime_-o_interv*oidx)/o_interv;
             float op = (normalized_curtime_-p_interv*pidx)/p_interv;
+            orien_keyfrm[oidx]= glm::normalize(orien_keyfrm[oidx]);
+            orien_keyfrm[oidx+1] = glm::normalize(orien_keyfrm[oidx+1]);
             cur_orien = glm::slerp(orien_keyfrm[oidx],orien_keyfrm[oidx+1], oa);
             cur_pos = glm::mix(pos_keyfrm[pidx],pos_keyfrm[pidx+1], op);
         }
@@ -51,16 +52,18 @@ public:
        tmp[3]=glm::vec4(cur_pos,1);
        return model*tmp;
     };
-    int Shoot(){shooting=true;return 1;}
+    int Play(){playing=true;return 1;}
+
+    std::vector<glm::quat> orien_keyfrm;
 private:
-    bool shooting=false;
+    bool playing=false;
     float normalized_curtime_=0;
-    float total_t_=0.3f;
+    float total_t_=2.0f;
     glm::vec3 forward{0,-1,0};
     glm::vec3 up{0,0,1};
     glm::quat cur_orien;
     glm::vec3 cur_pos;
-    std::vector<glm::quat> orien_keyfrm;
+    
     std::vector<glm::vec3> pos_keyfrm;
     float o_interv,p_interv;
 };
