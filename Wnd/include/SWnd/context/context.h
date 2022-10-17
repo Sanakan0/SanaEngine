@@ -6,6 +6,7 @@ namespace SWnd{
 
 struct contextSETTING{
     int W_WIDTH, W_HEIGHT;
+    bool unlock_fps_;
 };
 class Context{
 public:
