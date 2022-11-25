@@ -22,12 +22,15 @@ SceneView::~SceneView(){
 }
 
 void SceneView::LogicTick(float deltat){
-    UpdateViewCam(deltat);
-    rtcontext_.core_renderer_->SetViewPort(0, 0,canvas_size_.first ,canvas_size_.second );
+    
+
     //rtcontext_.shape_drawer_->SetViewPrj(cam_.GetProjectionMat()*cam_.GetViewMat());
 }
 
 void SceneView::RenderTick(float deltat){   
+    UpdateViewCam(deltat);
+    rtcontext_.core_renderer_->SetViewPort(0, 0,canvas_size_.first ,canvas_size_.second );
+
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -51,7 +54,7 @@ void SceneView::RenderTick(float deltat){
     static SRender::Resources::SModel model;
     static std::vector<SRender::Resources::SAnimation> animas;
     static int initflag=1;
-    if (initflag) SRender::Resources::SModelLoader::LoadModelWithAnima("..\\assets\\models\\GUN.fbx", model, animas),--initflag;
+    if (initflag) SRender::Resources::SModelLoader::LoadModelWithAnima("..\\assets\\models\\Capoeira.fbx", model, animas),--initflag;
     static std::unique_ptr<SRender::Resources::GLShader> shaderp(SRender::Resources::GLShaderLoader::LoadFromFile( "..\\assets\\shaders\\animation.glsl"));
     
     //sgun.TickStatus(deltat);
@@ -74,7 +77,8 @@ void SceneView::RenderTick(float deltat){
     glEnable(GL_DEPTH_TEST);
     shape_drawer.DrawGrid();
     fbo_.Unbind();
-
+    float tmp = 1.0f/deltat;
+    ImGui::InputFloat("fps:",&tmp);
     //imgui debug
     // ImGui::Text("hello");
     // char out[20];

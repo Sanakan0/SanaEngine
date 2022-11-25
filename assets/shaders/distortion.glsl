@@ -3,8 +3,7 @@
 layout(location = 0) in vec3 pos;
 layout(location = 1) in vec2 tex_coord;
 layout(location = 2) in vec3 normal; 
-layout(location = 3) in uvec4 joint_idx;
-layout(location = 4) in vec4 joint_weight;
+
 layout (std140,binding = 0) uniform EngineUBO{
     mat4 ubo_ViewMat;
     mat4 ubo_PrjMat;
@@ -12,31 +11,25 @@ layout (std140,binding = 0) uniform EngineUBO{
     vec3 ubo_ViewPos;
 };
 
-layout(std140,binding=0) readonly buffer JointMatSSBO{
-    mat4 joint_Mat[];
-};
-
 
 uniform mat4 ModelMat;
+uniform float k;
 out VS_OUT{
     vec3 norm;
     vec3 pos;
 } vs_out;
 
-mat4 blend_mat(){
-    mat4 res=mat4(0);
-    for (int i=0;i<4;++i){
-        res+=joint_Mat[joint_idx[i]]*joint_weight[i];
-    }
-    return res;
+vec3 Get_Distorted(vec3 pos,float k){
+    vec2 uvpos=pos.xy/pos.z;
+    float r2 = uvpos.x*uvpos.x + uvpos.y*uvpos.y;
+    float a = sqrt(1.0/(k*r2+1.0));
+    pos.xy*=a;
+    return pos;
 }
 
-
 void main(){
-    mat4 animat=blend_mat();
-    vs_out.norm = mat3(animat)*normal;
-    vs_out.pos = (animat*vec4(pos,1)).xyz;
-    gl_Position = ubo_PrjViewMat*vec4(vs_out.pos,1.0);
+    vs_out.norm = mat3(ModelMat)*normal;
+    gl_Position = ubo_PrjMat * vec4(Get_Distorted((ubo_ViewMat*ModelMat*vec4(pos,1.0)).xyz,k),1.0);
 }
 
 #FRAGMENT
@@ -53,5 +46,5 @@ void main(){
     vec3 normal =  normalize(fs_in.norm);
     float cosa = dot(lightdir,normal);
     vec3 color = vec3(0.5,0.5,0.5)+cosa*0.3;
-    FRAGMENT_COLOR=vec4(color,1.0);
+    FRAGMENT_COLOR=vec4(1,0,0,1.0);
 }
