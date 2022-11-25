@@ -7,7 +7,7 @@
 namespace SEditor::Core{
 using namespace SCore::Global;
 RuntimeContext::RuntimeContext(){
-    SWnd::contextSETTING wndset{800,800};
+    SWnd::contextSETTING wndset{800,800,true};
     wndcontext_ = std::make_unique<SWnd::Context>(wndset);
     wndcontext_->setup_GLAD();
 

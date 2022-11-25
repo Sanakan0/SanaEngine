@@ -23,6 +23,7 @@ Context::Context(contextSETTING s):setting(s){
         glfwTerminate();
     }
     glfwMakeContextCurrent(Wnd_p);
+    if (s.unlock_fps_) glfwSwapInterval(0); // need to set after make_context
 }
 Context::~Context(){
     glfwTerminate();
