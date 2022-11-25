@@ -1,8 +1,9 @@
 #include "SRender/Resources/GLShader.h"
-
+#include <iostream>
 namespace SRender::Resources{
 
 GLShader::GLShader(const std::string path,uint32_t programid):id_(programid),path_(path){
+    GetUniforms();
 }
 
 GLShader::~GLShader(){
@@ -50,5 +51,19 @@ unsigned int GLShader::GetID() const{
     return id_;
 }
 
+void GLShader::GetUniforms(){
+    GLint active_uni_cnt=0;
+    glGetProgramiv(id_,GL_ACTIVE_UNIFORMS,&active_uni_cnt);
+    std::vector<GLchar> nameofuni(256);
+    std::cout <<"shader >"<< id_<<std::endl;
+    for (int i=0;i<active_uni_cnt;++i){
+        GLsizei lengthofname;
+        GLint size;
+        GLenum type;
+        glGetActiveUniform(id_,i,static_cast<GLsizei>(nameofuni.size()),&lengthofname,&size,&type,nameofuni.data());
+        std::string name(nameofuni.data(),lengthofname);
+        std::cout << name << std::endl;
+    }
+}
 
 }

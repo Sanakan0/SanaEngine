@@ -10,7 +10,7 @@ layout (std140,binding = 0) uniform EngineUBO{
     vec3    ubo_ViewPos;
 };
 
-layout(std140,binding=0)buffer JointMatSSBO{
+layout(std140,binding=0) readonly buffer JointMatSSBO{
     mat4 joint_Mat[];
 };
 

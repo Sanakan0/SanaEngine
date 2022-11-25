@@ -22,9 +22,11 @@ public:
     void SetUniVec4(const std::string& name, glm::vec4 val);
     void SetUniMat4(const std::string& name, glm::mat4 val);
     int GetUniformLocation(const std::string& name);
+    void GetUniforms();
     unsigned int GetID() const;
     unsigned int id_;
     const std::string path_;
+    
 };
 
 
