@@ -24,6 +24,7 @@ SceneView::~SceneView(){
 void SceneView::LogicTick(float deltat){
     UpdateViewCam(deltat);
     rtcontext_.core_renderer_->SetViewPort(0, 0,canvas_size_.first ,canvas_size_.second );
+
     //rtcontext_.shape_drawer_->SetViewPrj(cam_.GetProjectionMat()*cam_.GetViewMat());
 }
 
@@ -74,7 +75,8 @@ void SceneView::RenderTick(float deltat){
     glEnable(GL_DEPTH_TEST);
     shape_drawer.DrawGrid();
     fbo_.Unbind();
-
+    float tmp = 1.0f/deltat;
+    ImGui::InputFloat("fps:",&tmp);
     //imgui debug
     // ImGui::Text("hello");
     // char out[20];

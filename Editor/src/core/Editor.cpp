@@ -1,4 +1,5 @@
 #include "SEditor/Core/Editor.h"
+#include "SEditor/Panels/TestView.h"
 #include <SCore/Global/ServiceLocator.h>
 using namespace SEditor::Core;
 
@@ -39,13 +40,17 @@ void Editor::Tick(float deltat){
 }
 
 void Editor::LogicTick(float deltat){
-    static auto& sceneview = rtcontext_.uimanager_->GetPanel<SEditor::Panels::SceneView>("Scene View");
+    auto& sceneview = rtcontext_.uimanager_->GetPanel<SEditor::Panels::SceneView>("Scene View");
+    auto& testview = rtcontext_.uimanager_->GetPanel<SEditor::Panels::TestView>("Test View");
     sceneview.LogicTick(deltat);
+    testview.LogicTick(deltat);
 }
 
 void Editor::RenderTick(float deltat){
     static auto& sceneview = rtcontext_.uimanager_->GetPanel<SEditor::Panels::SceneView>("Scene View");
+    auto& testview = rtcontext_.uimanager_->GetPanel<SEditor::Panels::TestView>("Test View");
     sceneview.RenderTick(deltat);
+    testview.RenderTick(deltat);
     rtcontext_.uimanager_->RenderTick();
 }
 
@@ -54,5 +59,6 @@ void Editor::PostTick(){
 }
 
 void Editor::SetUpUI(){
-     rtcontext_.uimanager_->CreatePanel<SEditor::Panels::SceneView>("Scene View",rtcontext_);
+    rtcontext_.uimanager_->CreatePanel<SEditor::Panels::SceneView>("Scene View",rtcontext_);
+    rtcontext_.uimanager_->CreatePanel<SEditor::Panels::TestView>("Test View", rtcontext_);
 }

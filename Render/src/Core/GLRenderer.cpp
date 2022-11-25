@@ -50,7 +50,7 @@ void GLShapeDrawer::DrawLine(const glm::vec3 &start, const glm::vec3 &end, const
     
     lineshader_->Unbind();
 }
-
+    
 void GLShapeDrawer::DrawGrid(){
     gridshader_->Bind();
     renderer_.Draw(*panelmeshp_, Setting::SPrimitive::TRIANGLES);
@@ -133,8 +133,10 @@ void GLShapeDrawer::InitLineShader(){
 uniform vec3 start;
 uniform vec3 end;
 layout (std140,binding = 0) uniform EngineUBO{
-    mat4    ubo_PrjViewMat;
-    vec3    ubo_ViewPos;
+    mat4 ubo_ViewMat;
+    mat4 ubo_PrjMat;
+    mat4 ubo_PrjViewMat;
+    vec3 ubo_ViewPos;
 };
 void main()
 {
@@ -194,8 +196,10 @@ out VS_OUT{
 }vs_out;
 
 layout (std140,binding = 0) uniform EngineUBO{
-    mat4    ubo_PrjViewMat;
-    vec3    ubo_ViewPos;
+    mat4 ubo_ViewMat;
+    mat4 ubo_PrjMat;
+    mat4 ubo_PrjViewMat;
+    vec3 ubo_ViewPos;
 };
 
 vec3 CalcWorldPos(vec3 pos){
@@ -213,8 +217,10 @@ void main(){
     std::string fshader=R"(
 #version 430 core
 layout (std140,binding = 0) uniform EngineUBO{
-    mat4    ubo_PrjViewMat;
-    vec3    ubo_ViewPos;
+    mat4 ubo_ViewMat;
+    mat4 ubo_PrjMat;
+    mat4 ubo_PrjViewMat;
+    vec3 ubo_ViewPos;
 };
 in VS_OUT{
     vec3 nearpoint;
