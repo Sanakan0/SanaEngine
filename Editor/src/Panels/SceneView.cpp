@@ -54,7 +54,7 @@ void SceneView::RenderTick(float deltat){
     static SRender::Resources::SModel model;
     static std::vector<SRender::Resources::SAnimation> animas;
     static int initflag=1;
-    if (initflag) SRender::Resources::SModelLoader::LoadModelWithAnima("..\\assets\\models\\Capoeira.fbx", model, animas),--initflag;
+    if (initflag) SRender::Resources::SModelLoader::LoadModelWithAnima("..\\assets\\models\\GUN.fbx", model, animas),--initflag;
     static std::unique_ptr<SRender::Resources::GLShader> shaderp(SRender::Resources::GLShaderLoader::LoadFromFile( "..\\assets\\shaders\\animation.glsl"));
     
     //sgun.TickStatus(deltat);
