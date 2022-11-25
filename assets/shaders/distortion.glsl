@@ -19,9 +19,9 @@ out VS_OUT{
     vec3 pos;
 } vs_out;
 
-vec4 Get_Distorted(vec4 pos,float k){
-    pos/=pos.w;
-    float r2 = pos.x*pos.x + pos.y*pos.y;
+vec3 Get_Distorted(vec3 pos,float k){
+    vec2 uvpos=pos.xy/pos.z;
+    float r2 = uvpos.x*uvpos.x + uvpos.y*uvpos.y;
     float a = sqrt(1.0/(k*r2+1.0));
     pos.xy*=a;
     return pos;
@@ -29,8 +29,7 @@ vec4 Get_Distorted(vec4 pos,float k){
 
 void main(){
     vs_out.norm = mat3(ModelMat)*normal;
-    vs_out.pos = (animat*vec4(pos,1)).xyz;
-    gl_Position = Get_Distorted(ubo_PrjViewMat*vec4(vs_out.pos,1.0),k);
+    gl_Position = ubo_PrjMat * vec4(Get_Distorted((ubo_ViewMat*ModelMat*vec4(pos,1.0)).xyz,k),1.0);
 }
 
 #FRAGMENT
@@ -47,5 +46,5 @@ void main(){
     vec3 normal =  normalize(fs_in.norm);
     float cosa = dot(lightdir,normal);
     vec3 color = vec3(0.5,0.5,0.5)+cosa*0.3;
-    FRAGMENT_COLOR=vec4(color,1.0);
+    FRAGMENT_COLOR=vec4(1,0,0,1.0);
 }

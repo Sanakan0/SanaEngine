@@ -19,6 +19,8 @@ RuntimeContext::RuntimeContext(){
 
     editor_ubo_ = std::make_unique<SRender::Buffers::GLUniformBuffer>(
         //sizeof(glm::mat4)+ //model
+        sizeof(glm::mat4)+
+        sizeof(glm::mat4)+
         sizeof(glm::mat4)+ //prjview
         sizeof(glm::vec4), //pos
         0,

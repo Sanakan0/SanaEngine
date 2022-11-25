@@ -14,19 +14,6 @@ namespace SEditor::Panels{
 TestView::TestView(Core::RuntimeContext& rtcontext):rtcontext_(rtcontext){
     name_="Test View";
     Dshaderp = std::unique_ptr<SRender::Resources::GLShader>((SRender::Resources::GLShaderLoader::LoadFromFile( "..\\assets\\shaders\\distortion.glsl")));
-
-}
-
-TestView::~TestView(){
-
-}
-
-
-
-
-void TestView::LogicTick(float deltat){
-    UpdateViewCam(deltat);
-    rtcontext_.core_renderer_->SetViewPort(0, 0,canvas_size_.first ,canvas_size_.second );
     std::vector<SRender::Resources::Vertex> tmpv;
     float sqrt3=sqrt(3);
     tmpv.push_back({
@@ -46,9 +33,23 @@ void TestView::LogicTick(float deltat){
     });
     std::vector<uint32_t> idx{0,1,2};
     trimeshp = std::make_unique<SRender::Resources::SMesh>(tmpv,idx);
+}
+
+TestView::~TestView(){
+
+}
+
+
+
+
+void TestView::LogicTick(float deltat){
+   
+    
     //rtcontext_.shape_drawer_->SetViewPrj(cam_.GetProjectionMat()*cam_.GetViewMat());
 }
 void TestView::RenderTick(float deltat){   
+    UpdateViewCam(deltat);
+    rtcontext_.core_renderer_->SetViewPort(0, 0,canvas_size_.first ,canvas_size_.second );
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -59,6 +60,7 @@ void TestView::RenderTick(float deltat){
     renderer.ClearBuffer();
     Dshaderp->Bind();
     Dshaderp->SetUniFloat("k", 0.8);
+    Dshaderp->SetUniMat4("ModelMat", glm::mat4(1));
     renderer.Draw(*trimeshp,SRender::Setting::SPrimitive::TRIANGLES);
 
 
