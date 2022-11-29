@@ -46,5 +46,5 @@ void main(){
     vec3 normal =  normalize(fs_in.norm);
     float cosa = dot(lightdir,normal);
     vec3 color = vec3(0.5,0.5,0.5)+cosa*0.3;
-    FRAGMENT_COLOR=vec4(0,0,0,1.0);
+    FRAGMENT_COLOR=vec4(color,1.0);
 }

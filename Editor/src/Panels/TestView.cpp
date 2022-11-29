@@ -12,7 +12,7 @@
 #include <memory>
 namespace SEditor::Panels{
 TestView::TestView(Core::RuntimeContext& rtcontext):rtcontext_(rtcontext){
-    name_="Test View";
+    name_="Distortion View";
     Dshaderp = std::unique_ptr<SRender::Resources::GLShader>((SRender::Resources::GLShaderLoader::LoadFromFile( "..\\assets\\shaders\\distortion.glsl")));
     std::vector<SRender::Resources::Vertex> tmpv;
     float sqrt3=sqrt(3);
@@ -38,6 +38,8 @@ TestView::TestView(Core::RuntimeContext& rtcontext):rtcontext_(rtcontext){
     }
     
     trimeshp = std::make_unique<SRender::Resources::SMesh>(tmpv,idx);
+
+    SRender::Resources::SModelLoader::LoadSimpleModel("..\\assets\\models\\GUN.fbx", model);
 }
 
 TestView::~TestView(){
@@ -72,7 +74,7 @@ void TestView::RenderTick(float deltat){
     fbo_.Bind();
     auto& renderer = *(rtcontext_.core_renderer_);
     auto& shape_drawer = *(rtcontext_.shape_drawer_);
-    renderer.SetClearColor(1.0f, 1.0f, 1.0f);
+    renderer.SetClearColor(0.2f, 0.2f, 0.2f);
     renderer.ClearBuffer();
     Dshaderp->Bind();
     static float k=0.8;
@@ -80,8 +82,10 @@ void TestView::RenderTick(float deltat){
     ImGui::SliderFloat("k:",&k,-3,3);
     Dshaderp->SetUniFloat("k", k);
     Dshaderp->SetUniMat4("ModelMat", glm::mat4(1));
-    renderer.Draw(*trimeshp,SRender::Setting::SPrimitive::TRIANGLES);
-
+    //renderer.Draw(*trimeshp,SRender::Setting::SPrimitive::TRIANGLES);
+    for (auto i:model.GetMeshes()){
+        renderer.Draw(*i, SRender::Setting::SPrimitive::TRIANGLES);
+    }
     rtcontext_.core_renderer_->SetRasterizationMode(SRender::Setting::SRasterization::FILL);
     //shape_drawer.DrawGrid();
     fbo_.Unbind();
