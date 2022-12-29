@@ -6,8 +6,10 @@ layout(location = 2) in vec3 normal;
 layout(location = 3) in ivec4 joint_idx;
 layout(location = 4) in vec4 joint_weight;
 layout (std140,binding = 0) uniform EngineUBO{
-    mat4    ubo_PrjViewMat;
-    vec3    ubo_ViewPos;
+    mat4 ubo_ViewMat;
+    mat4 ubo_PrjMat;
+    mat4 ubo_PrjViewMat;
+    vec3 ubo_ViewPos;
 };
 uniform mat4 ModelMat;
 out VS_OUT{

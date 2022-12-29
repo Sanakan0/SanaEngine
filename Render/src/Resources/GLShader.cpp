@@ -3,7 +3,7 @@
 namespace SRender::Resources{
 
 GLShader::GLShader(const std::string path,uint32_t programid):id_(programid),path_(path){
-    GetUniforms();
+    //GetUniforms();
 }
 
 GLShader::~GLShader(){

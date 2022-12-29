@@ -1,4 +1,4 @@
-#include "SRender/Resources/SMesh.h"
+#include "SRender/Resources/SBaseRenderResources.h"
 #include <memory>
 #include <stdint.h>
 namespace SRender::Resources{

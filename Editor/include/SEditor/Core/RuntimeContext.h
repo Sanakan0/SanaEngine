@@ -19,7 +19,7 @@ public:
     
     //std::unique_ptr<SRender::Core::GLRenderer> core_renderer_;
     std::unique_ptr<SRender::Core::EntityRenderer> core_renderer_;
-    std::unique_ptr<SRender::Core::GLShapeDrawer> shape_drawer_;
+    SRender::Core::GLShapeDrawer* shape_drawer_;
     std::unique_ptr<SRender::Buffers::GLUniformBuffer> editor_ubo_;
     std::unique_ptr<SRender::Buffers::GLShaderStorageBuffer> anima_ssbo_;
 };

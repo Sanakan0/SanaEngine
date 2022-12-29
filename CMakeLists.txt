@@ -1,13 +1,9 @@
 project(SanaEngine)
 set(CMAKE_CXX_STANDARD 17)
 
+include_directories(dependencies/assimp/include)
 
-
-add_subdirectory(dependencies/glfw)
-add_subdirectory(dependencies/imgui)
-add_subdirectory(dependencies/GLAD)
-add_subdirectory(dependencies/glm)
-add_subdirectory(dependencies/assimp)
+add_subdirectory(dependencies)
 
 add_subdirectory(Wnd)
 add_subdirectory(GUI)

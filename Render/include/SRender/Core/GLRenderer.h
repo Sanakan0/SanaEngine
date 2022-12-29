@@ -1,6 +1,6 @@
 #pragma once
 #include "SRender/Resources/GLShader.h"
-#include "SRender/Resources/SMesh.h"
+#include "SRender/Resources/SBaseRenderResources.h"
 #include <SRender/Settings/GLSet.h>
 #include <cstddef>
 #include <memory>
@@ -19,7 +19,9 @@ public:
     void SetViewPort(unsigned int x,unsigned int y,unsigned int w,unsigned int h){glViewport(x,y,w,h);};
     void SetRasterizationMode(Setting::SRasterization mode){ glPolygonMode(GL_FRONT_AND_BACK,static_cast<GLenum>(mode)); };
     void SetRasterizationLineWdith(float width){glLineWidth(width);};
-
+    void ReadPixels(uint32_t x, uint32_t y, uint32_t width, uint32_t height, GLenum format, GLenum type, void* data){
+        glReadPixels(x, y, width, height, format, type, data);
+    };
     
 };
 

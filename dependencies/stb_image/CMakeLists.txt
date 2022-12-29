@@ -1,0 +1,5 @@
+project(stb_image)
+file(GLOB_RECURSE SRC *.cpp *.h)
+add_library(stb_image STATIC ${SRC})
+target_include_directories(stb_image PRIVATE ./include/stb_image)
+target_include_directories(stb_image INTERFACE ./include)

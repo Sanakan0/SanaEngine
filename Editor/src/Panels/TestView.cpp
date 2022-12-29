@@ -3,6 +3,7 @@
 #include "SRender/Resources/GLShaderLoader.h"
 #include "SRender/Resources/SAnimation.h"
 #include "SRender/Settings/GLSet.h"
+#include "SResourceManager/Util.h"
 #include "glm/ext/matrix_transform.hpp"
 #include "imgui/imgui.h"
 #include <SRender/Resources/SModel.h>
@@ -13,9 +14,9 @@
 namespace SEditor::Panels{
 TestView::TestView(Core::RuntimeContext& rtcontext):rtcontext_(rtcontext){
     name_="Distortion View";
-    Dshaderp = std::unique_ptr<SRender::Resources::GLShader>((SRender::Resources::GLShaderLoader::LoadFromFile( "..\\assets\\shaders\\distortion.glsl")));
+    Dshaderp = shadermanager.CreateResources(":shaders\\distortion.glsl");
     std::vector<SRender::Resources::Vertex> tmpv;
-    float sqrt3=sqrt(3);
+    float sqrt3=sqrtf(3);
    
     for (int i=0;i<5;++i){
         for (int j=0;j<=i;++j){
@@ -38,12 +39,13 @@ TestView::TestView(Core::RuntimeContext& rtcontext):rtcontext_(rtcontext){
     }
     
     trimeshp = std::make_unique<SRender::Resources::SMesh>(tmpv,idx);
-
-    SRender::Resources::SModelLoader::LoadSimpleModel("..\\assets\\models\\GUN.fbx", model);
+    SRender::Resources::SModelLoader::texture_manager_ = &texturemanager;
+    model = modelmanager.CreateResources(R"(..\assets\models\Tile_+025_+034\Tile_+025_+034.obj)");
+    renderpass.render_resources_.push_back(model);
 }
 
 TestView::~TestView(){
-
+    shadermanager.ClearAll();
 }
 
 
@@ -81,13 +83,16 @@ void TestView::RenderTick(float deltat){
     //ImGui::InputFloat("k:", &k);
     ImGui::SliderFloat("k:",&k,-3,3);
     Dshaderp->SetUniFloat("k", k);
-    Dshaderp->SetUniMat4("ModelMat", glm::mat4(1));
+    glm::mat4 tmpmodel = glm::mat4(1);
+    tmpmodel[3]=glm::vec4(-1700,-1700,0,1);
+    Dshaderp->SetUniMat4("ModelMat", tmpmodel);
     //renderer.Draw(*trimeshp,SRender::Setting::SPrimitive::TRIANGLES);
-    for (auto i:model.GetMeshes()){
-        renderer.Draw(*i, SRender::Setting::SPrimitive::TRIANGLES);
-    }
+    // for (auto i:model->GetMeshes()){
+    //     renderer.Draw(*i, SRender::Setting::SPrimitive::TRIANGLES);
+    // }
+    renderpass.Draw();
     rtcontext_.core_renderer_->SetRasterizationMode(SRender::Setting::SRasterization::FILL);
-    //shape_drawer.DrawGrid();
+    shape_drawer.DrawGrid();
     fbo_.Unbind();
 }
 

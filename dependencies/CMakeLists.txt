@@ -1,0 +1,7 @@
+add_subdirectory(glfw)
+add_subdirectory(GLAD)
+add_subdirectory(glm)
+add_subdirectory(assimp)
+add_subdirectory(imgui)
+add_subdirectory(stb_image)
+include(spdlog.cmake)

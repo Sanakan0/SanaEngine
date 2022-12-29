@@ -10,6 +10,7 @@ public:
     GLShaderLoader() = delete;
     static GLShader* LoadFromFile(const std::string& pth);
     static GLShader* LoadFromStr(const std::string& vshader,const std::string& fshader);
+    static void RecompileShader(GLShader& shader,const std::string& pth);
     static void KillShader(GLShader*& shaderp);
 private:
     static std::pair<std::string,std::string> ParseShader(const std::string& pth);

@@ -1,6 +1,6 @@
 #include "SRender/Core/GLRenderer.h"
 #include "SRender/Resources/GLShader.h"
-#include "SRender/Resources/SMesh.h"
+#include "SRender/Resources/SBaseRenderResources.h"
 #include "SRender/Settings/GLSet.h"
 #include<SRender/Resources/GLShaderLoader.h>
 #include <memory>

@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
-#include <SRender/Resources/SMesh.h>
+#include <SRender/Resources/SBaseRenderResources.h>
 namespace SRender::Resources{
 
 

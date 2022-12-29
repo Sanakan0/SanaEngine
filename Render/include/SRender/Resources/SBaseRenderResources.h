@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <SRender/Resources/STexture.h>
 #include <stdint.h>
 #include <string>
 #include <vcruntime.h>
@@ -41,7 +42,17 @@ struct VertexWithWeight{
 	float weights[4];
 };
 
+enum class TextureStackType:int{
+    DIFFUSE = 0x0000,
+    SPECULAR,
+    AMBIENT,
+    EMISSIVE,
+    NORMALS,
+};
 
+struct AssimpTextureStack{
+    STexture* data[3] {nullptr,nullptr,nullptr}; 
+};
 
 class SMesh {
 public:

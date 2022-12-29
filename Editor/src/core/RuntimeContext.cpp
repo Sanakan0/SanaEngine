@@ -2,6 +2,7 @@
 #include "SRender/Buffers/GLShaderStorageBuffer.h"
 #include "SRender/Core/EntityRenderer.h"
 #include "SRender/Core/GLRenderer.h"
+#include "SResourceManager/Util.h"
 #include <SCore/Global/ServiceLocator.h>
 #include <memory>
 namespace SEditor::Core{
@@ -15,7 +16,7 @@ RuntimeContext::RuntimeContext(){
 
     //core_renderer_ = std::make_unique<SRender::Core::GLRenderer>();
     core_renderer_ = std::make_unique<SRender::Core::EntityRenderer>();
-    shape_drawer_ = std::make_unique<SRender::Core::GLShapeDrawer>(*core_renderer_);
+    shape_drawer_ = core_renderer_->GetShapeDrawer();
 
     editor_ubo_ = std::make_unique<SRender::Buffers::GLUniformBuffer>(
         //sizeof(glm::mat4)+ //model
@@ -29,7 +30,12 @@ RuntimeContext::RuntimeContext(){
 
     anima_ssbo_ = std::make_unique<SRender::Buffers::GLShaderStorageBuffer>();
     anima_ssbo_->Bind(0);
+    
+    //set engine assetpath
+    ResourceManager::Util::SetEngineAssetPath("..\\assets\\");
+
     //upload service to servicelocator
+    ServiceLocator::Provide<SRender::Core::EntityRenderer>(*core_renderer_);
     ServiceLocator::Provide<SWnd::Context>(*wndcontext_); 
     ServiceLocator::Provide<SGUI::Core::UImanager>(*uimanager_); 
     ServiceLocator::Provide<SRender::Buffers::GLUniformBuffer>(*editor_ubo_);

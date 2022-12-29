@@ -1,10 +1,17 @@
-#include "SRender/Resources/SMesh.h"
+#include "SRender/Resources/SBaseRenderResources.h"
+#include "assimp/material.h"
+#include "assimp/scene.h"
+#include "assimp/texture.h"
+#include "assimp/types.h"
+#include "assimp/vector3.h"
 #include "glm/gtc/type_ptr.hpp"
 #include "glm/matrix.hpp"
+#include "spdlog/spdlog.h"
 #include <SRender/Resources/AssimpParser.h>
 #include <assimp/anim.h>
 #include <assimp/matrix4x4.h>
 #include <assimp/mesh.h>
+#include <filesystem>
 #include <iostream>
 #include <stdint.h>
 #include <unordered_map>
@@ -16,19 +23,18 @@ namespace SRender::Resources{
 AssimpParser::AssimpParser(){}
 AssimpParser::~AssimpParser(){}
 
-
-bool AssimpParser::LoadModel(glm::mat4& model_mat,std::string path, std::vector<SMesh*>& meshes){
+//simple loader
+bool AssimpParser::LoadModel(glm::mat4& model_mat,std::string path, std::vector<SMesh*>& meshes,std::vector<AssimpTextureStack>& materials,ResourceManager::TextureManager* tex_manager,uint32_t assimp_flag){
     loadwithskeleton=0;
     Assimp::Importer imp;
-	const aiScene *scene = imp.ReadFile(path, aiProcess_Triangulate );
+	const aiScene *scene = imp.ReadFile(path, assimp_flag );
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
-        std::cout << "ERROR::ASSIMP::" << imp.GetErrorString() << std::endl;
+        spdlog::error("[ASSIMP ERROR]"+std::string(imp.GetErrorString()));
 		return false;
 	}
-	//std::string dir = path.substr(0, path.find_last_of('/'));
-    for (uint32_t i=0;i<scene->mMeshes[0]->mNumBones;i++) std::cout <<scene->mMeshes[0]->mBones[i]->mName.C_Str()<<" ";
-    std::cout <<"\n";
+
+
     aiMatrix4x4 identity;
     ProcessNode(identity, scene->mRootNode, scene);
     model_mat=glm::transpose( glm::make_mat4x4(&ai_model_mat.a1));
@@ -37,21 +43,29 @@ bool AssimpParser::LoadModel(glm::mat4& model_mat,std::string path, std::vector<
         //meshes.push_back(SMesh(vertex_data_[i],idx_data_[i]));
         meshes.push_back(new SMesh(vertex_data_[i],idx_data_[i]));
     }
+
+    ProcessMaterial(scene,materials,tex_manager,path);
+
     Clear();
     return true;
 }
-bool AssimpParser::LoadModel(glm::mat4& model_mat,std::string path, std::vector<SMesh*>& meshes,std::vector<SJoint>& joints,std::vector<SAnimation>& sanimas){
+//load with skeleton
+bool AssimpParser::LoadModel(glm::mat4& model_mat,std::string path, std::vector<SMesh*>& meshes,std::vector<SJoint>& joints,std::vector<SAnimation>& sanimas,uint32_t assimp_flag){
     loadwithskeleton=1;
     Assimp::Importer imp;
-	const aiScene *scene = imp.ReadFile(path, aiProcess_Triangulate );
+	const aiScene *scene = imp.ReadFile(path, aiProcess_Triangulate);
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
-	{
-        std::cout << "ERROR::ASSIMP::" << imp.GetErrorString() << std::endl;
+	{   
+        spdlog::error("[ASSIMP ERROR]"+std::string(imp.GetErrorString()));
 		return false;
 	}
+
+    //ProcessMaterial(scene,nullptr);
+
 	//std::string dir = path.substr(0, path.find_last_of('/'));
-    for (uint32_t i=0;i<scene->mMeshes[0]->mNumBones;i++) std::cout <<scene->mMeshes[0]->mBones[i]->mName.C_Str()<<" ";
-    std::cout <<"\n";
+    //print bonename
+    // for (uint32_t i=0;i<scene->mMeshes[0]->mNumBones;i++) std::cout <<scene->mMeshes[0]->mBones[i]->mName.C_Str()<<" ";
+    // std::cout <<"\n";
 
     BuildName2NodeMap(scene->mRootNode);
     aiMatrix4x4 identity;
@@ -59,6 +73,8 @@ bool AssimpParser::LoadModel(glm::mat4& model_mat,std::string path, std::vector<
     model_mat=glm::transpose( glm::make_mat4x4(&ai_model_mat.a1));
     ProcessSkeleton(scene->mRootNode, scene, joints);
     ProcessAnimation(scene, sanimas, joints);
+    
+    // add joint data to mesh
     for (int i=0;i<vertex_data_w_.size();++i){
         std::vector<std::vector<std::pair<uint32_t,float>>> tmp_weight(vertex_data_w_[i].size());
         aiMesh* aim=scene->mMeshes[aimeshofmesh_[i]];
@@ -100,12 +116,53 @@ void AssimpParser::Clear(){
     vertex_data_.clear();
     vertex_data_w_.clear();
     idx_data_.clear();
+    material_idx_.clear();
+    diffuse_tex_.clear();
 }
 
-static int depth=0;
+void AssimpParser::ProcessMaterial(const aiScene* scene,std::vector<AssimpTextureStack>& materials,ResourceManager::TextureManager* tex_manager,std::string pth){
+    if (tex_manager==nullptr) {
+        spdlog::warn("[ASSIMP WARNING] Texture Manager Missing, No Texture Loaded. Set SRender::Resources::SModelLoader::texture_manager_ plz");
+        return;
+    };
+    namespace fs = std::filesystem;
+    fs::path model_path(pth);
+    fs::path pa_path = model_path.parent_path();
+    tex_stacks_.resize(scene->mNumMaterials);
+    for (uint32_t i=0;i<scene->mNumMaterials;++i){
+        aiMaterial* material = scene->mMaterials[i];
+        aiString name;
+        material->Get(AI_MATKEY_NAME,name);
+        int shadingm;
+        material->Get(AI_MATKEY_SHADING_MODEL,shadingm);
+        
+        // load texture (only diffuse tex supported)
+        aiString tmp_tex_file;
+        material->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE,0),tmp_tex_file);
+        std::string tex_file(tmp_tex_file.C_Str());
+        if(tex_file=="") continue; //empty path 
+        if(auto tex = scene->GetEmbeddedTexture(tex_file.c_str())){
+            //TODO load embeded
+        }else{
+            fs::path full_pth = pa_path/tex_file;
+            tex_stacks_[i].data[static_cast<int>(TextureStackType::DIFFUSE)] = tex_manager->CreateResources(full_pth.generic_string());
+        }
+        for (uint32_t j=0;j<material->mNumProperties;++j){
+            auto prop=material->mProperties[j];
+        }
+        // int x=material->GetTextureCount(aiTextureType_DIFFUSE);
+
+    }
+    for (int i=0;i<material_idx_.size();++i){
+        int mat_idx=material_idx_[i];
+        materials.push_back(tex_stacks_[mat_idx]);
+    }
+}
+
+//static int depth=0; print node tree
 void AssimpParser::ProcessNode(const aiMatrix4x4& transform_mat,const aiNode* node, const aiScene *scene){
-    std::cout<<std::string(depth*2,'-')<<node->mName.C_Str()<<std::endl;
-    depth++;
+    //std::cout<<std::string(depth*2,'-')<<node->mName.C_Str()<<std::endl;
+    //depth++;
 
     aiMatrix4x4 node_transmat = transform_mat*node->mTransformation;
     if (node->mNumMeshes>0) ai_model_mat = node_transmat;
@@ -116,7 +173,7 @@ void AssimpParser::ProcessNode(const aiMatrix4x4& transform_mat,const aiNode* no
     for (uint32_t i=0;i<node->mNumChildren;++i){
         ProcessNode(node_transmat,node->mChildren[i], scene);
     }
-    depth--;
+    //depth--;
 }
 
 // void AssimpParser::ProcessBone(const aiMesh* mesh,const aiScene* scene,std::vector<SBone>& bones ){
@@ -165,17 +222,19 @@ void AssimpParser::MarkSkeleton(const aiNode* node){
 }
 
 void AssimpParser::ProcessMesh(const aiMatrix4x4& transform_mat,const aiMesh* mesh,const aiScene* scene){
+    //load vertex data
     if (loadwithskeleton){
         vertex_data_w_.push_back(std::vector<VertexWithWeight>());
         std::vector<VertexWithWeight>& vs = vertex_data_w_[vertex_data_w_.size()-1];
         vs.reserve(mesh->mNumVertices);
         //load vertices
         for (uint32_t i=0;i<mesh->mNumVertices;++i){
-            std::pair<float, float> tex_coord=(mesh->mTextureCoords[0])?std::make_pair(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y):std::make_pair(0.0f,0.0f);
+            aiVector3D tex_coord=(mesh->mTextureCoords[0]!=nullptr)?mesh->mTextureCoords[0][i]:aiVector3D(0,0,0);
+            aiVector3D normals=(mesh->mNormals!=nullptr)?mesh->mNormals[i]:aiVector3D(0,0,0);
             vs.push_back({
                 {mesh->mVertices[i].x,mesh->mVertices[i].y,mesh->mVertices[i].z},
-                {tex_coord.first,tex_coord.second},
-                {mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z}
+                {tex_coord.x,tex_coord.y},
+                {normals.x, normals.y, normals.z}
             });
         }
     }else{
@@ -184,15 +243,16 @@ void AssimpParser::ProcessMesh(const aiMatrix4x4& transform_mat,const aiMesh* me
         vs.reserve(mesh->mNumVertices);
         //load vertices
         for (uint32_t i=0;i<mesh->mNumVertices;++i){
-            std::pair<float, float> tex_coord=(mesh->mTextureCoords[0])?std::make_pair(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y):std::make_pair(0.0f,0.0f);
+            aiVector3D tex_coord=(mesh->mTextureCoords[0]!=nullptr)?mesh->mTextureCoords[0][i]:aiVector3D(0,0,0);
+            aiVector3D normals=(mesh->mNormals!=nullptr)?mesh->mNormals[i]:aiVector3D(0,0,0);
             vs.push_back({
                 {mesh->mVertices[i].x,mesh->mVertices[i].y,mesh->mVertices[i].z},
-                {tex_coord.first,tex_coord.second},
-                {mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z}
+                {tex_coord.x,tex_coord.y},
+                {normals.x, normals.y, normals.z}
             });
         }
     }
-    
+    //load index data
     idx_data_.push_back(std::vector<uint32_t>());
     std::vector<uint32_t>& idx = idx_data_[idx_data_.size()-1] ;
     idx.reserve(mesh->mNumFaces);
@@ -201,11 +261,13 @@ void AssimpParser::ProcessMesh(const aiMatrix4x4& transform_mat,const aiMesh* me
         for (uint32_t j=0;j<face.mNumIndices;++j)
             idx.push_back(face.mIndices[j]);
     }
-    
+    //mark bones
     for (uint32_t i=0;i<mesh->mNumBones;++i){
         const aiBone* bone = mesh->mBones[i];
         MarkSkeleton(name2ainode_[std::string(bone->mName.C_Str())]);
     }
+    //keep material id
+    material_idx_.push_back(mesh->mMaterialIndex);
 }
 void AssimpParser::BuildName2NodeMap(const aiNode* node){
     name2ainode_[std::string(node->mName.C_Str())]=node;
