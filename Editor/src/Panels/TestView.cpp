@@ -1,20 +1,31 @@
 #include "SEditor/Panels/TestView.h"
+#include "SCore/Global/ServiceLocator.h"
 #include "SRender/Resources/GLShader.h"
 #include "SRender/Resources/GLShaderLoader.h"
 #include "SRender/Resources/SAnimation.h"
 #include "SRender/Settings/GLSet.h"
+#include "SResourceManager/ModelManager.h"
+#include "SResourceManager/ShaderManager.h"
+#include "SResourceManager/TextureManager.h"
 #include "SResourceManager/Util.h"
 #include "glm/ext/matrix_transform.hpp"
 #include "imgui/imgui.h"
+#include <spdlog/spdlog.h>
 #include <SRender/Resources/SModel.h>
 #include <SRender/Resources/SModelLoader.h>
 #include <SEditor/Core/SimpleJoint.h>
 #include <iostream>
+#include <filesystem>
 #include <memory>
+#include <thread>
 namespace SEditor::Panels{
-TestView::TestView(Core::RuntimeContext& rtcontext):rtcontext_(rtcontext){
+TestView::TestView(Core::RuntimeContext& rtcontext):
+rtcontext_(rtcontext),
+shadermanager(SANASERVICE(ResourceManager::ShaderManager)),
+texturemanager(SANASERVICE(ResourceManager::TextureManager)),
+modelmanager(SANASERVICE(ResourceManager::ModelManager))
+{
     name_="Distortion View";
-    Dshaderp = shadermanager.CreateResources(":shaders\\distortion.glsl");
     std::vector<SRender::Resources::Vertex> tmpv;
     float sqrt3=sqrtf(3);
    
@@ -39,13 +50,42 @@ TestView::TestView(Core::RuntimeContext& rtcontext):rtcontext_(rtcontext){
     }
     
     trimeshp = std::make_unique<SRender::Resources::SMesh>(tmpv,idx);
-    SRender::Resources::SModelLoader::texture_manager_ = &texturemanager;
-    model = modelmanager.CreateResources(R"(..\assets\models\Tile_+025_+034\Tile_+025_+034.obj)");
-    renderpass.render_resources_.push_back(model);
+    //model = modelmanager.CreateResources(R"(..\assets\models\Tile_+025_+034\Tile_+025_+034.obj)");
+    //renderpass.render_resources_.push_back(model);
+    namespace fs = std::filesystem;
+    fs::path tile_pth(R"(F:\SUFFER\BUAA\beihang reconstruction data\dxobj)");
+    //fs::path tile_pth(R"(E:\ExperimentsData\Models\GovFacility\Data)");
+    int cnt=0;
+    std::vector<std::thread>threadtest;
+    if (std::filesystem::is_directory(tile_pth)){
+        for (auto& entry:std::filesystem::directory_iterator(tile_pth)){
+            cnt++;
+            if (cnt<100) continue;
+            if (entry.is_directory()){
+                auto& tmppth = entry.path();
+                auto objpth = tmppth/(tmppth.filename().string()+".obj");
+                if (fs::exists(objpth)){
+                    //spdlog::info(objpth.generic_string());
+                    // renderpass.render_resources_.push_back(
+                    //     modelmanager.CreateResources(objpth.generic_string()));
+                    task1(objpth.generic_string());
+                    //threadtest.emplace_back(&SEditor::Panels::TestView::task1,this,objpth.generic_string());
+                }
+            }
+            if (cnt==200) break;
+        }
+        for (auto& t:threadtest){
+            t.join();
+        }
+    }
+}
+void TestView::task1(std::string pth){
+    renderpass.render_resources_.push_back(
+                        modelmanager.CreateResources(pth));
 }
 
 TestView::~TestView(){
-    shadermanager.ClearAll();
+    //shadermanager.ClearAll();
 }
 
 
@@ -65,7 +105,7 @@ void TestView::RenderTick(float deltat){
     }
     if (rasflag){
         rtcontext_.core_renderer_->SetRasterizationMode(SRender::Setting::SRasterization::LINE);
-        rtcontext_.core_renderer_->SetRasterizationLineWdith(5);
+        rtcontext_.core_renderer_->SetRasterizationLineWdith(1);
     }else{
         rtcontext_.core_renderer_->SetRasterizationMode(SRender::Setting::SRasterization::FILL);
     }
@@ -78,14 +118,9 @@ void TestView::RenderTick(float deltat){
     auto& shape_drawer = *(rtcontext_.shape_drawer_);
     renderer.SetClearColor(0.2f, 0.2f, 0.2f);
     renderer.ClearBuffer();
-    Dshaderp->Bind();
-    static float k=0.8;
     //ImGui::InputFloat("k:", &k);
-    ImGui::SliderFloat("k:",&k,-3,3);
-    Dshaderp->SetUniFloat("k", k);
-    glm::mat4 tmpmodel = glm::mat4(1);
-    tmpmodel[3]=glm::vec4(-1700,-1700,0,1);
-    Dshaderp->SetUniMat4("ModelMat", tmpmodel);
+    ImGui::SliderFloat("k",&renderpass.k,-3,3);
+
     //renderer.Draw(*trimeshp,SRender::Setting::SPrimitive::TRIANGLES);
     // for (auto i:model->GetMeshes()){
     //     renderer.Draw(*i, SRender::Setting::SPrimitive::TRIANGLES);

@@ -17,4 +17,8 @@ void SModelLoader::LoadModelWithAnima(std::string path, SModel &model, std::vect
     for (auto& i : animas) i.modelp_ = &model;
     spdlog::info("[ASSIMP] Animated Model loaded : "+path);
 }
+void SModelLoader::Initialize(ResourceManager::TextureManager* texture_manager){
+    texture_manager_=texture_manager;
+}
+
 }

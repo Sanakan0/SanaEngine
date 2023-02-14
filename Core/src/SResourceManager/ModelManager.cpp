@@ -4,12 +4,13 @@
 #include "SRender/Resources/STexture.h"
 #include "SRender/Resources/STextureLoader.h"
 #include "SResourceManager/Util.h"
+#include <spdlog/spdlog.h>
 #include <stdint.h>
 namespace ResourceManager {
 
 SRender::Resources::SModel* ModelManager::CreateResources(const std::string& pth){
     SRender::Resources::SModel* tmp = new SRender::Resources::SModel();
-    SRender::Resources::SModelLoader::LoadSimpleModel(pth, *tmp);
+    SRender::Resources::SModelLoader::LoadSimpleModel(Util::GetFullPath(pth), *tmp);
     repo_.Append(pth, tmp);
     return tmp;
 }

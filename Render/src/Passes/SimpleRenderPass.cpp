@@ -13,9 +13,9 @@ SimpleRenderPass::SimpleRenderPass():renderer_(SANASERVICE(Core::EntityRenderer)
 
 void SimpleRenderPass::Draw(){
     shaderp_->Bind();
-    shaderp_->SetUniFloat("k", 0);
+    shaderp_->SetUniFloat("k", k);
     glm::mat4 tmpmodel = glm::mat4(1);
-    tmpmodel[3]=glm::vec4(-1700,-1700,0,1);
+    tmpmodel[3]=glm::vec4(0,0,0,1);
     shaderp_->SetUniMat4("ModelMat", tmpmodel);
     for (auto model:render_resources_){
         auto& meshes = model->GetMeshes();

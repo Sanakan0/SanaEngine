@@ -18,13 +18,13 @@ public:
     void RenderTick(float deltat);
 private:   
     Core::RuntimeContext& rtcontext_;
-    SRender::Resources::GLShader* Dshaderp;
     std::unique_ptr<SRender::Resources::SMesh> trimeshp;
-    ResourceManager::ShaderManager shadermanager;
-    ResourceManager::TextureManager texturemanager;
-    ResourceManager::ModelManager modelmanager;
+    ResourceManager::ShaderManager& shadermanager;
+    ResourceManager::TextureManager& texturemanager;
+    ResourceManager::ModelManager& modelmanager;
     SRender::Resources::SModel* model;
     SRender::Passes::SimpleRenderPass renderpass;
+    void task1(std::string pth);
 };
 
 

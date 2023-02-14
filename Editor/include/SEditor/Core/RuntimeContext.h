@@ -1,6 +1,9 @@
 #pragma once
 #include "SRender/Buffers/GLShaderStorageBuffer.h"
 #include "SRender/Core/EntityRenderer.h"
+#include "SResourceManager/ModelManager.h"
+#include "SResourceManager/ShaderManager.h"
+#include "SResourceManager/TextureManager.h"
 #include <memory>
 #include <SWnd/context/context.h>
 #include <SGUI/Core/UImanager.h>
@@ -22,6 +25,9 @@ public:
     SRender::Core::GLShapeDrawer* shape_drawer_;
     std::unique_ptr<SRender::Buffers::GLUniformBuffer> editor_ubo_;
     std::unique_ptr<SRender::Buffers::GLShaderStorageBuffer> anima_ssbo_;
+    std::unique_ptr<ResourceManager::ShaderManager> shader_manager_;
+    std::unique_ptr<ResourceManager::ModelManager> model_manager_;
+    std::unique_ptr<ResourceManager::TextureManager> texture_manager_;
 };
 
 }

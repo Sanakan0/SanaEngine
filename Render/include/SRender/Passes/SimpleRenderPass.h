@@ -13,6 +13,7 @@ public:
     ~SimpleRenderPass()=default;
     void Draw();
     std::vector<Resources::SModel*> render_resources_;
+    float k=0;
 private:
     std::unique_ptr<Resources::GLShader> shaderp_;
     Core::EntityRenderer& renderer_;

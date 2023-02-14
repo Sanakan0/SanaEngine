@@ -7,6 +7,7 @@ class SModelLoader{
 public:
     static void LoadSimpleModel(std::string path,SModel& model);
     static void LoadModelWithAnima(std::string path,SModel& model,std::vector<SAnimation>& animas);
+    static void Initialize(ResourceManager::TextureManager* texture_manager);
     inline static ResourceManager::TextureManager* texture_manager_=nullptr;
 };
 
