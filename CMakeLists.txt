@@ -2,6 +2,7 @@ project(SanaEngine)
 set(CMAKE_CXX_STANDARD 17)
 
 include_directories(dependencies/assimp/include)
+include_directories(dependencies/opencv/include)
 
 add_subdirectory(dependencies)
 
