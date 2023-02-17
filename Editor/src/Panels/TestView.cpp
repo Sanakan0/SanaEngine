@@ -72,7 +72,7 @@ modelmanager(SANASERVICE(ResourceManager::ModelManager))
                     //threadtest.emplace_back(&SEditor::Panels::TestView::task1,this,objpth.generic_string());
                 }
             }
-            if (cnt==200) break;
+            if (cnt==101) break;
         }
         for (auto& t:threadtest){
             t.join();
