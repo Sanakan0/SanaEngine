@@ -24,8 +24,9 @@ AssimpParser::AssimpParser(){}
 AssimpParser::~AssimpParser(){}
 
 //simple loader
-bool AssimpParser::LoadModel(glm::mat4& model_mat,std::string path, std::vector<SMesh*>& meshes,std::vector<AssimpTextureStack>& materials,ResourceManager::TextureManager* tex_manager,uint32_t assimp_flag){
+bool AssimpParser::LoadModel(glm::mat4& model_mat,std::string path, std::vector<SMesh*>& meshes,std::vector<AssimpTextureStack>& materials,ResourceManager::TextureManager* tex_manager,bool is_cached,uint32_t assimp_flag){
     loadwithskeleton=0;
+    is_cached_=is_cached;
     Assimp::Importer imp;
 	const aiScene *scene = imp.ReadFile(path, assimp_flag );
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
@@ -41,7 +42,7 @@ bool AssimpParser::LoadModel(glm::mat4& model_mat,std::string path, std::vector<
     meshes.reserve(vertex_data_.size());
     for (uint32_t i =0;i<vertex_data_.size();i++){
         //meshes.push_back(SMesh(vertex_data_[i],idx_data_[i]));
-        meshes.push_back(new SMesh(vertex_data_[i],idx_data_[i]));
+        meshes.push_back(new SMesh(vertex_data_[i],idx_data_[i],is_cached));
     }
 
     ProcessMaterial(scene,materials,tex_manager,path);
@@ -50,8 +51,9 @@ bool AssimpParser::LoadModel(glm::mat4& model_mat,std::string path, std::vector<
     return true;
 }
 //load with skeleton
-bool AssimpParser::LoadModel(glm::mat4& model_mat,std::string path, std::vector<SMesh*>& meshes,std::vector<SJoint>& joints,std::vector<SAnimation>& sanimas,uint32_t assimp_flag){
+bool AssimpParser::LoadModel(glm::mat4& model_mat,std::string path, std::vector<SMesh*>& meshes,std::vector<SJoint>& joints,std::vector<SAnimation>& sanimas,bool is_cached,uint32_t assimp_flag){
     loadwithskeleton=1;
+    is_cached_=is_cached;
     Assimp::Importer imp;
 	const aiScene *scene = imp.ReadFile(path, aiProcess_Triangulate);
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
@@ -102,7 +104,7 @@ bool AssimpParser::LoadModel(glm::mat4& model_mat,std::string path, std::vector<
     }
     meshes.reserve(vertex_data_w_.size());
     for (int i =0;i<vertex_data_w_.size();i++){
-        meshes.push_back(new SMesh(vertex_data_w_[i],idx_data_[i]));
+        meshes.push_back(new SMesh(vertex_data_w_[i],idx_data_[i],is_cached));
         //meshes.push_back(SMesh(vertex_data_w_[i],idx_data_[i]));
     }
     Clear();
@@ -145,7 +147,7 @@ void AssimpParser::ProcessMaterial(const aiScene* scene,std::vector<AssimpTextur
             //TODO load embeded
         }else{
             fs::path full_pth = pa_path/tex_file;
-            tex_stacks_[i].data[static_cast<int>(TextureStackType::DIFFUSE)] = tex_manager->CreateResources(full_pth.generic_string());
+            tex_stacks_[i].data[static_cast<int>(TextureStackType::DIFFUSE)] = tex_manager->CreateResources(full_pth.generic_string(),is_cached_);
         }
         for (uint32_t j=0;j<material->mNumProperties;++j){
             auto prop=material->mProperties[j];

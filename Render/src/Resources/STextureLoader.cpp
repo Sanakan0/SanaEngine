@@ -7,6 +7,16 @@
 #include <stdint.h>
 namespace SRender::Resources{
 
+STexture* STextureLoader::LoadFromFile_cached(const std::string &pth,GLenum minfilter,GLenum magfilter,bool mipmap){
+	int width;
+	int height;
+	int bitsPerPixel;
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char* rawdata = stbi_load(pth.c_str(),&width,&height,&bitsPerPixel,4);
+    STexture* res=new STexture(0,width,height,pth,minfilter,magfilter,mipmap,rawdata);
+    return res;
+}
+
 STexture* STextureLoader::LoadFromFile(const std::string &pth,GLenum minfilter,GLenum magfilter,bool mipmap){
 	int width;
 	int height;
@@ -36,7 +46,8 @@ STexture* STextureLoader::LoadFromMemory(void* data,uint32_t width,uint32_t heig
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magfilter);
 
     glBindTexture(GL_TEXTURE_2D,0);
-    return new STexture(id,width,height,pth,mipmap);
+    return new STexture(id,width,height,pth,minfilter,magfilter,mipmap);
 }
+
 
 }

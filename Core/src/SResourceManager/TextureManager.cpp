@@ -5,12 +5,13 @@
 #include <stdint.h>
 namespace ResourceManager {
 
-SRender::Resources::STexture* TextureManager::CreateResources(const std::string& pth){
-    auto tmp = SRender::Resources::STextureLoader::LoadFromFile(Util::GetFullPath(pth));
+SRender::Resources::STexture* TextureManager::CreateResources(const std::string& pth,bool is_cached){
+    auto tmp = is_cached?SRender::Resources::STextureLoader::LoadFromFile_cached(Util::GetFullPath(pth)):
+    SRender::Resources::STextureLoader::LoadFromFile(Util::GetFullPath(pth));
     repo_.Append(pth, tmp);
     return tmp;
 }
-SRender::Resources::STexture* TextureManager::CreateResources(const std::string& name,uint32_t width,uint32_t height,void* data){
+SRender::Resources::STexture* TextureManager::CreateResources(const std::string& name,uint32_t width,uint32_t height,void* data,bool is_cached){
     auto tmp = SRender::Resources::STextureLoader::LoadFromMemory(data,width,height,name);
     repo_.Append(name, tmp);
     return tmp;
@@ -25,6 +26,11 @@ void TextureManager::KillResource(const std::string &pth){
 
 void TextureManager::ClearAll(){
     repo_.ClearAllResources();
+}
+void TextureManager::UploadAll(){
+    for (auto& i:repo_.resources_){
+        i.second->UploadTexture();
+    }
 }
 
 void TextureManager::ReloadResource(const std::string &pth){

@@ -2,10 +2,10 @@
 #include <SRender/Resources/SModelLoader.h>
 #include <SRender/Resources/AssimpParser.h>
 namespace SRender::Resources{
-void SModelLoader::LoadSimpleModel(std::string path, SModel &model){
+void SModelLoader::LoadSimpleModel(std::string path, SModel &model,bool is_cached){
     AssimpParser parser;
     model.path_=path;
-    parser.LoadModel(model.modelmat_,path,model.meshes_,model.materials_,texture_manager_);
+    parser.LoadModel(model.modelmat_,path,model.meshes_,model.materials_,texture_manager_,is_cached);
     model.modelmat_=model.modelmat_;
     spdlog::info("[ASSIMP] Simple Model loaded : "+path);
 }

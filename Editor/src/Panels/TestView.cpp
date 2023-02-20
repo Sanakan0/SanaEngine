@@ -53,14 +53,18 @@ modelmanager(SANASERVICE(ResourceManager::ModelManager))
     //model = modelmanager.CreateResources(R"(..\assets\models\Tile_+025_+034\Tile_+025_+034.obj)");
     //renderpass.render_resources_.push_back(model);
     namespace fs = std::filesystem;
-    fs::path tile_pth(R"(F:\SUFFER\BUAA\beihang reconstruction data\dxobj)");
+    fs::path tile_pth(R"(E:\user\cnt0\beihang reconstruction data\dxobj)");
     //fs::path tile_pth(R"(E:\ExperimentsData\Models\GovFacility\Data)");
-    int cnt=0;
+    int cnt=50;
+    int cur=0;
+    int st=100;
+    int ed=st+cnt-1;
+    renderpass.render_resources_.resize(cnt);
     std::vector<std::thread>threadtest;
     if (std::filesystem::is_directory(tile_pth)){
         for (auto& entry:std::filesystem::directory_iterator(tile_pth)){
-            cnt++;
-            if (cnt<100) continue;
+            cur++;
+            if (cur<st) continue;
             if (entry.is_directory()){
                 auto& tmppth = entry.path();
                 auto objpth = tmppth/(tmppth.filename().string()+".obj");
@@ -68,20 +72,21 @@ modelmanager(SANASERVICE(ResourceManager::ModelManager))
                     //spdlog::info(objpth.generic_string());
                     // renderpass.render_resources_.push_back(
                     //     modelmanager.CreateResources(objpth.generic_string()));
-                    task1(objpth.generic_string());
-                    //threadtest.emplace_back(&SEditor::Panels::TestView::task1,this,objpth.generic_string());
+                    ///task1(objpth.generic_string(),cur-st);
+                    threadtest.emplace_back(&SEditor::Panels::TestView::task1,this,objpth.generic_string(),cur-st);
                 }
             }
-            if (cnt==101) break;
+            if (cur==ed) break;
         }
         for (auto& t:threadtest){
             t.join();
         }
+        modelmanager.UploadAll();
+        texturemanager.UploadAll();
     }
 }
-void TestView::task1(std::string pth){
-    renderpass.render_resources_.push_back(
-                        modelmanager.CreateResources(pth));
+void TestView::task1(std::string pth,int idx){
+    renderpass.render_resources_[idx] = modelmanager.CreateResources(pth,true);
 }
 
 TestView::~TestView(){

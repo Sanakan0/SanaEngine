@@ -8,9 +8,9 @@
 #include <stdint.h>
 namespace ResourceManager {
 
-SRender::Resources::SModel* ModelManager::CreateResources(const std::string& pth){
+SRender::Resources::SModel* ModelManager::CreateResources(const std::string& pth,bool is_cached){
     SRender::Resources::SModel* tmp = new SRender::Resources::SModel();
-    SRender::Resources::SModelLoader::LoadSimpleModel(Util::GetFullPath(pth), *tmp);
+    SRender::Resources::SModelLoader::LoadSimpleModel(Util::GetFullPath(pth), *tmp,is_cached);
     repo_.Append(pth, tmp);
     return tmp;
 }
@@ -25,6 +25,12 @@ void ModelManager::KillResource(const std::string &pth){
 
 void ModelManager::ClearAll(){
     repo_.ClearAllResources();
+}
+
+void ModelManager::UploadAll(){
+    for (auto& i:repo_.resources_){
+        i.second->UploadMeshBuffer();
+    }
 }
 
 void ModelManager::ReloadResource(const std::string &pth){

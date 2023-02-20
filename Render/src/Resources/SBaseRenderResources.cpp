@@ -3,12 +3,24 @@
 #include <stdint.h>
 namespace SRender::Resources{
 //simple mesh
-SMesh::SMesh(std::vector <Vertex>& vs, std::vector <unsigned int>& vidx):vertex_size_(vs.size()),idx_size_(vidx.size()) {
-	CreateBuf(vs,vidx);
+SMesh::SMesh(std::vector <Vertex>& vs, std::vector <unsigned int>& vidx,bool iscached):
+vertex_size_(vs.size()),idx_size_(vidx.size()) {
+	if (iscached){
+		vs_cache_=std::move(vs);
+		vidx_cache_=std::move(vidx);
+	}else{
+		CreateBuf(vs,vidx);
+	}
 }
 //mesh with skeleton
-SMesh::SMesh(std::vector <VertexWithWeight>& vs_w, std::vector <unsigned int>& vidx):vertex_size_(vs_w.size()),idx_size_(vidx.size()) {
-	CreateBuf(vs_w,vidx);
+SMesh::SMesh(std::vector <VertexWithWeight>& vs_w, std::vector <unsigned int>& vidx,bool iscached):
+vertex_size_(vs_w.size()),idx_size_(vidx.size()) {
+	if (iscached){
+		vsw_cache_=std::move(vs_w);
+		vidx_cache_=std::move(vidx);
+	}else{
+		CreateBuf(vs_w,vidx);
+	}
 }
 
 SMesh::~SMesh(){
@@ -16,7 +28,17 @@ SMesh::~SMesh(){
 	glDeleteBuffers(1,&vbo_);
 	glDeleteBuffers(1,&ebo_);
 }
-
+void SMesh::UploadCachedBuf(){
+	if (!vs_cache_.empty()){
+		CreateBuf(vs_cache_,vidx_cache_);
+		vs_cache_.clear();
+		vidx_cache_.clear();
+	}else if(!vsw_cache_.empty()){
+		CreateBuf(vsw_cache_,vidx_cache_);
+		vsw_cache_.clear();
+		vidx_cache_.clear();
+	}
+}
 void SMesh::CreateBuf(std::vector <Vertex>& vs, std::vector <unsigned int> &vidx) {
 	// vs_ = std::move(vs);
 	// vidx_ = std::move(vidx);

@@ -24,7 +24,8 @@ private:
     ResourceManager::ModelManager& modelmanager;
     SRender::Resources::SModel* model;
     SRender::Passes::SimpleRenderPass renderpass;
-    void task1(std::string pth);
+    void task1(std::string pth,int idx);
+    std::mutex test_m;
 };
 
 

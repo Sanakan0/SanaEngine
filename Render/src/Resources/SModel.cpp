@@ -32,4 +32,11 @@ void SModel::CalcDerivedJoint(){
         }
     }
 }
+void SModel::UploadMeshBuffer(){
+    for (auto& m:meshes_){
+        if (m->vbo_==0){
+            m->UploadCachedBuf();
+        }
+    }
+}
 }

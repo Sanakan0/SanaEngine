@@ -27,7 +27,7 @@ int main(void){
 	}
 	cv::cuda::setDevice(gpu_device_id);
     cv::cuda::printCudaDeviceInfo(0);
-    cv::Mat tmp = cv::imread(R"(F:\MO\WASH YOUR HAND\Bridges cat.jpg)");
+    cv::Mat tmp = cv::imread(R"(C:\Users\China\Pictures\Saved Pictures\94704615_p0.jpg)");
 
     cv::cuda::GpuMat gpu_frame,tmp_frame;
     gpu_frame.upload(tmp);

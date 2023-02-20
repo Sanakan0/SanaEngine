@@ -6,11 +6,12 @@ namespace ResourceManager {
 class TextureManager{
 public:
     public:
-    SRender::Resources::STexture* CreateResources(const std::string& pth);
-    SRender::Resources::STexture* CreateResources(const std::string& name,uint32_t width,uint32_t height,void* data);
+    SRender::Resources::STexture* CreateResources(const std::string& pth,bool is_cached=false);
+    SRender::Resources::STexture* CreateResources(const std::string& name,uint32_t width,uint32_t height,void* data,bool is_cached=false);
     void KillResource(const std::string& pth);
     void ReloadResource(const std::string& pth);
     void ClearAll();
+    void UploadAll();
 private:
     ResourceRepo<SRender::Resources::STexture> repo_;
 };

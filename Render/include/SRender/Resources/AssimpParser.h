@@ -23,8 +23,8 @@ class AssimpParser{
 public:
     AssimpParser();
     ~AssimpParser();
-    bool LoadModel(glm::mat4& model_mat, std::string path,std::vector<SMesh*>& meshes,std::vector<AssimpTextureStack>& materials,ResourceManager::TextureManager* tex_manager=nullptr,uint32_t assimp_flag=default_assimp_flag);
-    bool LoadModel(glm::mat4& model_mat, std::string path,std::vector<SMesh*>& meshes,std::vector<SJoint>& joints,std::vector<SAnimation>& sanimas,uint32_t assimp_flag=default_assimp_flag);
+    bool LoadModel(glm::mat4& model_mat, std::string path,std::vector<SMesh*>& meshes,std::vector<AssimpTextureStack>& materials,ResourceManager::TextureManager* tex_manager=nullptr,bool is_cached=false,uint32_t assimp_flag=default_assimp_flag);
+    bool LoadModel(glm::mat4& model_mat, std::string path,std::vector<SMesh*>& meshes,std::vector<SJoint>& joints,std::vector<SAnimation>& sanimas,bool is_cached=false,uint32_t assimp_flag=default_assimp_flag);
 private:
     void BuildName2NodeMap(const aiNode* node);
     void ProcessNode(const aiMatrix4x4& transform_mat, const aiNode* node, const aiScene *scene);
@@ -35,7 +35,8 @@ private:
     void ProcessAnimation(const aiScene *scene,std::vector<SAnimation>& sanimas,std::vector<SJoint>& joints); //after skeletonproc
     void MarkSkeleton(const aiNode* node);
     void Clear();
-    bool loadwithskeleton=0;
+    bool loadwithskeleton;
+    bool is_cached_;
     std::vector<int> aimeshofmesh_;
     std::unordered_map<std::string,uint32_t> name2jointidx_;
     std::unordered_map<std::string,const aiNode*> name2ainode_;

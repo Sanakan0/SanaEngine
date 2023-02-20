@@ -21,13 +21,14 @@ public:
     glm::mat4 modelmat_;
     void CalcPalette();
     void CalcDerivedJoint();
+    void UploadMeshBuffer();
     std::vector<glm::mat4>palette_;
 private:
 
     std::vector<SMesh*>meshes_;
     std::vector<SJoint>joints_;
     std::vector<AssimpTextureStack>materials_;
-    
+
     glm::quat rotate_;
     glm::vec3 pos_;
 
