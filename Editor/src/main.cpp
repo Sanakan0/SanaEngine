@@ -27,18 +27,18 @@ int main(void){
 	}
 	cv::cuda::setDevice(gpu_device_id);
     cv::cuda::printCudaDeviceInfo(0);
-    cv::Mat tmp = cv::imread(R"(C:\Users\China\Pictures\Saved Pictures\94704615_p0.jpg)");
+    // cv::Mat tmp = cv::imread(R"(C:\Users\China\Pictures\Saved Pictures\94704615_p0.jpg)");
 
-    cv::cuda::GpuMat gpu_frame,tmp_frame;
-    gpu_frame.upload(tmp);
+    // cv::cuda::GpuMat gpu_frame,tmp_frame;
+    // gpu_frame.upload(tmp);
     
-    cv::cuda::cvtColor(gpu_frame,gpu_frame,cv::COLOR_RGB2BGR);
-    cv::cuda::threshold(gpu_frame, gpu_frame, 105, 255, cv::THRESH_BINARY_INV);
-    cv::cuda::resize(gpu_frame, gpu_frame, {720,720*gpu_frame.size().height/gpu_frame.size().width});
-    gpu_frame.download(tmp);
-    cv::namedWindow("tmp");
-    cv::imshow("tmp",tmp);
-    cv::waitKey();
+    // cv::cuda::cvtColor(gpu_frame,gpu_frame,cv::COLOR_RGB2BGR);
+    // cv::cuda::threshold(gpu_frame, gpu_frame, 105, 255, cv::THRESH_BINARY_INV);
+    // cv::cuda::resize(gpu_frame, gpu_frame, {720,720*gpu_frame.size().height/gpu_frame.size().width});
+    // gpu_frame.download(tmp);
+    // cv::namedWindow("tmp");
+    // cv::imshow("tmp",tmp);
+    // cv::waitKey();
 
     SEditor::Core::Application app;
     app.Run();

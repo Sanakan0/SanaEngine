@@ -2,7 +2,7 @@
 
 namespace SEditor::Core{
 
-CameraCtrl::CameraCtrl(SGUI::Panels::WndPanel& view,SWnd::Context& wndcontext,Core::Cameraa& cam)
+CameraCtrl::CameraCtrl(SGUI::Panels::WndPanel& view,SWnd::Context& wndcontext,Core::Camera& cam)
 :wndcontext_(wndcontext),view_(view),cam_(cam){
 
 }
@@ -22,7 +22,7 @@ void CameraCtrl::HandleInputs(float delta_time){
             float apix = cam_.CalcDisPerPix(w,h);
             cam_.translate(glm::vec3(-dx*apix,dy*apix,0));
         }else{
-            cam_.around(-dx*around_speed_,-dy*around_speed_);
+            cam_.Orbit(-dx*around_speed_,-dy*around_speed_);
         }
     }
 

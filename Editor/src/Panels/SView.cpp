@@ -13,7 +13,7 @@ void SView::FillUBO(){
     editor_ubo.BufferSubData(cam_.GetViewMat(),0);
     editor_ubo.BufferSubData(cam_.GetProjectionMat(),sizeof(glm::mat4)*1);
     editor_ubo.BufferSubData(cam_.GetProjectionMat()*cam_.GetViewMat(),sizeof(glm::mat4)*2); //viewprj
-    editor_ubo.BufferSubData(cam_.campos,sizeof(glm::mat4)*3);
+    editor_ubo.BufferSubData(cam_.pos_,sizeof(glm::mat4)*3);
 }
 
 void SView::UpdateViewCam(float deltat){

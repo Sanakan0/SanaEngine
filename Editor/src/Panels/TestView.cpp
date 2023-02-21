@@ -55,7 +55,7 @@ modelmanager(SANASERVICE(ResourceManager::ModelManager))
     namespace fs = std::filesystem;
     fs::path tile_pth(R"(E:\user\cnt0\beihang reconstruction data\dxobj)");
     //fs::path tile_pth(R"(E:\ExperimentsData\Models\GovFacility\Data)");
-    int cnt=50;
+    int cnt=10;
     int cur=0;
     int st=100;
     int ed=st+cnt-1;
