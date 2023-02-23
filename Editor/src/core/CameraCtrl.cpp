@@ -1,5 +1,5 @@
 #include "SEditor/Core/CameraCtrl.h"
-
+#include <SMath/SQuaternion.h>
 namespace SEditor::Core{
 
 CameraCtrl::CameraCtrl(SGUI::Panels::WndPanel& view,SWnd::Context& wndcontext,Core::Camera& cam)
@@ -15,6 +15,13 @@ void CameraCtrl::HandleInputs(float delta_time){
 
     }
     //std::cout << inputmanager_.curpos_.first << " " << inputmanager_.curpos_.second <<"     < \r";
+    //HandleOrbitCamCtl(delta_time);
+    HandleFpsCamCtl(delta_time);
+
+    
+}
+
+void CameraCtrl::HandleOrbitCamCtl(float delta_time){
     if (inputmanager_.mid_btn_){
         auto[dx,dy] = inputmanager_.GetCursorDelta();
         if (inputmanager_.GetGlfwKeyState(GLFW_KEY_LEFT_SHIFT)){
@@ -25,8 +32,27 @@ void CameraCtrl::HandleInputs(float delta_time){
             cam_.Orbit(-dx*around_speed_,-dy*around_speed_);
         }
     }
+}
 
-    
+void CameraCtrl::HandleFpsCamCtl(float delta_time){
+    if (inputmanager_.mid_btn_){
+        auto step = move_speed_*delta_time;
+        auto[dx,dy] = inputmanager_.GetCursorDelta();
+        if (inputmanager_.GetGlfwKeyState(GLFW_KEY_W)){
+            cam_.translate(sm::OglCamPrimForward*step);
+        }
+        if (inputmanager_.GetGlfwKeyState(GLFW_KEY_A)){
+            cam_.translate(-sm::OglCamPrimRight*step);
+        }
+        if (inputmanager_.GetGlfwKeyState(GLFW_KEY_S)){
+            cam_.translate(-sm::OglCamPrimForward*step);
+        }
+        if (inputmanager_.GetGlfwKeyState(GLFW_KEY_D)){
+            cam_.translate(sm::OglCamPrimRight*step);
+        }
+        
+        cam_.FpsRotate(-dx*around_speed_,-dy*around_speed_);
+    }
 }
 
 void CameraCtrl::HandleZoom(){

@@ -5,7 +5,7 @@
 #include "glm/gtc/quaternion.hpp"
 #include "glm/trigonometric.hpp"
 #include <SMath/SQuaternion.h>
-#define PI 3.14159265359
+#include <algorithm>
 namespace SEditor::Core{
 
 Camera::Camera(glm::vec3 pos,glm::vec3 center):camcenter(center),pos_(pos) {
@@ -64,10 +64,25 @@ glm::mat4 Camera::CalcProjectionMat(int w,int h) const{
 
 float Camera::CalcDisPerPix(int w,int h){
 	float dis = glm::distance(camcenter, pos_);
-	return dis*tan(fov_ / 2 * PI / 180)*2/h;
+	return dis*tan(fov_ / 2 * SM_PI / 180)*2/h;
 }
 
-
+void Camera::FpsRotate(float hori_deg,float verti_deg){
+    // float sinh = sin(glm::radians(hori_deg)*0.5f);
+    // float sinv = sin(glm::radians(verti_deg)*0.5f);
+    // glm::vec3 curup = orien_*sm::OglCamPrimUp;
+    // orien_*=glm::quat(cos(glm::radians(hori_deg)*0.5f),sinh*curup);
+    // glm::vec3 curright = orien_*sm::OglCamPrimRight;
+    // orien_*=glm::quat(cos(glm::radians(verti_deg)*0.5f),sinv*curright);
+	// euler_xyz_deg_ = sm::Quat2Eul(orien_);
+	// camcenter = pos_ + glm::length(camcenter-pos_)*(orien_*sm::OglCamPrimForward);
+	
+	euler_xyz_deg_.z+=hori_deg;
+	euler_xyz_deg_.x=std::clamp(euler_xyz_deg_.x+verti_deg,0.0f,180.0f);
+	orien_ = sm::Eul2Quat(euler_xyz_deg_);
+	camcenter = pos_ + glm::length(camcenter-pos_)*(orien_*sm::OglCamPrimForward);
+    
+}
 
 
 

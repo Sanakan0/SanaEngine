@@ -10,10 +10,12 @@ namespace SEditor::Core{
 class Camera {
 public:
 	Camera(glm::vec3 pos=glm::vec3(5,5,5),glm::vec3 center=glm::vec3(0));
+	//trans in camera coord
 	void translate(glm::vec3 trans);
+	
 	void Orbit(float hori_deg,float verti_deg );
 	void CalcLookAt();
-	void FpsRotate(float hori,float verti);
+	void FpsRotate(float hori_deg,float verti_deg);
 	void zoom(float step);
 	void reset();
 	void resetworldup();
@@ -26,6 +28,8 @@ public:
 	void CacheProjectionMat(int w,int h){prj_=CalcProjectionMat(w,h);};
 	glm::vec3 camcenter;
 	glm::vec3 worldup{0, 0, 1};
+
+	//CAM extrinsic and intrinsic
 	float fov_=45;
 	float near_=1;
 	float far_=1000;

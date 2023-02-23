@@ -14,6 +14,8 @@ public:
     
     void HandleInputs(float delta_time);
     void HandleZoom();
+    void HandleOrbitCamCtl(float delta_time);
+    void HandleFpsCamCtl(float delta_time);
     void SetPos();
     void SetTowards();
     SGUI::Panels::WndPanel& view_;
@@ -27,6 +29,7 @@ private:
     int right_btn_=0;
     float around_speed_=0.4f;
     float zoom_speed_=0.05f;
+    float move_speed_=1.0f;//  meter per second
 };
 
 }

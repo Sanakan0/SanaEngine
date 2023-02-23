@@ -19,9 +19,13 @@ void Editor::Run(){
 
             steady_clock::time_point tick_time = steady_clock::now();
             duration<float> time_span = duration_cast<duration<float>>(tick_time - last_tick_time_);
-            delta_time                = time_span.count();
+            delta_time                = time_span.count(); //second
 
-            last_tick_time_ = tick_time;
+            last_tick_time_ = tick_time; 
+
+            // auto tick_time = std::chrono::high_resolution_clock::now();
+            // std::chrono::duration<float, std::milli> time_span =tick_time - last_tick_time_;
+            // delta_time                = time_span.count();
         }
         PreTick();
         Tick(delta_time);

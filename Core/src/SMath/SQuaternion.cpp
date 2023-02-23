@@ -1,8 +1,5 @@
 #include "SMath/SQuaternion.h"
-
 namespace sm{
-#define PI (4.f * atan(1.f))
-#define feps(f) (fabs(f)<1e-5?1:0)
 glm::vec3 Quat2Eul(glm::quat qua){
 
 	
@@ -11,12 +8,12 @@ glm::vec3 Quat2Eul(glm::quat qua){
 	float pitch = 0.f;
 	const float sinp = +2.0f * (qua.w * qua.y - qua.z * qua.x);
 	if (fabs(sinp) >= 1)
-		pitch = static_cast<float>(copysign(PI / 2.0f, sinp)); // use 90 degrees if out of range
+		pitch = static_cast<float>(copysign(SM_PI / 2.0f, sinp)); // use 90 degrees if out of range
 	else
 		pitch = asin(sinp);
 	
 	//singularities process
-	if (feps(sinp-1)){
+	if (SM_feps(sinp-1)){
 		return glm::degrees(glm::vec3(
 			copysign(atan2(qua.x,qua.w),sinp),
 			pitch,
@@ -71,5 +68,6 @@ glm::quat LookAt(glm::vec3 up,glm::vec3 forward){
 	return glm::quat_cast(glm::mat3(axisX,axisY,axisZ));
 
 }
+
 
 }
