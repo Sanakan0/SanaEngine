@@ -102,6 +102,7 @@ void TestView::LogicTick(float deltat){
     //rtcontext_.shape_drawer_->SetViewPrj(cam_.GetProjectionMat()*cam_.GetViewMat());
 }
 void TestView::RenderTick(float deltat){   
+    return;
     UpdateViewCam(deltat);
     rtcontext_.core_renderer_->SetViewPort(0, 0,canvas_size_.first ,canvas_size_.second );
     static bool rasflag=0;

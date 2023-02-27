@@ -2,14 +2,19 @@
 #include "SRender/Resources/STexture.h"
 #include "SRender/Resources/STextureLoader.h"
 #include "SResourceManager/Util.h"
+#include "spdlog/spdlog.h"
 #include <stdint.h>
 namespace ResourceManager {
 
 SRender::Resources::STexture* TextureManager::CreateResources(const std::string& pth,bool is_cached){
     auto tmp = is_cached?SRender::Resources::STextureLoader::LoadFromFile_cached(Util::GetFullPath(pth)):
-    SRender::Resources::STextureLoader::LoadFromFile(Util::GetFullPath(pth));
-    repo_.Append(pth, tmp);
-    return tmp;
+        SRender::Resources::STextureLoader::LoadFromFile(Util::GetFullPath(pth));
+    if (tmp!=nullptr) {
+        repo_.Append(pth, tmp);
+        return tmp;
+    }
+    spdlog::error("[TextureManager] Resource create failed : "+pth);
+    return nullptr;
 }
 SRender::Resources::STexture* TextureManager::CreateResources(const std::string& name,uint32_t width,uint32_t height,void* data,bool is_cached){
     auto tmp = SRender::Resources::STextureLoader::LoadFromMemory(data,width,height,name);

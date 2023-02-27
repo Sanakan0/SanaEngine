@@ -4,15 +4,21 @@
 #include "SRender/Resources/STexture.h"
 #include "SRender/Resources/STextureLoader.h"
 #include "SResourceManager/Util.h"
+#include <cstddef>
+#include <memory>
 #include <spdlog/spdlog.h>
 #include <stdint.h>
 namespace ResourceManager {
 
 SRender::Resources::SModel* ModelManager::CreateResources(const std::string& pth,bool is_cached){
-    SRender::Resources::SModel* tmp = new SRender::Resources::SModel();
-    SRender::Resources::SModelLoader::LoadSimpleModel(Util::GetFullPath(pth), *tmp,is_cached);
-    repo_.Append(pth, tmp);
-    return tmp;
+    auto tmp=std::make_unique<SRender::Resources::SModel>();
+    if (SRender::Resources::SModelLoader::LoadSimpleModel(Util::GetFullPath(pth), *tmp,is_cached)){
+        auto rawp = tmp.release();
+        repo_.Append(pth, rawp);
+        return rawp;
+    }
+    spdlog::error("[ModelManager] Resource create failed : "+pth);
+    return nullptr;
 }
 
 

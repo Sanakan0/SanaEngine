@@ -5,7 +5,6 @@ namespace ResourceManager {
 
 class ModelManager{
 public:
-    public:
     /*
     SRender::Resources::SModel* CreateResources(const std::string& pth,bool is_cached=false);
     if is_cached=true, Create resources to memory but wont upload to gpu memory (for multithread loading)

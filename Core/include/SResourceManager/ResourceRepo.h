@@ -6,6 +6,7 @@ namespace ResourceManager {
 template <typename T>
 class ResourceRepo{ 
 public:
+    ~ResourceRepo(){ClearAllResources();}
     T* operator[](const std::string& name){
         if (auto tmp = resources_.find(name);tmp!=resources_.end()){
             return tmp->second;

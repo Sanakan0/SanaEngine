@@ -13,8 +13,11 @@ STexture* STextureLoader::LoadFromFile_cached(const std::string &pth,GLenum minf
 	int bitsPerPixel;
     stbi_set_flip_vertically_on_load(true);
     unsigned char* rawdata = stbi_load(pth.c_str(),&width,&height,&bitsPerPixel,4);
-    STexture* res=new STexture(0,width,height,pth,minfilter,magfilter,mipmap,rawdata);
-    return res;
+    if (rawdata!=nullptr){
+        STexture* res=new STexture(0,width,height,pth,minfilter,magfilter,mipmap,rawdata);
+        return res;
+    }
+    return nullptr;
 }
 
 STexture* STextureLoader::LoadFromFile(const std::string &pth,GLenum minfilter,GLenum magfilter,bool mipmap){

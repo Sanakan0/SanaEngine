@@ -1,12 +1,17 @@
 #include "SResourceManager/ShaderManager.h"
 #include "SRender/Resources/GLShaderLoader.h"
 #include "SResourceManager/Util.h"
+#include "spdlog/spdlog.h"
 namespace ResourceManager {
 
 SRender::Resources::GLShader* ShaderManager::CreateResources(const std::string& pth){
     auto tmp = SRender::Resources::GLShaderLoader::LoadFromFile(Util::GetFullPath(pth));
-    repo_.Append(pth, tmp);
-    return tmp;
+    if (tmp!=nullptr) {
+        repo_.Append(pth, tmp);
+        return tmp;
+    }
+    spdlog::error("[ShaderManager] Resource create failed : "+pth);
+    return nullptr;
 }
 
 void ShaderManager::KillResource(const std::string &pth){
