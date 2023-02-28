@@ -13,7 +13,6 @@ namespace SEditor::Panels{
 class TestView:public SView{
 public:
     TestView(Core::RuntimeContext& rtcontext);
-    ~TestView();
     void LogicTick(float deltat);
     void RenderTick(float deltat);
 private:   

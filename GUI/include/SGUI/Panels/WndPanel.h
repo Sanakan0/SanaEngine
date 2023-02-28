@@ -9,10 +9,13 @@ namespace SGUI::Panels{
 class WndPanel:public SGUI::Panels::Panel {
 public:
     WndPanel();
-    ~WndPanel();
 
     void DrawImpl() override;
     void UpdateWndStates();
+
+    virtual void DrawUI();
+
+
     std::pair<int,int> GetImguiSize();
     std::pair<int,int> GetImguiPos();
     std::pair<int,int> GetCanvasSize();

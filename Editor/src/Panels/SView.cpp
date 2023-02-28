@@ -6,7 +6,7 @@ namespace SEditor::Panels{
 
 SView::SView():camctrl_(*this,SANASERVICE(SWnd::Context),cam_){}
 
-SView::~SView(){}
+
 
 void SView::FillUBO(){
     auto& editor_ubo = SANASERVICE(SRender::Buffers::GLUniformBuffer);

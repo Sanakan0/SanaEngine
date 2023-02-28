@@ -89,9 +89,6 @@ void TestView::task1(std::string pth,int idx){
     renderpass.render_resources_[idx] = modelmanager.CreateResources(pth,true);
 }
 
-TestView::~TestView(){
-    //shadermanager.ClearAll();
-}
 
 
 

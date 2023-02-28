@@ -7,7 +7,6 @@ namespace SEditor::Panels{
 class SceneView:public SView{
 public:
     SceneView(Core::RuntimeContext& rtcontext);
-    ~SceneView();
     void LogicTick(float deltat);
     void RenderTick(float deltat);
 private:

@@ -11,7 +11,6 @@ namespace SEditor::Panels{
 class SView:public SGUI::Panels::WndPanel{
 public:
     SView();
-    ~SView();
     void FillUBO();
     void UpdateViewCam(float deltat);
     Core::CameraCtrl camctrl_;

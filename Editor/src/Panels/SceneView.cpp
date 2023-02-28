@@ -17,9 +17,7 @@ SceneView::SceneView(Core::RuntimeContext& rtcontext):rtcontext_(rtcontext){
     name_="Scene View";
 }
 
-SceneView::~SceneView(){
 
-}
 
 void SceneView::LogicTick(float deltat){
     

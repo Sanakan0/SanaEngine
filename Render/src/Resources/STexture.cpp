@@ -37,6 +37,7 @@ void STexture::UploadTexture(){
 
     glBindTexture(GL_TEXTURE_2D,0);
     free(rawdata);
+    rawdata=nullptr;
 }
 
 }
