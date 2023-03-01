@@ -2,7 +2,7 @@
 #include <SMath/SQuaternion.h>
 namespace SEditor::Core{
 
-CameraCtrl::CameraCtrl(SGUI::Panels::WndPanel& view,SWnd::Context& wndcontext,Core::Camera& cam)
+CameraCtrl::CameraCtrl(SGUI::Panels::WndPanel& view,SWnd::Context& wndcontext,SRender::LowRenderer::Camera& cam)
 :wndcontext_(wndcontext),view_(view),cam_(cam){
 
 }

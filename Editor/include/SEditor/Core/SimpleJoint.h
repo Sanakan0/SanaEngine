@@ -7,15 +7,15 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <SMath/SQuaternion.h>
 #include <utility>
 #include <vector>
 #include <cmath>
 class SimpleJoint{
 public:
     SimpleJoint(){
-        float pi = 4*atan(1);
         glm::vec3 v = glm::cross(forward, up);
-        float theta = pi/4;
+        float theta = SM_PI/4;
         float sint = sin(theta/2);
         float cost = cos(theta/2);
         glm::quat midq(cost,v*sint);
@@ -38,8 +38,8 @@ public:
                 normalized_curtime_=0;
                 shooting=false;
             }
-            int oidx = normalized_curtime_/o_interv;
-            int pidx = normalized_curtime_/p_interv;
+            int oidx = static_cast<int>(normalized_curtime_/o_interv);
+            int pidx = static_cast<int>(normalized_curtime_/p_interv);
             float oa = (normalized_curtime_-o_interv*oidx)/o_interv;
             float op = (normalized_curtime_-p_interv*pidx)/p_interv;
             cur_orien = glm::slerp(orien_keyfrm[oidx],orien_keyfrm[oidx+1], oa);

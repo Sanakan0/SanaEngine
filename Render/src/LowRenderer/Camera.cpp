@@ -1,12 +1,12 @@
 
-#include "SEditor/Core/Camera.h"
+#include "SRender/LowRenderer/Camera.h"
 #include "glm/ext/quaternion_geometric.hpp"
 #include "glm/geometric.hpp"
 #include "glm/gtc/quaternion.hpp"
 #include "glm/trigonometric.hpp"
 #include <SMath/SQuaternion.h>
 #include <algorithm>
-namespace SEditor::Core{
+namespace SRender::LowRenderer{
 
 Camera::Camera(glm::vec3 pos,glm::vec3 center):camcenter(center),pos_(pos) {
 	CalcLookAt();
@@ -34,7 +34,6 @@ void Camera::translate(glm::vec3 trans) {
 
 void Camera::zoom(float ratio) {
 	glm::vec3 dir = pos_ - camcenter;
-	float dis = glm::distance(camcenter, pos_);
 	pos_ = camcenter + dir*(ratio + 1);
 }
 

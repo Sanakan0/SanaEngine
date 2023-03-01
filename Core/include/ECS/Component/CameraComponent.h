@@ -1,4 +1,5 @@
 #pragma once
+#include "SRender/LowRenderer/Camera.h"
 #include <ECS/Component/Component.h>
 namespace ECS::Components {
 
@@ -8,7 +9,7 @@ public:
 
 
 private:
-    //SEditor::Core::Camera
+    SRender::LowRenderer::Camera cam_;
 };
 
 }

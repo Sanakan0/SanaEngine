@@ -14,9 +14,7 @@ public:
     void FillUBO();
     void UpdateViewCam(float deltat);
     Core::CameraCtrl camctrl_;
-    Core::Camera cam_;
-    
-    
+    SRender::LowRenderer::Camera cam_;
 };
 
 }

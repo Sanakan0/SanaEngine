@@ -7,7 +7,7 @@ namespace SGUI::Panels{
 WndPanel::WndPanel():fbo_(){}
 
 
-
+void WndPanel::DrawUI(){}
 
 
 std::pair<int,int> WndPanel::GetImguiSize(){

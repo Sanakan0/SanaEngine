@@ -13,7 +13,7 @@ public:
     void DrawImpl() override;
     void UpdateWndStates();
 
-    virtual void DrawUI();
+    virtual void DrawUI(); //Draw UI on canvas
 
 
     std::pair<int,int> GetImguiSize();
