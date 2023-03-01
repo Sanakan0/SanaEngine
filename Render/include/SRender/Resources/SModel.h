@@ -24,6 +24,7 @@ public:
     void UploadMeshBuffer();
     std::vector<glm::mat4>palette_;
 private:
+    void CalcBoundingSphere();
 
     std::vector<SMesh*>meshes_;
     std::vector<SJoint>joints_;
@@ -32,6 +33,7 @@ private:
     glm::quat rotate_;
     glm::vec3 pos_;
 
+    BoundingSphere boundingsphere_;
 };
 
 

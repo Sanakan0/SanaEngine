@@ -4,7 +4,7 @@
 #include "glm/geometric.hpp"
 #include "glm/gtc/quaternion.hpp"
 #include "glm/trigonometric.hpp"
-#include <SMath/SQuaternion.h>
+#include <SMath/Quaternion.h>
 #include <algorithm>
 namespace SRender::LowRenderer{
 

@@ -5,10 +5,10 @@ namespace SCore{
 
 using ListenerID = uint64_t;
 
-template <typename... ArgTypes>
+template <typename ... ArgsType>
 class Event{
 public:
-    using Callback = std::function<void(ArgTypes...)>;
+    using Callback = std::function<void(ArgsType...)>;
     
 
 };

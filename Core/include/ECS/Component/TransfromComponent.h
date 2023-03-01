@@ -1,5 +1,5 @@
 #pragma once
-#include "SMath/STransform.h"
+#include "SMath/Transform.h"
 #include <ECS/Component/Component.h>
 namespace ECS::Components {
 
@@ -8,7 +8,7 @@ public:
     TransformComponent();
     virtual void Tick(float delta_t) override;
 private:
-    sm::STransform trans_;
+    sm::Transform trans_;
 };
 
 }

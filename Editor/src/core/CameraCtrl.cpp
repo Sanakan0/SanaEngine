@@ -1,5 +1,5 @@
 #include "SEditor/Core/CameraCtrl.h"
-#include <SMath/SQuaternion.h>
+#include <SMath/Quaternion.h>
 namespace SEditor::Core{
 
 CameraCtrl::CameraCtrl(SGUI::Panels::WndPanel& view,SWnd::Context& wndcontext,SRender::LowRenderer::Camera& cam)

@@ -7,7 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <SMath/SQuaternion.h>
+#include <SMath/Quaternion.h>
 #include <utility>
 #include <vector>
 #include <cmath>

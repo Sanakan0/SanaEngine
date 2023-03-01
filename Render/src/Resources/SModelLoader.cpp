@@ -6,6 +6,7 @@ bool SModelLoader::LoadSimpleModel(std::string path, SModel &model,bool is_cache
     AssimpParser parser;
     model.path_=path;
     if(parser.LoadModel(model.modelmat_,path,model.meshes_,model.materials_,texture_manager_,is_cached)){
+        model.CalcBoundingSphere();
         spdlog::info("[ASSIMP] Simple Model loaded : "+path);
         return true;
     }
@@ -16,6 +17,7 @@ bool SModelLoader::LoadModelWithAnima(std::string path, SModel &model, std::vect
     AssimpParser parser;
     model.path_=path;
     if (parser.LoadModel(model.modelmat_,path,model.meshes_,model.GetJoints(),animas)){
+        model.CalcBoundingSphere();
         for (auto& i : animas) i.modelp_ = &model;
         spdlog::info("[ASSIMP] Animated Model loaded : "+path);
         return true;

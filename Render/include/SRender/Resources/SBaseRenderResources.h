@@ -54,7 +54,14 @@ struct AssimpTextureStack{
     STexture* data[3] {nullptr,nullptr,nullptr}; 
 };
 
+struct BoundingSphere{
+	glm::vec3 pos;
+	float radius;
+};
+
+class SModel;
 class SMesh {
+friend class SModel;
 public:
 	SMesh(std::vector <Vertex>& vs, std::vector <unsigned int> &vidx,bool iscached=false);
 	SMesh(std::vector <VertexWithWeight>& vs_w, std::vector <unsigned int> &vidx,bool iscached=false);
@@ -72,9 +79,33 @@ public:
 	void UploadCachedBuf();
 	void CreateWeightBuf();
 private:
+	template<typename T>
+	inline void CalcBoundingSphere(std::vector<T>& vs){
+		float minx,miny,minz;
+		float maxx,maxy,maxz;
+		minx=miny=minz = std::numeric_limits<float>::max();
+		maxx=maxy=maxz = std::numeric_limits<float>::min();
+		for (auto& v:vs){
+			minx = std::min(v.pos[0],minx);
+			miny = std::min(v.pos[1],miny);
+			minz = std::min(v.pos[2],minz);
+
+			maxx = std::max(v.pos[0],maxx);
+			maxy = std::max(v.pos[1],maxy);
+			maxz = std::max(v.pos[2],maxz);
+		}
+		boundingsphere_.pos=glm::vec3(minx+maxx,miny+maxy,minz+maxz)/2.0f;
+		float tmpr=0.0f;
+		for (auto& v:vs){
+			tmpr = std::max(glm::distance(boundingsphere_.pos, {v.pos[0],v.pos[1],v.pos[2]} ),tmpr);
+		}
+		boundingsphere_.radius=tmpr;
+	}
+
 	std::vector<Vertex> vs_cache_;
 	std::vector<VertexWithWeight> vsw_cache_;
 	std::vector<uint32_t> vidx_cache_;
+	BoundingSphere boundingsphere_;
 };
 
 

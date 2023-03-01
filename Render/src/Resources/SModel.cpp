@@ -39,4 +39,28 @@ void SModel::UploadMeshBuffer(){
         }
     }
 }
+
+void SModel::CalcBoundingSphere(){
+    float minx,miny,minz;
+    float maxx,maxy,maxz;
+    minx=miny=minz = std::numeric_limits<float>::max();
+    maxx=maxy=maxz = std::numeric_limits<float>::min();
+    for (auto& m:meshes_){
+        auto& bs = m->boundingsphere_;
+        minx = std::min(bs.pos.x-bs.radius,minx);
+        miny = std::min(bs.pos.y-bs.radius,miny);
+        minz = std::min(bs.pos.z-bs.radius,minz);
+
+        maxx = std::max(bs.pos.x+bs.radius,maxx);
+        maxy = std::max(bs.pos.y+bs.radius,maxy);
+        maxz = std::max(bs.pos.z+bs.radius,maxz);
+    }
+    boundingsphere_.pos=glm::vec3(minx+maxx,miny+maxy,minz+maxz)/2.0f;
+    float tmpr=0.0f;
+    for (auto& m:meshes_){
+        tmpr = std::max(glm::distance(boundingsphere_.pos,m->boundingsphere_.pos)+m->boundingsphere_.radius,tmpr);
+    }
+    boundingsphere_.radius=tmpr;
+}
+
 }

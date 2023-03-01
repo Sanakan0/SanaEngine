@@ -5,9 +5,9 @@
 #include <glm/gtc/type_ptr.hpp>
 namespace sm{
 
-class STransform{
+class Transform{
 public:
-    STransform()=default;
+    Transform()=default;
     glm::vec3 pos_{0,0,0};
     glm::vec3 scale_{1,1,1};
     glm::quat rotate_{1,0,0,0};
