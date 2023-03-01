@@ -18,8 +18,21 @@ public:
     void HandleFpsCamCtl(float delta_time);
     void SetPos();
     void SetTowards();
-    SGUI::Panels::WndPanel& view_;
+    const glm::vec3& GetPos() const{return pos_;}
+    const glm::quat& GetOrien() const{return orien_;} 
+
+    void translate(glm::vec3 trans);
+	
+	void Orbit(float hori_deg,float verti_deg );
+	void CalcLookAt(); //call to initialize
+	void FpsRotate(float hori_deg,float verti_deg);
+	void zoom(float step);
+	void reset();
+	void resetworldup();
+	float CalcDisPerPix(int w,int h);
+    
     SWnd::Context& wndcontext_;
+    SGUI::Panels::WndPanel& view_;
     SWnd::Input::InputManager inputmanager_;
     SRender::LowRenderer::Camera& cam_;
     
@@ -30,6 +43,15 @@ private:
     float around_speed_=0.4f;
     float zoom_speed_=0.05f;
     float move_speed_=1.0f;//  meter per second
+
+//CAM extrinsic 
+    glm::vec3 camcenter;
+	glm::vec3 worldup{0, 0, 1};
+
+	
+	glm::vec3 pos_;
+	glm::quat orien_;
+	glm::vec3 euler_xyz_deg_;
 };
 
 }
