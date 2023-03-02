@@ -1,5 +1,7 @@
 #pragma once
 #include "ECS/Component/Component.h"
+#include "Eventing/Event.h"
+#include <cstddef>
 #include <memory>
 #include <stdint.h>
 #include <string>
@@ -21,7 +23,17 @@ public:
     int64_t GetID() const {return id_;}
     void SetID(int64_t id) {id_=id;}
 
-
+    template<class T>
+    T* GetComponent(){
+        T* tmp;
+        for (auto& i:components_){
+            tmp = dynamic_cast<T*>(i.get());
+            if(tmp){
+                return tmp;
+            }
+        }       
+        return nullptr;
+    }
     
 private:
     Actor(const Actor& p_actor) = delete;
@@ -30,7 +42,7 @@ private:
     std::string name_;
     
     std::vector<std::shared_ptr<Components::Component>> components_;
-
+    SCore::Event<Components::Component&> AddComponentEvent;
 
 };
 

@@ -5,7 +5,7 @@ namespace ECS::Components {
 
 class TransformComponent:public Component{
 public:
-    TransformComponent();
+    TransformComponent(Actor& parentactor);
     virtual void Tick(float delta_t) override;
 private:
     sm::Transform trans_;

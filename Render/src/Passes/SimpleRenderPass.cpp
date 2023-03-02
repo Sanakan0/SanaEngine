@@ -6,7 +6,8 @@
 
 namespace SRender::Passes{
 
-SimpleRenderPass::SimpleRenderPass():renderer_(SANASERVICE(Core::EntityRenderer)){
+SimpleRenderPass::SimpleRenderPass(SEditor::Core::RuntimeContext& rtcontext):
+renderer_(SANASERVICE(Core::EntityRenderer)),rtcontext_(rtcontext){
     std::string pth = ResourceManager::Util::GetFullPath(":shaders\\standard.glsl");
     shaderp_ = std::unique_ptr<Resources::GLShader> (Resources::GLShaderLoader::LoadFromFile(pth));
 }

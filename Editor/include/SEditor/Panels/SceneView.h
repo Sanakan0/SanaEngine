@@ -1,4 +1,5 @@
 #pragma once
+#include "SceneSys/Scene.h"
 #include<SRender/Buffers/GLFrameBuffer.h>
 #include<SEditor/Panels/SView.h>
 #include<SEditor/Core/RuntimeContext.h>
@@ -11,6 +12,7 @@ public:
     void RenderTick(float deltat);
 private:
     Core::RuntimeContext& rtcontext_;
+    
 };
 
 }

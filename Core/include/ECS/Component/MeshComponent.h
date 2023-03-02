@@ -5,6 +5,7 @@ namespace ECS::Components {
 
 class MeshComponent:public Component{
 public:
+    MeshComponent(Actor& parentactor);
     virtual void Tick(float delta_t) override;
 
 

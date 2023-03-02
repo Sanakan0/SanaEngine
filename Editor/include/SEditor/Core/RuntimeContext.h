@@ -4,6 +4,7 @@
 #include "SResourceManager/ModelManager.h"
 #include "SResourceManager/ShaderManager.h"
 #include "SResourceManager/TextureManager.h"
+#include "SceneSys/SceneManager.h"
 #include <memory>
 #include <SWnd/context/context.h>
 #include <SGUI/Core/UImanager.h>
@@ -28,6 +29,7 @@ public:
     std::unique_ptr<ResourceManager::ShaderManager> shader_manager_;
     std::unique_ptr<ResourceManager::ModelManager> model_manager_;
     std::unique_ptr<ResourceManager::TextureManager> texture_manager_;
+    std::unique_ptr<SceneSys::SceneManager> scene_manager_;
 };
 
 }

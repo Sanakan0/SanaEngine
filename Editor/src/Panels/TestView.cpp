@@ -1,5 +1,6 @@
 #include "SEditor/Panels/TestView.h"
 #include "SCore/Global/ServiceLocator.h"
+#include "SRender/Passes/SimpleRenderPass.h"
 #include "SRender/Resources/GLShader.h"
 #include "SRender/Resources/GLShaderLoader.h"
 #include "SRender/Resources/SAnimation.h"
@@ -23,7 +24,8 @@ TestView::TestView(Core::RuntimeContext& rtcontext):
 rtcontext_(rtcontext),
 shadermanager(SANASERVICE(ResourceManager::ShaderManager)),
 texturemanager(SANASERVICE(ResourceManager::TextureManager)),
-modelmanager(SANASERVICE(ResourceManager::ModelManager))
+modelmanager(SANASERVICE(ResourceManager::ModelManager)),
+renderpass(rtcontext)
 {
     name_="Distortion View";
     std::vector<SRender::Resources::Vertex> tmpv;
