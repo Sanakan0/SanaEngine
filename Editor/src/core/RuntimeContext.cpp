@@ -7,6 +7,7 @@
 #include "SResourceManager/ShaderManager.h"
 #include "SResourceManager/TextureManager.h"
 #include "SResourceManager/Util.h"
+#include "SceneSys/SceneManager.h"
 #include <SCore/Global/ServiceLocator.h>
 #include <memory>
 namespace SEditor::Core{
@@ -45,6 +46,9 @@ RuntimeContext::RuntimeContext(){
     model_manager_ = std::make_unique<ResourceManager::ModelManager>();
     //init model loader
     SRender::Resources::SModelLoader::Initialize(texture_manager_.get());
+    //setup scene manager
+    scene_manager_ = std::make_unique<SceneSys::SceneManager>();
+    scene_manager_->CreateScene();
 
 
     //upload service to servicelocator
@@ -55,6 +59,7 @@ RuntimeContext::RuntimeContext(){
     ServiceLocator::Provide<ResourceManager::TextureManager>(*texture_manager_);
     ServiceLocator::Provide<ResourceManager::ShaderManager>(*shader_manager_);
     ServiceLocator::Provide<ResourceManager::ModelManager>(*model_manager_);
+    ServiceLocator::Provide<SceneSys::SceneManager>(*scene_manager_);
 }
 
 RuntimeContext::~RuntimeContext(){}

@@ -17,6 +17,7 @@ public:
     EditorSceneRenderPass();
     ~EditorSceneRenderPass()=default;
     void Draw();
+    void DrawModel(Resources::SModel* model);
     std::vector<Resources::SModel*> render_resources_;
     float k=0;
 private:

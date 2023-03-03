@@ -1,4 +1,5 @@
 #pragma once
+#include "SRender/Passes/EditorSceneRenderPass.h"
 #include "SRender/Resources/SBaseRenderResources.h"
 #include "SRender/Passes/SimpleRenderPass.h"
 #include "SRender/Resources/SModel.h"
@@ -23,6 +24,7 @@ private:
     ResourceManager::ModelManager& modelmanager;
     SRender::Resources::SModel* model;
     SRender::Passes::SimpleRenderPass renderpass;
+    SRender::Passes::EditorSceneRenderPass scenerenderpass;
     void task1(std::string pth,int idx);
     std::mutex test_m;
 };

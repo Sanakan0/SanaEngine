@@ -1,4 +1,5 @@
 #include "SEditor/Panels/TestView.h"
+#include "ECS/Component/MeshComponent.h"
 #include "SCore/Global/ServiceLocator.h"
 #include "SRender/Passes/SimpleRenderPass.h"
 #include "SRender/Resources/GLShader.h"
@@ -9,6 +10,7 @@
 #include "SResourceManager/ShaderManager.h"
 #include "SResourceManager/TextureManager.h"
 #include "SResourceManager/Util.h"
+#include "SceneSys/SceneManager.h"
 #include "glm/ext/matrix_transform.hpp"
 #include "imgui/imgui.h"
 #include <spdlog/spdlog.h>
@@ -55,7 +57,7 @@ renderpass(rtcontext)
     //model = modelmanager.CreateResources(R"(..\assets\models\Tile_+025_+034\Tile_+025_+034.obj)");
     //renderpass.render_resources_.push_back(model);
     namespace fs = std::filesystem;
-    fs::path tile_pth(R"(E:\user\cnt0\beihang reconstruction data\dxobj)");
+    fs::path tile_pth(R"(D:\beihang reconstruction data\dxobj)");
     //fs::path tile_pth(R"(E:\ExperimentsData\Models\GovFacility\Data)");
     int cnt=10;
     int cur=0;
@@ -88,7 +90,12 @@ renderpass(rtcontext)
     }
 }
 void TestView::task1(std::string pth,int idx){
-    renderpass.render_resources_[idx] = modelmanager.CreateResources(pth,true);
+    auto tmpmodel = modelmanager.CreateResources(pth,true);
+    renderpass.render_resources_[idx] = tmpmodel;
+    auto& scenemanager = SANASERVICE(SceneSys::SceneManager);
+    auto& tmpa=scenemanager.GetScene()->CreateActor();
+    tmpa.AddComponent<ECS::Components::MeshComponent>(tmpmodel);
+
 }
 
 
@@ -101,7 +108,6 @@ void TestView::LogicTick(float deltat){
     //rtcontext_.shape_drawer_->SetViewPrj(cam_.GetProjectionMat()*cam_.GetViewMat());
 }
 void TestView::RenderTick(float deltat){   
-    return;
     UpdateViewCam(deltat);
     rtcontext_.core_renderer_->SetViewPort(0, 0,canvas_size_.first ,canvas_size_.second );
     static bool rasflag=0;
@@ -125,12 +131,14 @@ void TestView::RenderTick(float deltat){
     renderer.ClearBuffer();
     //ImGui::InputFloat("k:", &k);
     ImGui::SliderFloat("k",&renderpass.k,-3,3);
-
+    ImGui::SliderFloat("scene-k",&scenerenderpass.k,-3,3);
     //renderer.Draw(*trimeshp,SRender::Setting::SPrimitive::TRIANGLES);
     // for (auto i:model->GetMeshes()){
     //     renderer.Draw(*i, SRender::Setting::SPrimitive::TRIANGLES);
     // }
-    renderpass.Draw();
+    //renderpass.Draw();
+    scenerenderpass.Draw();
+
     rtcontext_.core_renderer_->SetRasterizationMode(SRender::Setting::SRasterization::FILL);
     shape_drawer.DrawGrid();
     fbo_.Unbind();

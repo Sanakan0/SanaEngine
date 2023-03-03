@@ -35,6 +35,7 @@ public:
         return nullptr;
     }
     
+    SCore::Event<Components::Component&> AddComponentEvent;
 private:
     Actor(const Actor& p_actor) = delete;
     
@@ -42,7 +43,7 @@ private:
     std::string name_;
     
     std::vector<std::shared_ptr<Components::Component>> components_;
-    SCore::Event<Components::Component&> AddComponentEvent;
+    
 
 };
 

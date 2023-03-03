@@ -19,9 +19,9 @@ public:
     ~Scene();
     ECS::Actor& CreateActor(const std::string& name="Default");
     std::vector<std::unique_ptr<ECS::Actor>>& GetActors(){return actors_;}
-
+    const BasicRenderComponents& GetBasicRenderComponent(){return basicrendercomponents_;}
     void OnAddComponent(ECS::Components::Component& component);
-  
+    
 
 private:
     std::vector<std::unique_ptr<ECS::Actor>> actors_;
