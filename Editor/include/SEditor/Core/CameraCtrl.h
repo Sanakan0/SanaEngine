@@ -42,7 +42,7 @@ private:
     int right_btn_=0;
     float around_speed_=0.4f;
     float zoom_speed_=0.05f;
-    float move_speed_=1.0f;//  meter per second
+    float move_speed_=100.0f;//  meter per second
 
 //CAM extrinsic 
     glm::vec3 camcenter;

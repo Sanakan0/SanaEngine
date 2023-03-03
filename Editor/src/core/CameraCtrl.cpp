@@ -18,8 +18,8 @@ void CameraCtrl::HandleInputs(float delta_time){
 
     }
     //std::cout << inputmanager_.curpos_.first << " " << inputmanager_.curpos_.second <<"     < \r";
-    HandleOrbitCamCtl(delta_time);
-    //HandleFpsCamCtl(delta_time);
+    //HandleOrbitCamCtl(delta_time);
+    HandleFpsCamCtl(delta_time);
 
     
 }
