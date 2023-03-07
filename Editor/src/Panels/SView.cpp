@@ -4,7 +4,9 @@
 namespace SEditor::Panels{
 
 
-SView::SView():camctrl_(*this,SANASERVICE(SWnd::Context),cam_){}
+SView::SView():camctrl_(*this,SANASERVICE(SWnd::Context),cam_){
+    scrollable_=false;
+}
 
 
 
@@ -25,7 +27,9 @@ void SView::UpdateViewCam(float deltat){
     FillUBO();
 }
 
-
+void SView::DrawContent(){
+    ImGui::Image((void*)fbo_.tex_buf_id_, ImVec2(canvas_size_.first,canvas_size_.second), ImVec2(0.f, 1.f), ImVec2(1.f, 0.f));
+}
 
 
 }

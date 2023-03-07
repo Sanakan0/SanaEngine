@@ -3,6 +3,7 @@
 #include "ECS/Component/Component.h"
 #include "ECS/Component/MeshComponent.h"
 #include <memory>
+#include <mutex>
 #include <stdint.h>
 #include <string>
 #include <vector>
@@ -27,6 +28,7 @@ private:
     std::vector<std::unique_ptr<ECS::Actor>> actors_;
     BasicRenderComponents basicrendercomponents_;
     uint64_t actor_id_cnt_=1;
+    std::mutex mutex_;
 };
     
 }

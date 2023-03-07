@@ -4,10 +4,10 @@
 namespace SGUI::Panels{
 
 
-WndPanel::WndPanel():fbo_(){}
+WndPanel::WndPanel(){}
 
 
-void WndPanel::DrawUI(){}
+
 
 
 std::pair<int,int> WndPanel::GetImguiSize(){
@@ -91,7 +91,8 @@ void WndPanel::DrawImpl(){
 		if (!resizable_)				windowFlags |= ImGuiWindowFlags_NoResize;
 		if (!movable_)					windowFlags |= ImGuiWindowFlags_NoMove;
 		if (!dockable_)					windowFlags |= ImGuiWindowFlags_NoDocking;
-        windowFlags |= ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+        if (!scrollable_)               windowFlags |= ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar;
+        
         ImVec2 minszcons = {0,0};
         ImVec2 maxszcons = {10000,10000};
         ImGui::SetNextWindowSizeConstraints(minszcons,maxszcons);
@@ -106,8 +107,8 @@ void WndPanel::DrawImpl(){
            // std::cout << tmp2.x << " " <<tmp2.y<<" : ";
             //std::cout << tmp.x << " - " << tmp.y << "         \r";
             //ShowExampleAppSimpleOverlay(&opened_,ImVec2(pos_.first,pos_.second),ImVec2(size_.first,size_.second));
-            
-            ImGui::Image((void*)fbo_.tex_buf_id_, ImVec2(canvas_size_.first,canvas_size_.second), ImVec2(0.f, 1.f), ImVec2(1.f, 0.f));
+            DrawContent();
+            //ImGui::Image((void*)fbo_.tex_buf_id_, ImVec2(canvas_size_.first,canvas_size_.second), ImVec2(0.f, 1.f), ImVec2(1.f, 0.f));
             
             
             

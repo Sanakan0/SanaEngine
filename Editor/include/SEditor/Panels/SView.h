@@ -13,8 +13,10 @@ public:
     SView();
     void FillUBO();
     void UpdateViewCam(float deltat);
+    void DrawContent() override;
     Core::CameraCtrl camctrl_;
     SRender::LowRenderer::Camera cam_;
+    SRender::Buffers::GLFrameBuffer fbo_; 
 };
 
 }

@@ -61,7 +61,7 @@ renderpass(rtcontext)
     fs::path tile_pth(R"(E:\user\cnt0\beihang reconstruction data\dxobj)");
     
     //fs::path tile_pth(R"(E:\ExperimentsData\Models\GovFacility\Data)");
-    int cnt=1;
+    int cnt=10;
     int cur=0;
     int st=200;
     int ed=st+cnt-1;

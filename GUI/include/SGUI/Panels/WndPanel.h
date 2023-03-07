@@ -13,14 +13,14 @@ public:
     void DrawImpl() override;
     void UpdateWndStates();
 
-    virtual void DrawUI(); //Draw UI on canvas
+    virtual void DrawContent() = 0; //Draw UI on canvas
 
 
     std::pair<int,int> GetImguiSize();
     std::pair<int,int> GetImguiPos();
     std::pair<int,int> GetCanvasSize();
     std::pair<int,int> GetCanvasPos();
-    SRender::Buffers::GLFrameBuffer fbo_; 
+    //SRender::Buffers::GLFrameBuffer fbo_; 
     std::string name_;
     bool resizable_=true;
     bool closable_=true;

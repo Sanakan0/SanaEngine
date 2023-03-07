@@ -1,4 +1,6 @@
 #include "SEditor/Core/Editor.h"
+#include "SEditor/Panels/Hierarchy.h"
+#include "SEditor/Panels/MainMenubar.h"
 #include "SEditor/Panels/TestView.h"
 #include <SCore/Global/ServiceLocator.h>
 using namespace SEditor::Core;
@@ -65,4 +67,6 @@ void Editor::PostTick(){
 void Editor::SetUpUI(){
     rtcontext_.uimanager_->CreatePanel<SEditor::Panels::SceneView>("Scene View",rtcontext_);
     rtcontext_.uimanager_->CreatePanel<SEditor::Panels::TestView>("Test View", rtcontext_);
+    rtcontext_.uimanager_->CreatePanel<SEditor::Panels::MainMenubar>("MainMenuBar");
+    rtcontext_.uimanager_->CreatePanel<Panels::Hierarchy>("Hierarchy");
 }

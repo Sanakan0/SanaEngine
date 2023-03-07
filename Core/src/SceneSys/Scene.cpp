@@ -9,6 +9,7 @@ namespace SceneSys{
 Scene::Scene(){}
 Scene::~Scene(){}
 ECS::Actor& Scene::CreateActor(const std::string& name){
+    const std::lock_guard<std::mutex> lock(mutex_);
     actors_.push_back(std::move(std::make_unique<ECS::Actor>(actor_id_cnt_++,name)));
     auto& res = *actors_[actors_.size()-1];
     // auto meshcmp = res.GetComponent<ECS::Components::MeshComponent>();
