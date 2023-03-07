@@ -1,5 +1,7 @@
 #include"SGUI/Core/UImanager.h"
+#include "SResourceManager/Util.h"
 #include "imgui/imgui.h"
+#include <SGUI/IconsFontAwesome6.h>
 #include<iostream>
 namespace SGUI::Core{
 
@@ -10,6 +12,8 @@ UImanager::UImanager(GLFWwindow* glfw_wndp,const std::string& version){
     ImGuiIO& io = ImGui::GetIO();
     ImGui::GetIO().ConfigWindowsMoveFromTitleBarOnly = true; /* Disable moving windows by dragging another thing than the title bar */
     ApplyStyle();
+    SetupFont();
+    SetupIconFont();
     ImGui_ImplGlfw_InitForOpenGL(glfw_wndp, true);
     ImGui_ImplOpenGL3_Init(version.c_str());
     EnableDocking(true);
@@ -18,6 +22,32 @@ UImanager::~UImanager(){
     ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
+}
+
+void UImanager::SetupIconFont(){
+    ImGuiIO& io = ImGui::GetIO();
+    //io.Fonts->AddFontDefault();
+    float baseFontSize = baseFontSize_; // 13.0f is the size of the default font. Change to the font size you use.
+    float iconFontSize = baseFontSize * 2.0f / 3.0f; // FontAwesome fonts need to have their sizes reduced by 2.0f/3.0f in order to align correctly
+
+
+    // merge in icons from Font Awesome
+    static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_16_FA, 0 };
+    ImFontConfig icons_config; 
+    icons_config.MergeMode = true; 
+    icons_config.PixelSnapH = true; 
+    icons_config.GlyphMinAdvanceX = iconFontSize;
+    auto fullpth = ResourceManager::Util::GetFullPath(":fonts/"+std::string(FONT_ICON_FILE_NAME_FAS));
+    io.Fonts->AddFontFromFileTTF( fullpth.c_str(), iconFontSize, &icons_config, icons_ranges );
+    // use FONT_ICON_FILE_NAME_FAR if you want regular instead of solid
+}
+
+void UImanager::SetupFont(){
+    ImGuiIO& io = ImGui::GetIO();
+    //io.Fonts->AddFontDefault();
+    auto fullpth = ResourceManager::Util::GetFullPath(":fonts/Ruda-Bold.ttf");
+    auto font=io.Fonts->AddFontFromFileTTF( fullpth.c_str(), baseFontSize_);
+    io.FontDefault=font;
 }
 
 void  UImanager::ApplyStyle()

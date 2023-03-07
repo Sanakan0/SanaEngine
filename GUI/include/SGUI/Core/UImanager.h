@@ -27,12 +27,15 @@ public:
     T& GetPanel(const std::string& id){
         return *static_cast<T*>(panels_[panelmap_[id]].get());
     }
+    void SetupIconFont();
+    void SetupFont();
     void ApplyStyle();
     void StartAFrame();
     void RenderTick();
     void EnableDocking(bool flg);
     bool dock_state_;
     bool dockspace_on_=true;
+    float baseFontSize_=22.0f;
     std::vector <std::unique_ptr<Panels::Panel>> panels_;
     std::unordered_map <std::string,int> panelmap_;
 };
