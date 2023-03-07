@@ -14,6 +14,8 @@ namespace SEditor::Core{
 using namespace SCore::Global;
 RuntimeContext::RuntimeContext(){
     SWnd::contextSETTING wndset{800,800,true};
+    //set engine assetpath
+    ResourceManager::Util::SetEngineAssetPath("..\\assets\\");
     wndcontext_ = std::make_unique<SWnd::Context>(wndset);
     wndcontext_->setup_GLAD();
 
@@ -37,8 +39,7 @@ RuntimeContext::RuntimeContext(){
     anima_ssbo_ = std::make_unique<SRender::Buffers::GLShaderStorageBuffer>();
     anima_ssbo_->Bind(0);
     
-    //set engine assetpath
-    ResourceManager::Util::SetEngineAssetPath("..\\assets\\");
+
     
     //setup resource manager
     texture_manager_ = std::make_unique<ResourceManager::TextureManager>();

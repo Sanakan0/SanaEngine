@@ -57,8 +57,8 @@ renderpass(rtcontext)
     //model = modelmanager.CreateResources(R"(..\assets\models\Tile_+025_+034\Tile_+025_+034.obj)");
     //renderpass.render_resources_.push_back(model);
     namespace fs = std::filesystem;
-    //fs::path tile_pth(R"(D:\beihang reconstruction data\dxobj)");
-    fs::path tile_pth(R"(E:\user\cnt0\beihang reconstruction data\dxobj)");
+    fs::path tile_pth(R"(D:\beihang reconstruction data\dxobj)");
+    //fs::path tile_pth(R"(E:\user\cnt0\beihang reconstruction data\dxobj)");
     
     //fs::path tile_pth(R"(E:\ExperimentsData\Models\GovFacility\Data)");
     int cnt=10;
