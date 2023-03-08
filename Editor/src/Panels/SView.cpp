@@ -1,7 +1,10 @@
 #include "SEditor/Panels/SView.h"
+#include "SCore/Global/ServiceLocator.h"
 #include "SEditor/Core/RuntimeContext.h"
+#include "SGUI/Core/UImanager.h"
 #include "SResourceManager/Util.h"
 #include "imgui/imgui.h"
+#include "SGUI/Widgets/CustomWidgets.h"
 #include <SGUI/IconsFontAwesome6.h>
 #include <iostream>
 namespace SEditor::Panels{
@@ -80,6 +83,9 @@ static void ShowExampleAppSimpleOverlay(bool* p_open,ImVec2 pos,ImVec2 sz,std::s
     //ImGui::EndChild();
 }
 
+
+
+
 void SView::DrawContent(){
     
     
@@ -94,19 +100,22 @@ void SView::DrawContent(){
     //ShowExampleAppSimpleOverlay(&open, ImVec2( pos_.first,pos_.second), ImVec2(size_.first,size_.second),name_+"childwind");
     ImGui::Image((void*)fbo_.tex_buf_id_, ImVec2(canvas_size_.first,canvas_size_.second), ImVec2(0.f, 1.f), ImVec2(1.f, 0.f));
     
-    ImGui::SetCursorPos({100,100});
-    ImGui::Text( ICON_FA_ENVELOPE_OPEN_TEXT "Paint" ); 
-    ImGui::Button(ICON_FA_ENVELOPE_OPEN_TEXT,{100,100});
+    ImGui::SetCursorPos({10,40});
+    auto& tmpuimanager = SANASERVICE(SGUI::Core::UImanager);
+
   
     {
         ImGui::BeginGroup();
-        ImGui::Button("AAA");
+
+        SGUI::ToggleButton("cam_mode_sw",ICON_FA_CAMERA,ICON_FA_CAMERA_ROTATE,&camctrl_.is_fps_cam_mod_);
         //ImGui::ImageButton(ImTextureID user_texture_id, const ImVec2 &size)
         ImGui::EndGroup();
     }
     // if (ImGui::CollapsingHeader("tesst")){
     //     ImGui::Button("test");
     // }
+    ImGui::SetCursorPos({size_.first-100.0f,100});
+    SGUI::Campass( 50, camctrl_.GetOrien());
     
 }
 

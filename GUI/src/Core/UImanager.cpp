@@ -6,7 +6,10 @@
 namespace SGUI::Core{
 
 
-UImanager::UImanager(GLFWwindow* glfw_wndp,const std::string& version){
+UImanager::UImanager(const SWnd::Context& context,const std::string& version){
+    if (context.moniter_info_.height==1440)
+        baseFontSize_ = 22.0f;
+    
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
@@ -14,7 +17,7 @@ UImanager::UImanager(GLFWwindow* glfw_wndp,const std::string& version){
     ApplyStyle();
     SetupFont();
     SetupIconFont();
-    ImGui_ImplGlfw_InitForOpenGL(glfw_wndp, true);
+    ImGui_ImplGlfw_InitForOpenGL(context.Wnd_p, true);
     ImGui_ImplOpenGL3_Init(version.c_str());
     EnableDocking(true);
 }
@@ -38,16 +41,21 @@ void UImanager::SetupIconFont(){
     icons_config.PixelSnapH = true; 
     icons_config.GlyphMinAdvanceX = iconFontSize;
     auto fullpth = ResourceManager::Util::GetFullPath(":fonts/"+std::string(FONT_ICON_FILE_NAME_FAS));
-    io.Fonts->AddFontFromFileTTF( fullpth.c_str(), iconFontSize, &icons_config, icons_ranges );
-    // use FONT_ICON_FILE_NAME_FAR if you want regular instead of solid
+    iconfont.small = io.Fonts->AddFontFromFileTTF( fullpth.c_str(), iconFontSize, &icons_config, icons_ranges );
+    iconfont.medium = io.Fonts->AddFontFromFileTTF( fullpth.c_str(), iconFontSize*2);
+    //use FONT_ICON_FILE_NAME_FAR if you want regular instead of solid
 }
 
 void UImanager::SetupFont(){
     ImGuiIO& io = ImGui::GetIO();
     //io.Fonts->AddFontDefault();
     auto fullpth = ResourceManager::Util::GetFullPath(":fonts/Ruda-Bold.ttf");
-    auto font=io.Fonts->AddFontFromFileTTF( fullpth.c_str(), baseFontSize_);
-    io.FontDefault=font;
+    textfont.small=io.Fonts->AddFontFromFileTTF( fullpth.c_str(), baseFontSize_);
+    //textfont.medium=io.Fonts->AddFontFromFileTTF( fullpth.c_str(), baseFontSize_*1.5);
+    //textfont.large=io.Fonts->AddFontFromFileTTF( fullpth.c_str(), baseFontSize_*2.25);
+    //ImGui::PushFont(textfont.small);
+    
+    io.FontDefault=textfont.small;
 }
 
 void  UImanager::ApplyStyle()

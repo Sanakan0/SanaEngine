@@ -19,7 +19,7 @@ RuntimeContext::RuntimeContext(){
     wndcontext_ = std::make_unique<SWnd::Context>(wndset);
     wndcontext_->setup_GLAD();
 
-    uimanager_ = std::make_unique<SGUI::Core::UImanager>(wndcontext_->Wnd_p);
+    uimanager_ = std::make_unique<SGUI::Core::UImanager>(*wndcontext_);
 
     //core_renderer_ = std::make_unique<SRender::Core::GLRenderer>();
     core_renderer_ = std::make_unique<SRender::Core::EntityRenderer>();

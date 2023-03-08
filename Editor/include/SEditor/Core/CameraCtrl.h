@@ -35,7 +35,7 @@ public:
     SGUI::Panels::WndPanel& view_;
     SWnd::Input::InputManager inputmanager_;
     SRender::LowRenderer::Camera& cam_;
-    
+    bool is_fps_cam_mod_=1;
 private:
     int mid_btn_=0;
     int left_btn_=0;

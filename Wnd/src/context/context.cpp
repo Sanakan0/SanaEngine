@@ -1,5 +1,7 @@
 
 #include "SWnd/context/context.h"
+#include <GLFW/glfw3.h>
+#include <iostream>
 namespace SWnd{
 
 Context::Context(contextSETTING s):setting(s){
@@ -24,6 +26,13 @@ Context::Context(contextSETTING s):setting(s){
     }
     glfwMakeContextCurrent(Wnd_p);
     if (s.unlock_fps_) glfwSwapInterval(0); // need to set after make_context
+
+    auto tmp = glfwGetVideoMode(glfwGetPrimaryMonitor());
+    moniter_info_.width = tmp->width;
+    moniter_info_.height = tmp->height;
+    moniter_info_.fps = tmp->refreshRate;
+    moniter_info_.colorbits = tmp->redBits;
+    auto x = sizeof(MoniterInfo);
 }
 Context::~Context(){
     glfwTerminate();

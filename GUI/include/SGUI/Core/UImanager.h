@@ -6,13 +6,20 @@
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
 #include "SGUI/Panels/Panel.h"
+#include "SWnd/context/context.h"
 //#include <SEditor/Panels/SceneView.h>
 #include <unordered_map>
 namespace SGUI::Core{
 
+struct LevelFonts{
+    ImFont* small;
+    ImFont* medium;
+    ImFont* large;
+};
+
 class UImanager{
 public:
-    UImanager(GLFWwindow* glfw_wndp,const std::string& version="#version 150");
+    UImanager(const SWnd::Context& context,const std::string& version="#version 150");
     ~UImanager();
     
     template<typename T,typename... Args>
@@ -35,9 +42,11 @@ public:
     void EnableDocking(bool flg);
     bool dock_state_;
     bool dockspace_on_=true;
-    float baseFontSize_=22.0f;
+    float baseFontSize_=15.0f;
     std::vector <std::unique_ptr<Panels::Panel>> panels_;
     std::unordered_map <std::string,int> panelmap_;
+    LevelFonts textfont;
+    LevelFonts iconfont;
 };
 
 }
