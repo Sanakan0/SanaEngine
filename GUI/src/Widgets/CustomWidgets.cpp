@@ -46,7 +46,7 @@ void ToggleButton(const char* str_id,const char* icon0,const char* icon1, bool* 
 
 
 
-void Campass(float sz,const glm::quat& main_cam_orien_){
+void Campass(const glm::quat& main_cam_orien_,float sz){
 	static const char axisChar[4]={'0','X','Y','Z'};
 	static constexpr int axisC[4]={0,static_cast<int>(IM_COL32(130, 76, 76, 255)),
 	static_cast<int>(IM_COL32(76, 130, 76, 255)),
@@ -73,15 +73,18 @@ void Campass(float sz,const glm::quat& main_cam_orien_){
 		ImVec2 tmp{p.x+nodes[i].second.x,p.y-nodes[i].second.y};
 		char buf[3];
 		if (nodes[i].first>0){
-			buf[0]=axisChar[nodes[i].first];
-			buf[1]='\0';
-			draw_list->AddLine(p, tmp, axisC[nodes[i].first],2.0f);
+			buf[0]=' ';
+			buf[1]=axisChar[nodes[i].first];
+			buf[2]='\0';
+			draw_list->AddLine(p, tmp, axisC[nodes[i].first],3.0f);
 		}else{
 			buf[0]='-';
 			buf[1]=axisChar[-nodes[i].first];
 			buf[2]='\0';
 		}
-		draw_list->AddText(nullptr,10,tmp,IM_COL32(255, 255, 255, 255), buf);
+		draw_list->AddCircleFilled(tmp, 14,  axisC[std::abs(nodes[i].first)]);
+		draw_list->AddText(nullptr,18.0f,{tmp.x-8,tmp.y-8},IM_COL32(255, 255, 255, 255), buf);
+		
 	}
 	
 }

@@ -115,7 +115,7 @@ void SView::DrawContent(){
     //     ImGui::Button("test");
     // }
     ImGui::SetCursorPos({size_.first-100.0f,100});
-    SGUI::Campass( 50, camctrl_.GetOrien());
+    SGUI::Campass(camctrl_.GetOrien());
     
 }
 
