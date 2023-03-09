@@ -15,6 +15,7 @@ public:
     virtual void Tick(float delta_t);
 
     Actor& parentactor_;
+    const std::string type_name_;
 };
 
 }

@@ -1,5 +1,6 @@
 #include "SEditor/Panels/TestView.h"
 #include "ECS/Component/MeshComponent.h"
+#include "ECS/Component/TransformComponent.h"
 #include "SCore/Global/ServiceLocator.h"
 #include "SRender/Passes/SimpleRenderPass.h"
 #include "SRender/Resources/GLShader.h"
@@ -96,6 +97,7 @@ void TestView::task1(std::string pth,int idx){
     renderpass.render_resources_[idx] = tmpmodel;
     auto& scenemanager = SANASERVICE(SceneSys::SceneManager);
     auto& tmpa=scenemanager.GetScene()->CreateActor();
+    tmpa.AddComponent<ECS::Components::TransformComponent>();
     tmpa.AddComponent<ECS::Components::MeshComponent>(tmpmodel);
 
 }

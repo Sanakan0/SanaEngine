@@ -11,7 +11,7 @@ public:
     Hierarchy();
     void DrawContent() override;  
 private:
-    void PrepareWnd();
+
     void RightClickMenu();
     SceneSys::SceneManager& scenemanager_;
 

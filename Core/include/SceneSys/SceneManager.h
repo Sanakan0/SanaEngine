@@ -13,6 +13,7 @@ public:
     Scene* GetScene(){return scenep_.get();}
 private:
     std::unique_ptr<Scene> scenep_;
+    uint64_t selected_actor_id_;
 };
 
 }

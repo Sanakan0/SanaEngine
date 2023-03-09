@@ -2,6 +2,7 @@
 #include "ECS/Actor.h"
 #include "ECS/Component/Component.h"
 #include "ECS/Component/MeshComponent.h"
+#include "ECS/Component/TransformComponent.h"
 #include <memory>
 #include <mutex>
 #include <stdint.h>

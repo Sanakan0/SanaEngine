@@ -7,6 +7,7 @@ class TransformComponent:public Component{
 public:
     TransformComponent(Actor& parentactor);
     virtual void Tick(float delta_t) override;
+    const glm::mat4& GetMat(){return trans_.GetMat();}
 private:
     sm::Transform trans_;
 };

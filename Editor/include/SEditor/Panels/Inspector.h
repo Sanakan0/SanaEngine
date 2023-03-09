@@ -4,7 +4,15 @@
 #include<SEditor/Core/RuntimeContext.h>
 namespace SEditor::Panels{
 
-class Inspector{
+class Inspector:public SGUI::Panels::WndPanel {
+public:
+    Inspector();
+    void DrawContent() override;  
+private:
+    void PrepareWnd();
+    void RightClickMenu();
+    SceneSys::SceneManager& scenemanager_;
+
 
 };
 

@@ -10,7 +10,7 @@ Actor::~Actor(){}
 
 void Actor::Tick(float delta_t){
     for (auto& component:components_){
-        component->Tick(delta_t);
+        component.second->Tick(delta_t);
     }
 }
 
