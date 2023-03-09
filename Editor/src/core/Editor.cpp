@@ -1,5 +1,6 @@
 #include "SEditor/Core/Editor.h"
 #include "SEditor/Panels/Hierarchy.h"
+#include "SEditor/Panels/Inspector.h"
 #include "SEditor/Panels/MainMenubar.h"
 #include "SEditor/Panels/TestView.h"
 #include <SCore/Global/ServiceLocator.h>
@@ -69,4 +70,5 @@ void Editor::SetUpUI(){
     rtcontext_.uimanager_->CreatePanel<SEditor::Panels::TestView>("Test View", rtcontext_);
     rtcontext_.uimanager_->CreatePanel<SEditor::Panels::MainMenubar>("MainMenuBar");
     rtcontext_.uimanager_->CreatePanel<Panels::Hierarchy>("Hierarchy");
+    rtcontext_.uimanager_->CreatePanel<Panels::Inspector>("Inspector");
 }

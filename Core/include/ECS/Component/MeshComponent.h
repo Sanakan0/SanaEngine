@@ -8,7 +8,8 @@ public:
     MeshComponent(Actor& parentactor,SRender::Resources::SModel* model);
     virtual void Tick(float delta_t) override;
     SRender::Resources::SModel* GetModel(){return model_;}
-
+    virtual DrawCmd GetInspectorDrawCmd() override;
+    virtual void DrawInspector() override;
 private:
     SRender::Resources::SModel* model_;
     

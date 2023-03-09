@@ -10,10 +10,10 @@
 #include <utility>
 #include <vector>
 namespace ECS {
-
+using ActorID=uint64_t;
 class Actor{
 public:
-    Actor(int64_t id,const std::string& name);
+    Actor(ActorID id,const std::string& name);
     ~Actor();
 
     void Tick(float delta_t);
@@ -33,24 +33,26 @@ public:
 
     const std::string& GetName()const{return name_;}
     void SetName(const std::string& name){ name_ = name;}
-    int64_t GetID() const {return id_;}
-    void SetID(int64_t id) {id_=id;}
+    ActorID GetID() const {return id_;}
+    void SetID(ActorID id) {id_=id;}
 
-    template<class T>
-    T* GetComponent(const std::string& component_type_name ){
+    
+    Components::Component* GetComponent(const std::string& component_type_name ){
         for (auto& i:components_){
             if (component_type_name==i.first){
-                return static_cast<T*>(i.second.get());
+                return (i.second.get());
             }
         }       
         return nullptr;
     }
-    
+    //Draw IMGUI for interact
+
+
     SCore::Event<Components::Component&> AddComponentEvent;
 private:
     Actor(const Actor& p_actor) = delete;
     
-    int64_t id_;
+    ActorID id_;
     std::string name_;
     
     std::vector<std::pair<std::string,std::shared_ptr<Components::Component>>> components_;

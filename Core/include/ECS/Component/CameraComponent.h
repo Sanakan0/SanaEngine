@@ -3,9 +3,9 @@
 #include <ECS/Component/Component.h>
 namespace ECS::Components {
 
-class CameraComponent:public Component{
+class CameraComponent{
 public:
-    virtual void Tick(float delta_t) override;
+    //virtual void Tick(float delta_t) override;
 
 
 private:

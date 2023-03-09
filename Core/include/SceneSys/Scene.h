@@ -7,6 +7,7 @@
 #include <mutex>
 #include <stdint.h>
 #include <string>
+#include <unordered_map>
 #include <vector>
 namespace SceneSys{
 
@@ -20,15 +21,16 @@ public:
     Scene();
     ~Scene();
     ECS::Actor& CreateActor(const std::string& name="Default");
-    std::vector<std::unique_ptr<ECS::Actor>>& GetActors(){return actors_;}
+    auto& GetActors(){return actors_;}
+    ECS::Actor* GetActorbyID(ECS::ActorID id);
     const BasicRenderComponents& GetBasicRenderComponent(){return basicrendercomponents_;}
     void OnAddComponent(ECS::Components::Component& component);
     
 
 private:
-    std::vector<std::unique_ptr<ECS::Actor>> actors_;
+    std::unordered_map<ECS::ActorID , std::unique_ptr<ECS::Actor>> actors_;
     BasicRenderComponents basicrendercomponents_;
-    uint64_t actor_id_cnt_=1;
+    ECS::ActorID actor_id_cnt_=1;
     std::mutex mutex_;
 };
     

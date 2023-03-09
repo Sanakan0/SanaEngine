@@ -22,7 +22,9 @@ void EditorSceneRenderPass::Draw(){
     shaderp_->SetUniFloat("k", k);
     glm::mat4 tmpmodel = glm::mat4(1);
     for (auto& meshcomp:scenemanager_.GetScene()->GetBasicRenderComponent().meshcomps){
-        auto transcomp = meshcomp->parentactor_.GetComponent<ECS::Components::TransformComponent>("TransformComponent");
+        auto transcomp =static_cast<ECS::Components::TransformComponent*>(
+            meshcomp->parentactor_.GetComponent("TransformComponent"));
+        
         if (transcomp) {
             shaderp_->SetUniMat4("ModelMat", transcomp->GetMat());
         }else{

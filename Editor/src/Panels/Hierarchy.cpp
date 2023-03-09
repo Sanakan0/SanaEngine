@@ -28,8 +28,8 @@ void Hierarchy::DrawContent(){
         if (ImGui::Button("idtest")) std::cout <<"fk3\n";
         for (auto &actor:scenemanager_.GetScene()->GetActors()){
             
-            if (ImGui::Selectable(std::to_string(actor->GetID()).c_str())){
-                std::cout << "ok" <<std::endl;
+            if (ImGui::Selectable(std::to_string(actor.second->GetID()).c_str())){
+                scenemanager_.SetSelectedActor(actor.second->GetID());
             }
             RightClickMenu();
         
