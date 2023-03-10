@@ -5,6 +5,7 @@
 #include<SRender/Resources/GLShaderLoader.h>
 #include <memory>
 #include <assert.h>
+#include <stdint.h>
 #include <vector>
 namespace SRender::Core{
 
@@ -29,6 +30,34 @@ void GLRenderer::ClearBuffer(bool colorbuf,bool depthbuf, bool stencilbuf){
     );
 }
 
+void GLRenderer::SetGlxxable(GLenum capability,bool is_enable){
+    is_enable?glEnable(capability):glDisable(capability);
+}
+
+void GLRenderer::ApplyGLstate(uint8_t mask){
+    if (mask!=glstate_){
+        if ( (mask & 0x01)!=(glstate_ & 0x01) ) SetGlxxable(GL_DEPTH_TEST, mask & 0x01);
+        if ( (mask & 0x04)!=(glstate_ & 0x04) ) SetGlxxable(GL_BLEND, mask & 0x04);
+        if ( (mask & 0x08)!=(glstate_ & 0x08) ) (mask & 0x08)?glDepthMask(0xFF):glDepthMask(0x00);
+
+        if ( (mask & 0x02)!=(glstate_ & 0x02) ) {
+            SetGlxxable(GL_CULL_FACE, mask & 0x02);
+            if (mask & 0x02){
+                uint8_t backBit = mask & 0x20;
+			    uint8_t frontBit = mask & 0x40;
+                if (backBit&&frontBit){
+                    glCullFace(GL_FRONT_AND_BACK);
+                }else{
+                    backBit?glCullFace(GL_BACK):glCullFace(GL_FRONT);
+                }
+            }
+        
+        }
+        glstate_=mask;
+    }
+    
+    
+}
 
 }
 namespace SRender::Core{
