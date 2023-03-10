@@ -10,9 +10,11 @@ namespace SRender::Core{
 
 class EntityRenderer:public GLRenderer{
 public:
-    EntityRenderer():shapedrawer_(*static_cast<GLRenderer*>(this)){};
-    ~EntityRenderer(){};
+    EntityRenderer();
+    ~EntityRenderer();
     void DrawSkeleton(Resources::SModel& model);
+    void Draw2Stencil(Resources::SModel& model);
+    void DrawModel(Resources::SModel& model);
     GLShapeDrawer* GetShapeDrawer(){return &shapedrawer_;}
 private:
     GLShapeDrawer shapedrawer_;

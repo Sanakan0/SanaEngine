@@ -4,8 +4,17 @@
 #include <SRender/Settings/GLSet.h>
 #include <cstddef>
 #include <memory>
+#include <stdint.h>
 namespace SRender::Core{
 
+enum class SGLState:uint8_t{
+    DEPTH_TEST = 0x01,
+    CULL_FACE = 0x02,
+    BLEND = 0X04,
+    DEPTH_WRITING = 0X08,
+    BACK_CULL = 0X20,
+    FRONT_CULL = 0X40
+};
 
 
 class GLRenderer{
@@ -13,6 +22,8 @@ public:
     GLRenderer();
     ~GLRenderer();
     void Draw(Resources::SMesh& mesh,Setting::SPrimitive mode);
+    // e.g glenable(GL_DEPTH_TEST) or disable
+    void SetGlxxable(GLenum capability,bool is_enable);
     void SetClearColor(float r,float g,float b,float a=1.0){glClearColor(r,g,b,a);};
     void ClearBuffer(bool colorbuf = 1,bool depthbuf = 1, bool stencilbuf = 1);
     void SetCullFace(Setting::SCullFace cullface){glCullFace(static_cast<GLenum>(cullface));};
@@ -22,7 +33,9 @@ public:
     void ReadPixels(uint32_t x, uint32_t y, uint32_t width, uint32_t height, GLenum format, GLenum type, void* data){
         glReadPixels(x, y, width, height, format, type, data);
     };
-    
+    void ApplyGLstate(uint8_t mask);
+private:
+    uint8_t glstate_;
 };
 
 
