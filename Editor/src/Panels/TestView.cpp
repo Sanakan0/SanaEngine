@@ -132,7 +132,10 @@ void TestView::RenderTick(float deltat){
     auto& renderer = *(rtcontext_.core_renderer_);
     auto& shape_drawer = *(rtcontext_.shape_drawer_);
     renderer.SetClearColor(0.2f, 0.2f, 0.2f);
+
+    glStencilMask(0xFF); // stencil mask also influence glclear()
     renderer.ClearBuffer();
+    glStencilMask(0x00);
     //ImGui::InputFloat("k:", &k);
     ImGui::SliderFloat("k",&renderpass.k,-3,3);
     ImGui::SliderFloat("scene-k",&scenerenderpass.k,-3,3);

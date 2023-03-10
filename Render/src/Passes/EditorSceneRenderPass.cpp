@@ -14,7 +14,7 @@ EditorSceneRenderPass::EditorSceneRenderPass():
 renderer_(SANASERVICE(Core::EntityRenderer)),
 scenemanager_(SANASERVICE(SceneSys::SceneManager))
 {
-    std::string pth = ResourceManager::Util::GetFullPath(":shaders\\standard.glsl");
+    std::string pth = ResourceManager::Util::GetFullPath(":shaders\\unlit.glsl");
     shaderp_ = std::unique_ptr<Resources::GLShader> (Resources::GLShaderLoader::LoadFromFile(pth));
 }
 void EditorSceneRenderPass::Draw(){
@@ -30,22 +30,12 @@ void EditorSceneRenderPass::Draw(){
         }else{
             shaderp_->SetUniMat4("ModelMat", tmpmodel);
         }
-        DrawModel(meshcomp->GetModel());
+        renderer_.DrawModel(*meshcomp->GetModel());
     }
     shaderp_->Unbind();
 }
 
-void EditorSceneRenderPass::DrawModel(Resources::SModel* model){
-    auto& meshes = model->GetMeshes();
-    auto& materials=model->GetMaterials();
-    for (int i=0;i<meshes.size();++i){
-        //bind texture
-        materials[i].data[0]->Bind(0);
-        //draw sth
-        renderer_.Draw(*meshes[i], Setting::SPrimitive::TRIANGLES);
-        materials[i].data[0]->Unbind();
-    }
-}
+
 
 
 
