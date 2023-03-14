@@ -35,6 +35,7 @@ void GLRenderer::SetGlxxable(GLenum capability,bool is_enable){
 }
 
 void GLRenderer::ApplyGLstate(uint8_t mask){
+    his_glstate_=glstate_;
     if (mask!=glstate_){
         if ( (mask & 0x01)!=(glstate_ & 0x01) ) SetGlxxable(GL_DEPTH_TEST, mask & 0x01);
         if ( (mask & 0x04)!=(glstate_ & 0x04) ) SetGlxxable(GL_BLEND, mask & 0x04);
@@ -59,6 +60,12 @@ void GLRenderer::ApplyGLstate(uint8_t mask){
     
 }
 
+void GLRenderer::ApplyPreviousGLstate(){
+    ApplyGLstate(his_glstate_);
+}
+
+
+
 }
 namespace SRender::Core{
 
@@ -81,13 +88,14 @@ void GLShapeDrawer::DrawLine(const glm::vec3 &start, const glm::vec3 &end, const
 }
     
 void GLShapeDrawer::DrawGrid(){
+    renderer_.ApplyGLstate(grid_glstate_);
     gridshader_->Bind();
     renderer_.Draw(*panelmeshp_, Setting::SPrimitive::TRIANGLES);
     gridshader_->Unbind();
+    renderer_.ApplyPreviousGLstate();
 }
 
 void GLShapeDrawer::DrawArrow(const glm::mat4 &model_mat){
-    
     arrowshader_->Bind();
     renderer_.SetRasterizationMode(Setting::SRasterization::LINE);
     arrowshader_->SetUniMat4("ModelMat", model_mat);
@@ -99,8 +107,13 @@ void GLShapeDrawer::DrawArrow(const glm::mat4 &model_mat){
 GLShapeDrawer::GLShapeDrawer(GLRenderer& renderer):renderer_(renderer){
     //std::vector <Vertex>& vs, std::vector <unsigned int> &vidx
     InitLineShader();
+    //init grid drawer
     InitGridShader();
+    grid_glstate_=SGLState::EMPTY|SGLState::BLEND|SGLState::DEPTH_TEST|SGLState::DEPTH_WRITING;
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //
     InitArrowShader();
+    
 }
 
 GLShapeDrawer::~GLShapeDrawer(){

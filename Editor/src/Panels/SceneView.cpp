@@ -29,18 +29,12 @@ void SceneView::RenderTick(float deltat){
     UpdateViewCam(deltat);
     rtcontext_.core_renderer_->SetViewPort(0, 0,canvas_size_.first ,canvas_size_.second );
 
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
-
-
-
     fbo_.Bind();
     
     auto& renderer = *(rtcontext_.core_renderer_);
     auto& shape_drawer = *(rtcontext_.shape_drawer_);
     renderer.SetClearColor(0.2f, 0.2f, 0.2f);
+    
     renderer.ClearBuffer();
     
     // shape_drawer.DrawLine({0,0,0}, {5,0,0}, {1,0,0});
@@ -49,10 +43,13 @@ void SceneView::RenderTick(float deltat){
     
 
     static SimpleJoint sgun;
-    static SRender::Resources::SModel model;
+    static SRender::Resources::SModel model,model2;
     static std::vector<SRender::Resources::SAnimation> animas;
     static int initflag=1;
-    if (initflag) SRender::Resources::SModelLoader::LoadModelWithAnima("..\\assets\\models\\GUN.fbx", model, animas),--initflag;
+    if (initflag) {
+        SRender::Resources::SModelLoader::LoadModelWithAnima("..\\assets\\models\\GUN.fbx", model, animas),--initflag;
+        SRender::Resources::SModelLoader::LoadSimpleModel(R"(../assets/models/adamHead/adamHead.gltf)", model2);
+    }
     static std::unique_ptr<SRender::Resources::GLShader> shaderp(SRender::Resources::GLShaderLoader::LoadFromFile( "..\\assets\\shaders\\animation.glsl"));
     
     //sgun.TickStatus(deltat);
@@ -62,7 +59,7 @@ void SceneView::RenderTick(float deltat){
     model.CalcPalette();
     rtcontext_.anima_ssbo_->SendBlocks<glm::mat4>(model.palette_.data(), model.palette_.size()*sizeof(glm::mat4));
     
-
+    renderer.ApplyGLstate(SRender::Core::Default_GLstate);
     shaderp->Bind();
     //auto& tmp =model.GetMeshes();
     shaderp->SetUniMat4("ModelMat", model.modelmat_);
@@ -70,9 +67,9 @@ void SceneView::RenderTick(float deltat){
         renderer.Draw(*i, SRender::Setting::SPrimitive::TRIANGLES);
     }
     shaderp->Unbind();
-    glDisable(GL_DEPTH_TEST);
+
     renderer.DrawSkeleton(model);
-    glEnable(GL_DEPTH_TEST);
+
     shape_drawer.DrawGrid();
     fbo_.Unbind();
     float tmp = 1.0f/deltat;

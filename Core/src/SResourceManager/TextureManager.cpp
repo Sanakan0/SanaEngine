@@ -7,6 +7,10 @@
 namespace ResourceManager {
 
 SRender::Resources::STexture* TextureManager::CreateResources(const std::string& pth,bool is_cached){
+    if (auto i = repo_[pth]; i!=nullptr){
+        spdlog::info("[TextureManager] Resource already created : "+pth);
+        return i;
+    } 
     auto tmp = is_cached?SRender::Resources::STextureLoader::LoadFromFile_cached(Util::GetFullPath(pth)):
         SRender::Resources::STextureLoader::LoadFromFile(Util::GetFullPath(pth));
     if (tmp!=nullptr) {

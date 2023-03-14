@@ -17,7 +17,7 @@ public:
     std::string path_;
     std::vector<SMesh*>& GetMeshes(){return meshes_;}
     std::vector<SJoint>& GetJoints(){return joints_;}
-    std::vector<AssimpTextureStack>& GetMaterials(){return materials_;}
+    std::vector<TextureStack>& GetMaterials(){return materials_;}
     glm::mat4 modelmat_;
     void CalcPalette();
     void CalcDerivedJoint();
@@ -28,7 +28,7 @@ private:
 
     std::vector<SMesh*>meshes_;
     std::vector<SJoint>joints_;
-    std::vector<AssimpTextureStack>materials_;
+    std::vector<TextureStack>materials_;
 
     glm::quat rotate_;
     glm::vec3 pos_;

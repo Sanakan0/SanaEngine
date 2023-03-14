@@ -7,7 +7,8 @@
 #include <stdint.h>
 namespace SRender::Core{
 
-enum class SGLState:uint8_t{
+enum SGLState:uint8_t{
+    EMPTY = 0X00,
     DEPTH_TEST = 0x01,
     CULL_FACE = 0x02,
     BLEND = 0X04,
@@ -15,6 +16,12 @@ enum class SGLState:uint8_t{
     BACK_CULL = 0X20,
     FRONT_CULL = 0X40
 };
+inline constexpr uint8_t Default_GLstate=
+        SGLState::EMPTY|SGLState::DEPTH_TEST|SGLState::DEPTH_WRITING|SGLState::CULL_FACE|SGLState::BACK_CULL;
+
+inline constexpr uint8_t Skeleton_Default_GLstate=
+        SGLState::EMPTY;
+
 
 
 class GLRenderer{
@@ -34,8 +41,13 @@ public:
         glReadPixels(x, y, width, height, format, type, data);
     };
     void ApplyGLstate(uint8_t mask);
+    void ApplyPreviousGLstate();
+
+    
 private:
     uint8_t glstate_;
+    uint8_t his_glstate_;
+    
 };
 
 
@@ -44,6 +56,7 @@ public:
     GLShapeDrawer(GLRenderer& renderer);
     ~GLShapeDrawer();
     void DrawLine(const glm::vec3& start,const glm::vec3& end,const glm::vec3& color,float width=1.0f);
+    // This cmd will write depth buffer, read depth before it!
     void DrawGrid();
     void DrawArrow(const glm::mat4& model_mat);
 private:
@@ -57,6 +70,7 @@ private:
     std::unique_ptr<Resources::GLShader> gridshader_=nullptr;
     std::unique_ptr<Resources::GLShader> arrowshader_=nullptr;
     GLRenderer& renderer_;
+    uint8_t grid_glstate_;
 };
 
 }

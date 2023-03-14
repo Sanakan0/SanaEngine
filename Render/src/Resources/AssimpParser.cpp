@@ -1,4 +1,5 @@
 #include "SRender/Resources/SBaseRenderResources.h"
+#include "SRender/Resources/STexture.h"
 #include "assimp/material.h"
 #include "assimp/scene.h"
 #include "assimp/texture.h"
@@ -11,7 +12,7 @@
 #include <assimp/anim.h>
 #include <assimp/matrix4x4.h>
 #include <assimp/mesh.h>
-#include <filesystem>
+#include <cstddef>
 #include <iostream>
 #include <stdint.h>
 #include <unordered_map>
@@ -24,7 +25,7 @@ AssimpParser::AssimpParser(){}
 AssimpParser::~AssimpParser(){}
 
 //simple loader
-bool AssimpParser::LoadModel(glm::mat4& model_mat,std::string path, std::vector<SMesh*>& meshes,std::vector<AssimpTextureStack>& materials,ResourceManager::TextureManager* tex_manager,bool is_cached,uint32_t assimp_flag){
+bool AssimpParser::LoadModel(glm::mat4& model_mat,std::string path, std::vector<SMesh*>& meshes,std::vector<TextureStack>& materials,ResourceManager::TextureManager* tex_manager,bool is_cached,uint32_t assimp_flag){
     loadwithskeleton=0;
     is_cached_=is_cached;
     Assimp::Importer imp;
@@ -122,7 +123,17 @@ void AssimpParser::Clear(){
     diffuse_tex_.clear();
 }
 
-void AssimpParser::ProcessMaterial(const aiScene* scene,std::vector<AssimpTextureStack>& materials,ResourceManager::TextureManager* tex_manager,std::string pth){
+STexture* AssimpParser::LoadTexture(const std::filesystem::path& full_pth,const aiScene* scene,ResourceManager::TextureManager* tex_manager){
+
+    if(auto tex = scene->GetEmbeddedTexture(full_pth.filename().generic_string().c_str())){
+        //TODO load embeded
+        return nullptr;
+    }else{
+        return tex_manager->CreateResources(full_pth.generic_string(),is_cached_);
+    }
+}
+
+void AssimpParser::ProcessMaterial(const aiScene* scene,std::vector<TextureStack>& materials,ResourceManager::TextureManager* tex_manager,std::string pth){
     if (tex_manager==nullptr) {
         spdlog::warn("[ASSIMP WARNING] Texture Manager Missing, No Texture Loaded. Set SRender::Resources::SModelLoader::texture_manager_ plz");
         return;
@@ -139,20 +150,31 @@ void AssimpParser::ProcessMaterial(const aiScene* scene,std::vector<AssimpTextur
         material->Get(AI_MATKEY_SHADING_MODEL,shadingm);
         
         // load texture (only diffuse tex supported)
-        aiString tmp_tex_file;
-        material->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE,0),tmp_tex_file);
-        std::string tex_file(tmp_tex_file.C_Str());
-        if(tex_file=="") continue; //empty path 
-        if(auto tex = scene->GetEmbeddedTexture(tex_file.c_str())){
-            //TODO load embeded
-        }else{
-            fs::path full_pth = pa_path/tex_file;
-            tex_stacks_[i].data[static_cast<int>(TextureStackType::DIFFUSE)] = tex_manager->CreateResources(full_pth.generic_string(),is_cached_);
-        }
-        for (uint32_t j=0;j<material->mNumProperties;++j){
-            auto prop=material->mProperties[j];
-        }
+        aiString aidiff_tex_file;
+        material->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE,0),aidiff_tex_file);
+        std::string diff_tex_file(aidiff_tex_file.C_Str());
+        tex_stacks_[i].DiffuseTex=(diff_tex_file!="")?
+            LoadTexture(pa_path/diff_tex_file, scene, tex_manager):nullptr;
+
+        aiString aispec_tex_file;
+        material->Get(AI_MATKEY_TEXTURE(aiTextureType_SPECULAR,0),aispec_tex_file);
+        std::string spec_tex_file(aispec_tex_file.C_Str());
+        tex_stacks_[i].SpecularTex=(spec_tex_file!="")?
+            LoadTexture(pa_path/spec_tex_file, scene, tex_manager):nullptr;
+
+        aiString ainorm_tex_file;
+        material->Get(AI_MATKEY_TEXTURE(aiTextureType_SPECULAR,0),ainorm_tex_file);
+        std::string norm_tex_file(ainorm_tex_file.C_Str());
+        tex_stacks_[i].NormalsTex=(norm_tex_file!="")?
+            LoadTexture(pa_path/norm_tex_file, scene, tex_manager):nullptr;
+        
+
+
+        // for (uint32_t j=0;j<material->mNumProperties;++j){
+        //     auto prop=material->mProperties[j];
+        // }
         // int x=material->GetTextureCount(aiTextureType_DIFFUSE);
+
 
     }
     for (int i=0;i<material_idx_.size();++i){

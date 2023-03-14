@@ -1,5 +1,6 @@
 #pragma once
 #include "ECS/Component/Component.h"
+#include "ECS/Component/TransformComponent.h"
 #include "Eventing/Event.h"
 #include <algorithm>
 #include <cstddef>
@@ -27,6 +28,10 @@ public:
         components_.push_back(
             std::make_pair(tmpname.substr(n+2), std::make_shared<T>(*this,std::forward<ArgsType>(args)...)) 
         );
+        if (components_[components_.size()-1].first=="TransformComponent"){
+            transform_=static_cast<Components::TransformComponent*>(
+                components_[components_.size()-1].second.get());
+        }
         AddComponentEvent.Invoke(*components_[components_.size()-1].second);
     }
 
@@ -46,9 +51,11 @@ public:
         return nullptr;
     }
     //Draw IMGUI for interact
-
+    Components::TransformComponent* GetTransformComponent(){return transform_;}
 
     SCore::Event<Components::Component&> AddComponentEvent;
+
+    
 private:
     Actor(const Actor& p_actor) = delete;
     
@@ -56,6 +63,7 @@ private:
     std::string name_;
     
     std::vector<std::pair<std::string,std::shared_ptr<Components::Component>>> components_;
+    Components::TransformComponent* transform_=nullptr;
     
 
 };

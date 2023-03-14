@@ -2,6 +2,7 @@
 #include "ECS/Component/MeshComponent.h"
 #include "ECS/Component/TransformComponent.h"
 #include "SCore/Global/ServiceLocator.h"
+#include "SRender/Core/GLRenderer.h"
 #include "SRender/Passes/SimpleRenderPass.h"
 #include "SRender/Resources/GLShader.h"
 #include "SRender/Resources/GLShaderLoader.h"
@@ -125,9 +126,7 @@ void TestView::RenderTick(float deltat){
         rtcontext_.core_renderer_->SetRasterizationMode(SRender::Setting::SRasterization::FILL);
     }
     
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     fbo_.Bind();
     auto& renderer = *(rtcontext_.core_renderer_);
     auto& shape_drawer = *(rtcontext_.shape_drawer_);
@@ -144,6 +143,7 @@ void TestView::RenderTick(float deltat){
     //     renderer.Draw(*i, SRender::Setting::SPrimitive::TRIANGLES);
     // }
     //renderpass.Draw();
+    renderer.ApplyGLstate(SRender::Core::Default_GLstate);
     scenerenderpass.Draw();
 
     rtcontext_.core_renderer_->SetRasterizationMode(SRender::Setting::SRasterization::FILL);

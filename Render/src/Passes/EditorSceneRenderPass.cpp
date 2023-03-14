@@ -1,7 +1,9 @@
 #include <SRender/Passes/EditorSceneRenderPass.h>
+#include "ECS/Component/MaterialComponent.h"
 #include "ECS/Component/TransformComponent.h"
 #include "SCore/Global/ServiceLocator.h"
 #include "SRender/Core/EntityRenderer.h"
+#include "SRender/Resources/GLShader.h"
 #include "SRender/Resources/GLShaderLoader.h"
 #include "SRender/Resources/SModel.h"
 #include "SResourceManager/Util.h"
@@ -22,13 +24,14 @@ void EditorSceneRenderPass::Draw(){
     shaderp_->SetUniFloat("k", k);
     glm::mat4 tmpmodel = glm::mat4(1);
     for (auto& meshcomp:scenemanager_.GetScene()->GetBasicRenderComponent().meshcomps){
-        auto transcomp =static_cast<ECS::Components::TransformComponent*>(
-            meshcomp->parentactor_.GetComponent("TransformComponent"));
-        
+        auto transcomp =meshcomp->parentactor_.GetTransformComponent();
+        auto material = static_cast<ECS::Components::MaterialComponent*>(
+            meshcomp->parentactor_.GetComponent("MaterialComponent"))->GetMaterial();
+        Resources::GLShader* shaderp = material->GetShader()?material->GetShader():shaderp_.get();
         if (transcomp) {
-            shaderp_->SetUniMat4("ModelMat", transcomp->GetMat());
+            shaderp->SetUniMat4("ModelMat", transcomp->GetMat());
         }else{
-            shaderp_->SetUniMat4("ModelMat", tmpmodel);
+            shaderp->SetUniMat4("ModelMat", tmpmodel);
         }
         renderer_.DrawModel(*meshcomp->GetModel());
     }

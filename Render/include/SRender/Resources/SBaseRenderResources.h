@@ -9,6 +9,7 @@
 #include <string>
 #include <vcruntime.h>
 #include <vector>
+#define TEXTURESTACK_NUM 3
 namespace SRender::Resources{
 struct SJoint{
 	glm::vec3 trans;
@@ -42,16 +43,17 @@ struct VertexWithWeight{
 	float weights[4];
 };
 
-enum class TextureStackType:int{
-    DIFFUSE = 0x0000,
-    SPECULAR,
-    AMBIENT,
-    EMISSIVE,
-    NORMALS,
+enum TextureStackType:int{
+    DIFFUSE,
+    SPECULAR_GlOSSINESS,
+    NORMALS
 };
 
-struct AssimpTextureStack{
-    STexture* data[3] {nullptr,nullptr,nullptr}; 
+
+struct TextureStack{
+    STexture* DiffuseTex;
+	STexture* SpecularTex; //srgb specular glossiness in PBR. rgb is fresnel, alpha is roughness
+	STexture* NormalsTex;
 };
 
 struct BoundingSphere{

@@ -23,10 +23,10 @@ void SimpleRenderPass::Draw(){
         auto& materials=model->GetMaterials();
         for (int i=0;i<meshes.size();++i){
             //bind texture
-            materials[i].data[0]->Bind(0);
+            materials[i].DiffuseTex->Bind(0);
             //draw sth
             renderer_.Draw(*meshes[i], Setting::SPrimitive::TRIANGLES);
-            materials[i].data[0]->Unbind();
+            materials[i].DiffuseTex->Unbind();
         }
     }
     shaderp_->Unbind();
