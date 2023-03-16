@@ -12,6 +12,7 @@ public:
     ~Editor();
     void Run();
     void PreTick();
+    // Tick time unit is second
     void Tick(float deltat);
     void PostTick();
     void LogicTick(float deltat);

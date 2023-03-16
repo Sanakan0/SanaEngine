@@ -19,15 +19,7 @@ void SimpleRenderPass::Draw(){
     tmpmodel[3]=glm::vec4(0,0,0,1);
     shaderp_->SetUniMat4("ModelMat", tmpmodel);
     for (auto model:render_resources_){
-        auto& meshes = model->GetMeshes();
-        auto& materials=model->GetMaterials();
-        for (int i=0;i<meshes.size();++i){
-            //bind texture
-            materials[i].DiffuseTex->Bind(0);
-            //draw sth
-            renderer_.Draw(*meshes[i], Setting::SPrimitive::TRIANGLES);
-            materials[i].DiffuseTex->Unbind();
-        }
+        renderer_.DrawModel(*model);
     }
     shaderp_->Unbind();
 }

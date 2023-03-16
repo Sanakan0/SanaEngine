@@ -3,8 +3,8 @@
 #include <stdint.h>
 namespace SRender::Resources{
 //simple mesh
-SMesh::SMesh(std::vector <Vertex>& vs, std::vector <unsigned int>& vidx,bool iscached):
-vertex_size_(vs.size()),idx_size_(vidx.size()) {
+SMesh::SMesh(std::vector <Vertex>& vs, std::vector <unsigned int>& vidx,uint32_t material_idx,bool iscached):
+vertex_size_(vs.size()),idx_size_(vidx.size()),material_idx_(material_idx) {
 	CalcBoundingSphere(vs);
 	if (iscached){
 		vs_cache_=std::move(vs);
@@ -14,8 +14,8 @@ vertex_size_(vs.size()),idx_size_(vidx.size()) {
 	}
 }
 //mesh with skeleton
-SMesh::SMesh(std::vector <VertexWithWeight>& vs_w, std::vector <unsigned int>& vidx,bool iscached):
-vertex_size_(vs_w.size()),idx_size_(vidx.size()) {
+SMesh::SMesh(std::vector <VertexWithWeight>& vs_w, std::vector <unsigned int>& vidx,uint32_t material_idx,bool iscached):
+vertex_size_(vs_w.size()),idx_size_(vidx.size()),material_idx_(material_idx) {
 	CalcBoundingSphere(vs_w);
 	if (iscached){
 		vsw_cache_=std::move(vs_w);

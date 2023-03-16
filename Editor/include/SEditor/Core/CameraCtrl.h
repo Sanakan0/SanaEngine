@@ -1,4 +1,5 @@
 #pragma once
+#include "glm/fwd.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -25,12 +26,13 @@ public:
 	
 	void Orbit(float hori_deg,float verti_deg );
 	void CalcLookAt(); //call to initialize
+    void Move2Target(glm::vec3 targetpos,float dis);
 	void FpsRotate(float hori_deg,float verti_deg);
 	void zoom(float step);
 	void reset();
 	void resetworldup();
 	float CalcDisPerPix(int w,int h);
-    
+    void TickCamMove(float deltat);
     SWnd::Context& wndcontext_;
     SGUI::Panels::WndPanel& view_;
     SWnd::Input::InputManager inputmanager_;
@@ -52,6 +54,13 @@ private:
 	glm::vec3 pos_;
 	glm::quat orien_;
 	glm::vec3 euler_xyz_deg_;
+
+//move to data
+    glm::vec3 mv2pos_;
+    glm::quat mv2orien_;
+    float anima_time_inv_=2; //second
+    float anima_process_normalized_=0; //[0,1]
+    bool anima_activate_=0;
 };
 
 }

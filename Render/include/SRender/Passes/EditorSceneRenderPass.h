@@ -17,9 +17,8 @@ public:
     EditorSceneRenderPass();
     ~EditorSceneRenderPass()=default;
     void Draw();
-    std::vector<Resources::SModel*> render_resources_;
     float k=0;
-private:
+private: 
     std::unique_ptr<Resources::GLShader> shaderp_;
     Core::EntityRenderer& renderer_;
     SceneSys::SceneManager& scenemanager_;

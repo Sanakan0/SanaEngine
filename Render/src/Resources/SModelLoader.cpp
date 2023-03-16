@@ -1,11 +1,16 @@
 #include "spdlog/spdlog.h"
 #include <SRender/Resources/SModelLoader.h>
 #include <SRender/Resources/AssimpParser.h>
+#include <memory>
 namespace SRender::Resources{
 bool SModelLoader::LoadSimpleModel(std::string path, SModel &model,bool is_cached){
     AssimpParser parser;
     model.path_=path;
-    if(parser.LoadModel(model.modelmat_,path,model.meshes_,model.materials_,texture_manager_,is_cached)){
+    std::vector<TextureStack> tmpmaterials;
+    if(parser.LoadModel(model.modelmat_,path,model.meshes_,tmpmaterials,texture_manager_,is_cached)){
+       
+        model.material_=std::make_unique<SMaterial>(tmpmaterials);
+      
         model.CalcBoundingSphere();
         spdlog::info("[ASSIMP] Simple Model loaded : "+path);
         return true;
@@ -29,5 +34,7 @@ bool SModelLoader::LoadModelWithAnima(std::string path, SModel &model, std::vect
 void SModelLoader::Initialize(ResourceManager::TextureManager* texture_manager){
     texture_manager_=texture_manager;
 }
+
+
 
 }

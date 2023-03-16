@@ -10,10 +10,10 @@ Scene::Scene(){}
 Scene::~Scene(){}
 ECS::Actor& Scene::CreateActor(const std::string& name){
     const std::lock_guard<std::mutex> lock(mutex_);
-    actor_id_cnt_++;
     actors_.emplace(std::make_pair(actor_id_cnt_,std::make_unique<ECS::Actor>(actor_id_cnt_,name)));
     //actors_.push_back(std::move());
     auto& res = *actors_[actor_id_cnt_];
+    actor_id_cnt_++;
     // auto meshcmp = res.GetComponent<ECS::Components::MeshComponent>();
     // if(meshcmp) basicrendercomponents_.meshcomps.push_back(meshcmp);
     res.AddComponentEvent.AddListener(std::bind(&Scene::OnAddComponent,this,std::placeholders::_1));

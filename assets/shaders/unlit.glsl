@@ -35,7 +35,8 @@ in VS_OUT{
     vec2 tex_coord;
 } fs_in;
 
+uniform vec4 diffuse_color=vec4(1,1,1,1);
 
 void main(){
-    FRAGMENT_COLOR=vec4(vec3(texture(diff_tex,fs_in.tex_coord)),1.0);
+    FRAGMENT_COLOR=texture(diff_tex,fs_in.tex_coord)*diffuse_color;
 }

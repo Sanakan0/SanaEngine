@@ -1,3 +1,4 @@
+//DEPRICATED
 #pragma once
 #include "SRender/Resources/GLShader.h"
 #include "SRender/Resources/STexture.h"

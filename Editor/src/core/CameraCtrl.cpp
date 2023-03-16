@@ -1,4 +1,5 @@
 #include "SEditor/Core/CameraCtrl.h"
+#include "glm/ext/quaternion_common.hpp"
 #include <SMath/Quaternion.h>
 #include <algorithm>
 namespace SEditor::Core{
@@ -14,15 +15,16 @@ void CameraCtrl::HandleInputs(float delta_time){
     if(view_.hovered_||inputmanager_.first_mouse_pressed_){
         inputmanager_.UpdateMouse();
         HandleZoom();
+        if (is_fps_cam_mod_){
+        HandleFpsCamCtl(delta_time);
+        }else {
+            HandleOrbitCamCtl(delta_time);
+        }
     }else{
 
     }
     //std::cout << inputmanager_.curpos_.first << " " << inputmanager_.curpos_.second <<"     < \r";
-    if (is_fps_cam_mod_){
-        HandleFpsCamCtl(delta_time);
-    }else {
-        HandleOrbitCamCtl(delta_time);
-    }
+    
 
     
 }
@@ -103,6 +105,29 @@ void CameraCtrl::Orbit(float hori_deg,float verti_deg) {
 
 void CameraCtrl::CalcLookAt(){
     orien_ = sm::LookAt(worldup,camcenter-pos_);
+    euler_xyz_deg_ = sm::Quat2Eul(orien_);
+}
+
+void CameraCtrl::Move2Target(glm::vec3 targetpos,float dis){
+    camcenter=targetpos;
+    mv2pos_ = targetpos+dis*glm::vec3(1);
+    mv2orien_ = sm::LookAt(worldup,camcenter-mv2pos_);
+    anima_activate_=1;
+}
+
+void CameraCtrl::TickCamMove(float deltat){
+    if (!anima_activate_) return;
+    anima_process_normalized_+=deltat*anima_time_inv_;
+    if (anima_process_normalized_>1){
+        anima_activate_=0;
+        anima_process_normalized_=0;
+        orien_=mv2orien_;
+        pos_=mv2pos_;
+        euler_xyz_deg_ = sm::Quat2Eul(orien_);
+        return;
+    }
+    orien_ = glm::slerp(orien_,mv2orien_,anima_process_normalized_);
+    pos_ = glm::mix(pos_,mv2pos_,anima_process_normalized_);
     euler_xyz_deg_ = sm::Quat2Eul(orien_);
 }
 

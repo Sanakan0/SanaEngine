@@ -12,9 +12,9 @@ public:
     virtual DrawCmd GetInspectorDrawCmd() override;
     virtual void DrawInspector() override;
 
-    SRender::Resources::SMaterial* GetMaterial(){return &material_;}
+    SRender::Resources::SMaterial* GetMaterial(){return material_;}
 private:
-    SRender::Resources::SMaterial material_;
+    SRender::Resources::SMaterial* material_;
 
 };  
 

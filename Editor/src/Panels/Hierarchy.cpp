@@ -22,10 +22,8 @@ void Hierarchy::RightClickMenu(){
 }
 
 void Hierarchy::DrawContent(){
-    if (ImGui::Button("idtest")) std::cout <<"fk1\n";
-    if (ImGui::Button("idtest##12")) std::cout <<"fk2\n";
+
     if (ImGui::TreeNode("root")){
-        if (ImGui::Button("idtest")) std::cout <<"fk3\n";
         for (auto &actor:scenemanager_.GetScene()->GetActors()){
             
             if (ImGui::Selectable(std::to_string(actor.second->GetID()).c_str())){
@@ -34,6 +32,7 @@ void Hierarchy::DrawContent(){
             RightClickMenu();
         
         }
+        ImGui::TreePop();
     }
     
 }

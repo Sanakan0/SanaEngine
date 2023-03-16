@@ -51,6 +51,9 @@ STexture* STextureLoader::LoadFromMemory(void* data,uint32_t width,uint32_t heig
     glBindTexture(GL_TEXTURE_2D,0);
     return new STexture(id,width,height,pth,minfilter,magfilter,mipmap);
 }
+STexture* STextureLoader::CreateColor(uint32_t color){
+    return LoadFromMemory(&color, 1, 1, "color");
+}
 
 
 }

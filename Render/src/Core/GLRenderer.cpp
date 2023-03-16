@@ -34,13 +34,18 @@ void GLRenderer::SetGlxxable(GLenum capability,bool is_enable){
     is_enable?glEnable(capability):glDisable(capability);
 }
 
+void GLRenderer::SetColorWriting(bool is_enable){
+    glColorMask(is_enable,is_enable,is_enable,is_enable);
+}
+
+
 void GLRenderer::ApplyGLstate(uint8_t mask){
     his_glstate_=glstate_;
     if (mask!=glstate_){
         if ( (mask & 0x01)!=(glstate_ & 0x01) ) SetGlxxable(GL_DEPTH_TEST, mask & 0x01);
         if ( (mask & 0x04)!=(glstate_ & 0x04) ) SetGlxxable(GL_BLEND, mask & 0x04);
         if ( (mask & 0x08)!=(glstate_ & 0x08) ) (mask & 0x08)?glDepthMask(0xFF):glDepthMask(0x00);
-
+        if ( (mask & 0x10)!=(glstate_ & 0x10) ) SetColorWriting(mask & 0x10);
         if ( (mask & 0x02)!=(glstate_ & 0x02) ) {
             SetGlxxable(GL_CULL_FACE, mask & 0x02);
             if (mask & 0x02){
@@ -88,7 +93,7 @@ void GLShapeDrawer::DrawLine(const glm::vec3 &start, const glm::vec3 &end, const
 }
     
 void GLShapeDrawer::DrawGrid(){
-    renderer_.ApplyGLstate(grid_glstate_);
+    renderer_.ApplyGLstate(Grid_GLstate_);
     gridshader_->Bind();
     renderer_.Draw(*panelmeshp_, Setting::SPrimitive::TRIANGLES);
     gridshader_->Unbind();
@@ -109,7 +114,7 @@ GLShapeDrawer::GLShapeDrawer(GLRenderer& renderer):renderer_(renderer){
     InitLineShader();
     //init grid drawer
     InitGridShader();
-    grid_glstate_=SGLState::EMPTY|SGLState::BLEND|SGLState::DEPTH_TEST|SGLState::DEPTH_WRITING;
+    
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     //
     InitArrowShader();

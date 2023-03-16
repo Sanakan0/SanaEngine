@@ -14,17 +14,16 @@ namespace SEditor::Core{class RuntimeContext;}
 
 namespace SRender::Passes{
 
-class ActorOutlineRenderPass{
+class ActorPickerMaskRenderPass{
 public:
-    ActorOutlineRenderPass();
-    ~ActorOutlineRenderPass()=default;
-    void Draw(ECS::Actor& actor);
+    ActorPickerMaskRenderPass();
+    ~ActorPickerMaskRenderPass()=default;
+    void Draw();
 private:
     std::unique_ptr<Resources::GLShader> shaderp_;
-    std::unique_ptr<Resources::STexture> empty_texturep_;
     Core::EntityRenderer& renderer_;
     SceneSys::SceneManager& scenemanager_;
-    uint8_t glstate_;
+
 };
 
 

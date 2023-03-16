@@ -65,15 +65,15 @@ class SModel;
 class SMesh {
 friend class SModel;
 public:
-	SMesh(std::vector <Vertex>& vs, std::vector <unsigned int> &vidx,bool iscached=false);
-	SMesh(std::vector <VertexWithWeight>& vs_w, std::vector <unsigned int> &vidx,bool iscached=false);
+	SMesh(std::vector <Vertex>& vs, std::vector <unsigned int> &vidx,uint32_t material_idx=-1,bool iscached=false);
+	SMesh(std::vector <VertexWithWeight>& vs_w, std::vector <unsigned int> &vidx,uint32_t material_idx=-1,bool iscached=false);
 	SMesh(const SMesh&) = delete;
 	~SMesh();
 	size_t VertexSize(){return vertex_size_;}
 	size_t IdxSize(){return idx_size_;}
 	unsigned int vao_=0, vbo_=0, ebo_=0;
 	size_t vertex_size_,idx_size_;
-
+	uint32_t material_idx_;
 	void Bind();
     void UnBind();
 	void CreateBuf(std::vector <Vertex>& vs, std::vector <unsigned int> &vidx);

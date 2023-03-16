@@ -43,7 +43,7 @@ bool AssimpParser::LoadModel(glm::mat4& model_mat,std::string path, std::vector<
     meshes.reserve(vertex_data_.size());
     for (uint32_t i =0;i<vertex_data_.size();i++){
         //meshes.push_back(SMesh(vertex_data_[i],idx_data_[i]));
-        meshes.push_back(new SMesh(vertex_data_[i],idx_data_[i],is_cached));
+        meshes.push_back(new SMesh(vertex_data_[i],idx_data_[i],material_idx_[i],is_cached));
     }
 
     ProcessMaterial(scene,materials,tex_manager,path);
@@ -105,7 +105,7 @@ bool AssimpParser::LoadModel(glm::mat4& model_mat,std::string path, std::vector<
     }
     meshes.reserve(vertex_data_w_.size());
     for (int i =0;i<vertex_data_w_.size();i++){
-        meshes.push_back(new SMesh(vertex_data_w_[i],idx_data_[i],is_cached));
+        meshes.push_back(new SMesh(vertex_data_w_[i],idx_data_[i],material_idx_[i],is_cached));
         //meshes.push_back(SMesh(vertex_data_w_[i],idx_data_[i]));
     }
     Clear();
@@ -141,7 +141,8 @@ void AssimpParser::ProcessMaterial(const aiScene* scene,std::vector<TextureStack
     namespace fs = std::filesystem;
     fs::path model_path(pth);
     fs::path pa_path = model_path.parent_path();
-    tex_stacks_.resize(scene->mNumMaterials);
+    materials.clear();
+    materials.resize(scene->mNumMaterials);
     for (uint32_t i=0;i<scene->mNumMaterials;++i){
         aiMaterial* material = scene->mMaterials[i];
         aiString name;
@@ -153,19 +154,19 @@ void AssimpParser::ProcessMaterial(const aiScene* scene,std::vector<TextureStack
         aiString aidiff_tex_file;
         material->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE,0),aidiff_tex_file);
         std::string diff_tex_file(aidiff_tex_file.C_Str());
-        tex_stacks_[i].DiffuseTex=(diff_tex_file!="")?
+        materials[i].DiffuseTex=(diff_tex_file!="")?
             LoadTexture(pa_path/diff_tex_file, scene, tex_manager):nullptr;
 
         aiString aispec_tex_file;
         material->Get(AI_MATKEY_TEXTURE(aiTextureType_SPECULAR,0),aispec_tex_file);
         std::string spec_tex_file(aispec_tex_file.C_Str());
-        tex_stacks_[i].SpecularTex=(spec_tex_file!="")?
+        materials[i].SpecularTex=(spec_tex_file!="")?
             LoadTexture(pa_path/spec_tex_file, scene, tex_manager):nullptr;
 
         aiString ainorm_tex_file;
         material->Get(AI_MATKEY_TEXTURE(aiTextureType_SPECULAR,0),ainorm_tex_file);
         std::string norm_tex_file(ainorm_tex_file.C_Str());
-        tex_stacks_[i].NormalsTex=(norm_tex_file!="")?
+        materials[i].NormalsTex=(norm_tex_file!="")?
             LoadTexture(pa_path/norm_tex_file, scene, tex_manager):nullptr;
         
 
@@ -177,10 +178,10 @@ void AssimpParser::ProcessMaterial(const aiScene* scene,std::vector<TextureStack
 
 
     }
-    for (int i=0;i<material_idx_.size();++i){
-        int mat_idx=material_idx_[i];
-        materials.push_back(tex_stacks_[mat_idx]);
-    }
+    // for (int i=0;i<material_idx_.size();++i){
+    //     int mat_idx=material_idx_[i];
+    //     materials.push_back(tex_stacks_[mat_idx]);
+    // }
 }
 
 //static int depth=0; print node tree

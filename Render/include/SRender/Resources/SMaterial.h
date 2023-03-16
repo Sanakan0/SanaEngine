@@ -1,5 +1,6 @@
 #pragma once
 #include "SRender/Resources/GLShader.h"
+#include <stdint.h>
 #include <vector>
 #include <string>
 #include <SRender/Resources/SBaseRenderResources.h>
@@ -9,15 +10,14 @@ namespace SRender::Resources{
 
 class SMaterial{
 public:
-    void BindTextures();
-    GLShader* GetShader(){return shader_;}
-    void SetShader(GLShader* shader){shader_=shader;}
-    TextureStack& GetTextureStack(){return textures;}
-private:
-    TextureStack textures;
-    GLShader* shader_;
+    SMaterial(std::vector<TextureStack>& texs);
+    SMaterial();
+    void BindTexturebyidx(uint32_t idx,STexture* empty_tex);
+    void UnBindTexture();
+    // TextureStack& GetTextureStack(){return textures;}
 
-
+    std::vector<TextureStack> texturelist_;
+    std::string shaderfile_;
 };
 
 
