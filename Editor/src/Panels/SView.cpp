@@ -12,7 +12,7 @@ namespace SEditor::Panels{
 
 SView::SView():camctrl_(*this,SANASERVICE(SWnd::Context),cam_){
     scrollable_=false;
-
+    window_padding_={0,0};
     
 }
 

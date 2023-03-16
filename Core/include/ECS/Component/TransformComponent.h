@@ -11,8 +11,8 @@ public:
     void DrawInspector() override;
     const glm::mat4& GetMat(){return trans_.GetMat();}
     
-private:
-    
+
+    glm::vec3 euler_xyz_deg_;
     sm::Transform trans_;
 };
 

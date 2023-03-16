@@ -7,7 +7,7 @@ namespace ECS::Components {
 
 class MaterialComponent:public Component{
 public:
-    MaterialComponent(Actor& parentactor);
+    MaterialComponent(Actor& parentactor,SRender::Resources::SMaterial* material);
     virtual void Tick(float delta_t) override;
     virtual DrawCmd GetInspectorDrawCmd() override;
     virtual void DrawInspector() override;

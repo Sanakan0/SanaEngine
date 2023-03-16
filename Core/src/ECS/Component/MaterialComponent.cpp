@@ -1,10 +1,12 @@
 #include "ECS/Component/Component.h"
+#include "ECS/Component/MeshComponent.h"
 #include "imgui/imgui.h"
 #include <ECS/Component/MaterialComponent.h>
 namespace ECS::Components {
-MaterialComponent::MaterialComponent(Actor& parentactor):
+MaterialComponent::MaterialComponent(Actor& parentactor,SRender::Resources::SMaterial* material):
 Component(parentactor)
 {
+    material_=material;
 
 }
 

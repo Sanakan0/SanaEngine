@@ -29,6 +29,8 @@ void Inspector::RightClickMenu(){
 }
 
 void Inspector::DrawContent(){
+    ImGui::PushItemWidth(ImGui::GetFontSize() * -12);
+    ImGui::Spacing();
     if (selected_actor_!=scenemanager_.GetSelectedActor()){
         selected_actor_=scenemanager_.GetSelectedActor();
         component_drawlist_.Clear();
@@ -46,7 +48,7 @@ void Inspector::DrawContent(){
         ImGui::Text(ss.str().c_str());
         component_drawlist_.Invoke();    
     }
-    
+    ImGui::PopItemWidth();
     
 }
 

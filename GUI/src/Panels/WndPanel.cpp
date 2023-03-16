@@ -84,7 +84,7 @@ static void ShowExampleAppSimpleOverlay(bool* p_open,ImVec2 pos,ImVec2 sz)
 
 
 void WndPanel::DrawImpl(){
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, window_padding_);
     if (opened_){
         int windowFlags = ImGuiWindowFlags_None;
 

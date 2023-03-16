@@ -179,7 +179,7 @@ void SceneView::ActorPickerTick(float deltat){
         if (ImGui::IsKeyPressed(ImGuiKey_F)){
             if (auto actor = rtcontext_.scene_manager_->GetSelectedActor()){
                 auto meshcomp = (ECS::Components::MeshComponent*)actor->GetComponent("MeshComponent");
-                camctrl_.Move2Target(meshcomp->GetModel()->GetBoundingSphere()->pos, meshcomp->GetModel()->GetBoundingSphere()->radius); 
+                camctrl_.Move2Target(actor->GetTransformComponent()->trans_.world_pos_, meshcomp->GetModel()->GetBoundingSphere()->radius); 
             }
         }
     }

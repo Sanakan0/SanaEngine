@@ -31,7 +31,7 @@ public:
     std::pair<int,int> pos_;
     std::pair<int,int> canvas_size_={65535,65535};
     std::pair<int,int> canvas_pos_;
-
+    ImVec2 window_padding_={15,15};
 
 
     bool opened_=true;
