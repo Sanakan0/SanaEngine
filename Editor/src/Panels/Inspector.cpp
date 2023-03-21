@@ -1,4 +1,5 @@
 #include "SCore/Global/ServiceLocator.h"
+#include "SGUI/Core/UImanager.h"
 #include "SceneSys/SceneManager.h"
 #include "imgui/imgui.h"
 #include <SEditor/Panels/Inspector.h>
@@ -13,7 +14,8 @@ const std::string Inspector::componentlist[]{
 };
 
 Inspector::Inspector():
-scenemanager_(SANASERVICE(SceneSys::SceneManager))
+scenemanager_(SANASERVICE(SceneSys::SceneManager)),
+sceneview_(SANASERVICE(SGUI::Core::UImanager).GetPanel<SEditor::Panels::SceneView>("Scene View"))
 {
     name_="Inspector";
 }
@@ -31,6 +33,9 @@ void Inspector::RightClickMenu(){
 void Inspector::DrawContent(){
     ImGui::PushItemWidth(ImGui::GetFontSize() * -12);
     ImGui::Spacing();
+    
+    
+    
     if (selected_actor_!=scenemanager_.GetSelectedActor()){
         selected_actor_=scenemanager_.GetSelectedActor();
         component_drawlist_.Clear();
@@ -43,6 +48,12 @@ void Inspector::DrawContent(){
     }
     
     if (selected_actor_){
+        
+        if (ImGui::Button("Move to Actor")){
+            auto meshcomp = (ECS::Components::MeshComponent*)selected_actor_->GetComponent("MeshComponent");
+                sceneview_.camctrl_.Move2Target(selected_actor_->GetTransformComponent()->trans_.world_pos_, meshcomp->GetModel()->GetBoundingSphere()->radius); 
+        }
+
         std::stringstream ss;
         ss <<selected_actor_->GetName()<<"_"<<selected_actor_->GetID();
         ImGui::Text(ss.str().c_str());
