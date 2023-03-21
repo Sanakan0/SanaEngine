@@ -86,7 +86,7 @@ private:
 		float minx,miny,minz;
 		float maxx,maxy,maxz;
 		minx=miny=minz = std::numeric_limits<float>::max();
-		maxx=maxy=maxz = std::numeric_limits<float>::min();
+		maxx=maxy=maxz = std::numeric_limits<float>::lowest();
 		for (auto& v:vs){
 			minx = std::min(v.pos[0],minx);
 			miny = std::min(v.pos[1],miny);

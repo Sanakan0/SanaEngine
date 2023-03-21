@@ -62,13 +62,13 @@ simplerenderpass(rtcontext)
     //model = modelmanager.CreateResources(R"(..\assets\models\Tile_+025_+034\Tile_+025_+034.obj)");
     //renderpass.render_resources_.push_back(model);
     namespace fs = std::filesystem;
-    fs::path tile_pth(R"(D:\beihang reconstruction data\dxobj)");
+    //fs::path tile_pth(R"(D:\beihang reconstruction data\dxobj)");
     //fs::path tile_pth(R"(E:\user\cnt0\beihang reconstruction data\dxobj)");
     
-    //fs::path tile_pth(R"(E:\ExperimentsData\Models\GovFacility\Data)");
+    fs::path tile_pth(R"(E:\ExperimentsData\Models\GovFacility\Data)");
     int cnt=3;
     int cur=0;
-    int st=200;
+    int st=1;
     int ed=st+cnt-1;
     //simplerenderpass.render_resources_.resize(cnt);
     std::vector<std::thread>threadtest;
@@ -151,14 +151,21 @@ void SceneView::RenderTick(float deltat){
     //renderpass.Draw();
     renderer.ApplyGLstate(SRender::Core::Default_GLstate);
     scenerenderpass.Draw();
-
-    //test
-    shape_drawer.DrawGizmo({0,0,0});
-    //
+    
+    shape_drawer.DrawGrid();
+    
+    if (auto actor = rtcontext_.scene_manager_->GetSelectedActor();actor!=nullptr){
+        renderer.DrawActorOutline(*actor);
+        shape_drawer.DrawTransGizmo(actor->GetTransformComponent()->trans_.world_pos_,camctrl_.cam_.GetViewMat());
+    }
+   
 
     ActorPickerTick(deltat);
-    fbo_.Bind();
-    shape_drawer.DrawGrid();
+    //test
+    
+    //
+    
+    
     fbo_.Unbind();
 }
 

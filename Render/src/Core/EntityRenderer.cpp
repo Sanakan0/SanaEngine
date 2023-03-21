@@ -8,6 +8,9 @@
 #include "SResourceManager/Util.h"
 #include "SMath/Quaternion.h"
 #include "glm/ext/matrix_transform.hpp"
+#include "glm/fwd.hpp"
+#include "glm/geometric.hpp"
+#include "glm/gtc/quaternion.hpp"
 #include "glm/matrix.hpp"
 #include <SRender/Core/EntityRenderer.h>
 #include <memory>
@@ -118,6 +121,11 @@ GLShapeDrawer::GLShapeDrawer(EntityRenderer& renderer):renderer_(renderer){
     //
     InitArrowShader();
     InitGizmoShader();
+
+    auto cos45 = cos(SM_PI/4);
+    auto sin45 =sin(SM_PI/4);
+    gizmoarrow_ytrans = glm::mat4_cast(glm::quat(cos45,sin45,0,0));
+    gizmoarrow_xtrans = glm::mat4_cast(glm::quat(cos45,0,sin45,0)); 
 }
 
 GLShapeDrawer::~GLShapeDrawer(){
@@ -125,20 +133,32 @@ GLShapeDrawer::~GLShapeDrawer(){
 }
 
 
-void GLShapeDrawer::DrawGizmo(const glm::vec3 &pos){
+void GLShapeDrawer::DrawTransGizmo(const glm::vec3 &pos,const glm::mat4& viewmat){
     
+    renderer_.ClearBuffer(0,1,0);
+
+    float scale = -(viewmat*glm::vec4(pos,1)).z*0.05;
+    auto ztrans = glm::mat4(scale);
+    ztrans[3]=glm::vec4(pos,1);
+    auto ytrans = gizmoarrow_ytrans*scale;
+    ytrans[3]=glm::vec4(pos,1);
+    auto xtrans = gizmoarrow_xtrans*scale;
+    xtrans[3]=glm::vec4(pos,1);
+    DrawGizmoArrow(ztrans,{0,0,1,1});
+    DrawGizmoArrow(xtrans,{1,0,0,1});
+    DrawGizmoArrow(ytrans,{0,1,0,1});
 }
 void GLShapeDrawer::DrawGizmoArrow(const glm::mat4& model_mat,const glm::vec4& diff_color){
-    renderer_.unlitshader_->Bind();
-
-    arrowshader_->SetUniMat4("ModelMat", model_mat);
-    arrowshader_->SetUniVec4("diffuse_color", diff_color);
+    gizmoshader_->Bind();
+    //renderer_.SetRasterizationMode(Setting::SRasterization::LINE);
+    gizmoshader_->SetUniMat4("ModelMat", model_mat);
+    gizmoshader_->SetUniVec4("diffuse_color", diff_color);
     renderer_.Draw(*gizmoarrowmeshp_head_, Setting::SPrimitive::TRIANGLE_FAN);
     renderer_.Draw(*gizmoarrowmeshp_headbase_, Setting::SPrimitive::TRIANGLE_FAN);
     renderer_.Draw(*gizmoarrowmeshp_body_, Setting::SPrimitive::TRIANGLE_STRIP);
     renderer_.Draw(*gizmoarrowmeshp_bodybase_, Setting::SPrimitive::TRIANGLE_FAN);
-
-    renderer_.unlitshader_->Unbind();
+    //renderer_.SetRasterizationMode(Setting::SRasterization::FILL);
+    gizmoshader_->Unbind();
 }
 
 void GLShapeDrawer::DrawLine(const glm::vec3 &start, const glm::vec3 &end, const glm::vec3 &color,float width){
@@ -179,8 +199,8 @@ void GLShapeDrawer::InitGizmoShader(){
     
 
     int cnt=10;
-    float rbody=0.05;
-    float hbody=2;
+    float rbody=0.02f;
+    float hbody=2.0f;
     std::vector<Resources::Vertex> bodyv;
     std::vector<Resources::Vertex> bodyv0;
     bodyv0.push_back({
@@ -191,8 +211,8 @@ void GLShapeDrawer::InitGizmoShader(){
 
     for (int i=0;i<=cnt;++i){
         float theta = 2.0f*i*SM_PI/cnt;
-        float x=cosf(theta)*rbody;
-        float y=sinf(theta)*rbody;
+        float x=cosf(-theta)*rbody;
+        float y=sinf(-theta)*rbody;
         bodyv.push_back({
             {x,y,0},
             {0,0},
@@ -204,7 +224,7 @@ void GLShapeDrawer::InitGizmoShader(){
             {0,0,0}
         });
         bodyv0.push_back({
-            {x,y,0},
+            {cosf(theta)*rbody,sinf(theta)*rbody,0},
             {0,0},
             {0,0,0}
         });
@@ -212,8 +232,8 @@ void GLShapeDrawer::InitGizmoShader(){
 
    
     
-    float rhead=0.25;
-    float hhead=0.5;
+    float rhead=0.1f;
+    float hhead=0.5f;
     std::vector<Resources::Vertex> headv;
     headv.push_back({
         {0,0,hbody+hhead},
@@ -234,7 +254,7 @@ void GLShapeDrawer::InitGizmoShader(){
             {0,0,0}
         });
         headv0.push_back({
-            {cosf(theta)*rhead,sinf(theta)*rhead,hbody},
+            {cosf(-theta)*rhead,sinf(-theta)*rhead,hbody},
             {0,0},
             {0,0,0}
         });
@@ -246,6 +266,10 @@ void GLShapeDrawer::InitGizmoShader(){
     gizmoarrowmeshp_bodybase_ = std::make_unique<Resources::SMesh>(bodyv0,idx);
     gizmoarrowmeshp_head_ = std::make_unique<Resources::SMesh>(headv,idx);
     gizmoarrowmeshp_headbase_ = std::make_unique<Resources::SMesh>(headv0,idx);
+
+    gizmoshader_=std::unique_ptr<Resources::GLShader> (Resources::GLShaderLoader::LoadFromFile("../assets/shaders/gizmo.glsl"));
+    assert(gizmoshader_!=nullptr&&"ShapeDrawer.gizmoshader_ create failed!");
+   
 }
 
 void GLShapeDrawer::InitArrowShader(){

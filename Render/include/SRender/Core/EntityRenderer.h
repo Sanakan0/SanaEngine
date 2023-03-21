@@ -6,6 +6,7 @@
 #include "SRender/Resources/SBaseRenderResources.h"
 #include "SRender/Resources/SMaterial.h"
 #include "SRender/Resources/STexture.h"
+#include "glm/fwd.hpp"
 #include <SRender/Resources/SModel.h>
 #include <SRender/Settings/GLSet.h>
 #include <cstddef>
@@ -47,7 +48,8 @@ public:
     void DrawGrid();
     void DrawArrow(const glm::mat4& model_mat);
     void DrawCamera(const glm::mat4& model_mat);
-    void DrawGizmo(const glm::vec3& pos);
+    // this cmd will clear depth buffer, read before it!
+    void DrawTransGizmo(const glm::vec3& pos,const glm::mat4& viewmat);
     void DrawGizmoArrow(const glm::mat4& model_mat,const glm::vec4& diff_color);
     
 private:
@@ -67,6 +69,9 @@ private:
     std::unique_ptr<Resources::GLShader> arrowshader_=nullptr;
     std::unique_ptr<Resources::GLShader> gizmoshader_=nullptr;
     EntityRenderer& renderer_;
+    
+    glm::mat4 gizmoarrow_xtrans;
+    glm::mat4 gizmoarrow_ytrans;
 
 };
 

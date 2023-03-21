@@ -34,9 +34,7 @@ void EditorSceneRenderPass::Draw(){
         renderer_.DrawModel(*meshcomp->GetModel());
     }
     shaderp_->Unbind();
-    if (auto actor = scenemanager_.GetSelectedActor();actor!=nullptr){
-        renderer_.DrawActorOutline(*actor);
-    }
+   
 }
 
 
