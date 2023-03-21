@@ -50,10 +50,10 @@ void SMesh::CreateBuf(std::vector <Vertex>& vs, std::vector <unsigned int> &vidx
 	
 	glBindVertexArray(vao_);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*vs.size(), &vs[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*vs.size(), vs.data(), GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int)*vidx.size(), &vidx[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int)*vidx.size(), vidx.data(), GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)0); //vertic
 	glEnableVertexAttribArray(0);
@@ -73,10 +73,10 @@ void SMesh::CreateBuf(std::vector <VertexWithWeight>& vs_w, std::vector <unsigne
 	
 	glBindVertexArray(vao_);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(VertexWithWeight)*vs_w.size(), &vs_w[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(VertexWithWeight)*vs_w.size(), vs_w.data(), GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int)*vidx.size(), &vidx[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int)*vidx.size(), vidx.data(), GL_STATIC_DRAW);
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexWithWeight), (void *)0); //vertic
 	glEnableVertexAttribArray(0);

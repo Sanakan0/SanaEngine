@@ -153,6 +153,12 @@ void CameraCtrl::FpsRotate(float hori_deg,float verti_deg){
     
 }
 
-
+void CameraCtrl::SetCamInExParam(const SRender::LowRenderer::Camera& intrinsic,const sm::Transform& extrinsic){
+    cam_=intrinsic;
+    pos_=extrinsic.world_pos_;
+    orien_=extrinsic.world_orien_;
+    camcenter=pos_ + orien_*orien_*sm::OglCamPrimForward;
+    euler_xyz_deg_=sm::Quat2Eul(orien_);
+}
 
 }

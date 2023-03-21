@@ -3,13 +3,18 @@
 #include <ECS/Component/Component.h>
 namespace ECS::Components {
 
-class CameraComponent{
+class CameraComponent:public Component{
 public:
-    //virtual void Tick(float delta_t) override;
-
+    CameraComponent(Actor& parentactor);
+    virtual void Tick(float delta_t) override;
+    virtual DrawCmd GetInspectorDrawCmd() override;
+    virtual void DrawInspector() override;
+    
+    
+    SRender::LowRenderer::Camera cam_;
 
 private:
-    SRender::LowRenderer::Camera cam_;
+    
 };
 
 }

@@ -66,7 +66,7 @@ simplerenderpass(rtcontext)
     //fs::path tile_pth(R"(E:\user\cnt0\beihang reconstruction data\dxobj)");
     
     //fs::path tile_pth(R"(E:\ExperimentsData\Models\GovFacility\Data)");
-    int cnt=10;
+    int cnt=3;
     int cur=0;
     int st=200;
     int ed=st+cnt-1;
@@ -151,6 +151,10 @@ void SceneView::RenderTick(float deltat){
     //renderpass.Draw();
     renderer.ApplyGLstate(SRender::Core::Default_GLstate);
     scenerenderpass.Draw();
+
+    //test
+    shape_drawer.DrawGizmo({0,0,0});
+    //
 
     ActorPickerTick(deltat);
     fbo_.Bind();

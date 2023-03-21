@@ -1,4 +1,5 @@
 #pragma once
+#include "SMath/Transform.h"
 #include "glm/fwd.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -17,8 +18,7 @@ public:
     void HandleZoom();
     void HandleOrbitCamCtl(float delta_time);
     void HandleFpsCamCtl(float delta_time);
-    void SetPos();
-    void SetTowards();
+    void SetCamInExParam(const SRender::LowRenderer::Camera& intrinsic,const sm::Transform& extrinsic);
     const glm::vec3& GetPos() const{return pos_;}
     const glm::quat& GetOrien() const{return orien_;} 
 
@@ -44,7 +44,7 @@ private:
     int right_btn_=0;
     float around_speed_=0.4f;
     float zoom_speed_=0.05f;
-    float move_speed_=100.0f;//  meter per second
+    float move_speed_=1.0f;//  meter per second
 
 //CAM extrinsic 
     glm::vec3 camcenter;
