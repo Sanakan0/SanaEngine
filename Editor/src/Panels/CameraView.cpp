@@ -15,7 +15,7 @@
 namespace SEditor::Panels{
 
 CameraView::CameraView(Core::RuntimeContext& rtcontext):rtcontext_(rtcontext){
-    name_="Scene View";
+    name_="Camera View";
 }
 
 

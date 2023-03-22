@@ -14,7 +14,7 @@
 namespace SEditor::Panels{
 
 TestView::TestView(Core::RuntimeContext& rtcontext):rtcontext_(rtcontext){
-    name_="Scene View";
+    name_="Test View";
 }
 
 

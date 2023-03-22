@@ -20,9 +20,13 @@ public:
 	void CacheProjectionMat(int w,int h){prj_=CalcProjectionMat(w,h);};
 
 	//CAM extrinsic and intrinsic
-	float fov_=45;
+	float fovy_=27;
 	float near_=1;
 	float far_=1000;
+
+	float focal_length_=50;
+	float sensor_size_w_=36;
+	float aspect_ratio_=1.5; //3:2
 
 	glm::mat4 view_,prj_;
 private:

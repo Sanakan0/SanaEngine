@@ -21,15 +21,15 @@ void MainMenubar::DrawImpl(){
                 if ( result == NFD_OKAY ) {
                     auto filepth = std::string(outPath);
                     free(outPath);
-                    spdlog::info("[NFD]: Success! "+filepth);
+                    spdlog::info("[NFD] Success! "+filepth);
                     assetloader_.LoadTiles(filepth);
                     
                 }
                 else if ( result == NFD_CANCEL ) {
-                    spdlog::info("[NFD]: User pressed cancel.");
+                    spdlog::info("[NFD] User pressed cancel.");
                 }
                 else {
-                    spdlog::error("[NFD]: "+std::string(NFD_GetError()));
+                    spdlog::error("[NFD] "+std::string(NFD_GetError()));
                 }
             }
             ImGui::EndMenu();

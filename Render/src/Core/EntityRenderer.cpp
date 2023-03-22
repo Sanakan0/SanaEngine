@@ -194,6 +194,35 @@ void GLShapeDrawer::DrawArrow(const glm::mat4 &model_mat){
     arrowshader_->Unbind();
 }
 
+void GLShapeDrawer::DrawCamFrame(const glm::mat4 &model_mat, float fovyratio, float aspect){
+    
+    arrowshader_->Bind();
+    renderer_.SetRasterizationMode(Setting::SRasterization::LINE);
+    arrowshader_->SetUniMat4("ModelMat", glm::scale(model_mat,{aspect,1,fovyratio}));
+    renderer_.Draw(*camframemeshp_, Setting::SPrimitive::TRIANGLE_FAN);
+    renderer_.SetRasterizationMode(Setting::SRasterization::FILL);
+    arrowshader_->Unbind();
+}
+
+void GLShapeDrawer::InitCamFrameShader(){
+    std::vector<Resources::Vertex> camv;
+    camv.push_back({
+        {0,0,0},
+        {0,0},
+        {0,0,0}
+    });
+    float tmpx[5]={1,1,-1,-1,1};
+    float tmpy[5]={-1,1,1,-1,-1};
+    for (int i=0;i<5;++i){
+        camv.push_back({
+            {tmpx[i],tmpy[i],1},
+            {0,0},
+            {0,0,0}
+        });
+    }
+    std::vector<uint32_t> idx;
+    camframemeshp_ = std::make_unique<Resources::SMesh>(camv,idx);
+}
 
 void GLShapeDrawer::InitGizmoShader(){
     

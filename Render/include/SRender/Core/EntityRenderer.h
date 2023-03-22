@@ -51,12 +51,13 @@ public:
     // this cmd will clear depth buffer, read before it!
     void DrawTransGizmo(const glm::vec3& pos,const glm::mat4& viewmat);
     void DrawGizmoArrow(const glm::mat4& model_mat,const glm::vec4& diff_color);
-    
+    void DrawCamFrame(const glm::mat4& model_mat,float fovy,float aspect);
 private:
     void InitGridShader();
     void InitLineShader();
     void InitArrowShader();
     void InitGizmoShader();
+    void InitCamFrameShader();
     std::unique_ptr<Resources::SMesh> linemeshp_=nullptr;
     std::unique_ptr<Resources::SMesh> panelmeshp_=nullptr;
     std::unique_ptr<Resources::SMesh> arrowmeshp_=nullptr;
@@ -64,6 +65,7 @@ private:
     std::unique_ptr<Resources::SMesh> gizmoarrowmeshp_headbase_=nullptr;
     std::unique_ptr<Resources::SMesh> gizmoarrowmeshp_body_=nullptr;
     std::unique_ptr<Resources::SMesh> gizmoarrowmeshp_bodybase_=nullptr;
+    std::unique_ptr<Resources::SMesh> camframemeshp_=nullptr;
     std::unique_ptr<Resources::GLShader> lineshader_=nullptr;
     std::unique_ptr<Resources::GLShader> gridshader_=nullptr;
     std::unique_ptr<Resources::GLShader> arrowshader_=nullptr;

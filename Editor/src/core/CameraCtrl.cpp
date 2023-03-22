@@ -133,7 +133,7 @@ void CameraCtrl::TickCamMove(float deltat){
 
 float CameraCtrl::CalcDisPerPix(int w,int h){
 	float dis = glm::distance(camcenter, pos_);
-	return dis*tan(cam_.fov_ / 2 * SM_PI / 180)*2/h;
+	return dis*tan(cam_.fovy_ / 2 * SM_PI / 180)*2/h;
 }
 
 void CameraCtrl::FpsRotate(float hori_deg,float verti_deg){

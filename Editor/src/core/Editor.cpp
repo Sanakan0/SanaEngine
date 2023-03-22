@@ -1,4 +1,5 @@
 #include "SEditor/Core/Editor.h"
+#include "SEditor/Panels/CameraView.h"
 #include "SEditor/Panels/Hierarchy.h"
 #include "SEditor/Panels/Inspector.h"
 #include "SEditor/Panels/MainMenubar.h"
@@ -49,15 +50,19 @@ void Editor::Tick(float deltat){
 void Editor::LogicTick(float deltat){
     auto& sceneview = rtcontext_.uimanager_->GetPanel<SEditor::Panels::SceneView>("Scene View");
     auto& testview = rtcontext_.uimanager_->GetPanel<SEditor::Panels::TestView>("Test View");
+    auto& cameraview = rtcontext_.uimanager_->GetPanel<Panels::CameraView>("Camera View");
     sceneview.LogicTick(deltat);
     testview.LogicTick(deltat);
+    cameraview.LogicTick(deltat);
 }
 
 void Editor::RenderTick(float deltat){
     static auto& sceneview = rtcontext_.uimanager_->GetPanel<SEditor::Panels::SceneView>("Scene View");
    auto& testview = rtcontext_.uimanager_->GetPanel<SEditor::Panels::TestView>("Test View");
+    auto& cameraview = rtcontext_.uimanager_->GetPanel<Panels::CameraView>("Camera View");
     sceneview.RenderTick(deltat);
     testview.RenderTick(deltat);
+    cameraview.RenderTick(deltat);
     rtcontext_.uimanager_->RenderTick();
 }
 
@@ -68,6 +73,7 @@ void Editor::PostTick(){
 void Editor::SetUpUI(){
     rtcontext_.uimanager_->CreatePanel<SEditor::Panels::SceneView>("Scene View",rtcontext_);
     rtcontext_.uimanager_->CreatePanel<SEditor::Panels::TestView>("Test View", rtcontext_);
+    rtcontext_.uimanager_->CreatePanel<Panels::CameraView>("Camera View",rtcontext_);
     rtcontext_.uimanager_->CreatePanel<SEditor::Panels::MainMenubar>("MainMenuBar");
     rtcontext_.uimanager_->CreatePanel<Panels::Hierarchy>("Hierarchy");
     rtcontext_.uimanager_->CreatePanel<Panels::Inspector>("Inspector");

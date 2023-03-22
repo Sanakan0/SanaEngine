@@ -33,6 +33,8 @@ inline constexpr uint8_t Outline_GLstate=
 inline constexpr uint8_t Grid_GLstate_=
         SGLState::EMPTY|SGLState::BLEND|SGLState::DEPTH_TEST|SGLState::COLOR_WRITING;//|SGLState::DEPTH_WRITING;
 
+inline constexpr uint8_t LineMesh_GLstate = 
+        SGLState::EMPTY|SGLState::COLOR_WRITING;
 
 class GLRenderer{
 public:

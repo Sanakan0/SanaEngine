@@ -34,7 +34,7 @@ modelmanager(SANASERVICE(ResourceManager::ModelManager)),
 
 simplerenderpass(rtcontext)
 {
-    name_="Distortion View";
+    name_="Scene View";
     std::vector<SRender::Resources::Vertex> tmpv;
     float sqrt3=sqrtf(3);
    
