@@ -17,7 +17,7 @@ DrawCmd CameraComponent::GetInspectorDrawCmd() {
 
 void CameraComponent::DrawInspector() {
     if(ImGui::CollapsingHeader("Camera")){
-
+        
     }
 }
 

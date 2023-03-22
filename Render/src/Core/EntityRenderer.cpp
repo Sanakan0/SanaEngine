@@ -131,7 +131,7 @@ GLShapeDrawer::~GLShapeDrawer(){
     
 }
 void GLShapeDrawer::DrawCamFrame(const glm::mat4 &model_mat, float fovyratio, float aspect,glm::vec4 diff_color){
-    
+    renderer_.ApplyGLstate(LineMesh_GLstate);
     gizmoshader_->Bind();
     renderer_.SetRasterizationMode(Setting::SRasterization::LINE);
     gizmoshader_->SetUniMat4("ModelMat", glm::scale(model_mat,{aspect,1,fovyratio}));
@@ -139,6 +139,7 @@ void GLShapeDrawer::DrawCamFrame(const glm::mat4 &model_mat, float fovyratio, fl
     renderer_.Draw(*camframemeshp_, Setting::SPrimitive::TRIANGLE_FAN);
     renderer_.SetRasterizationMode(Setting::SRasterization::FILL);
     gizmoshader_->Unbind();
+    renderer_.ApplyPreviousGLstate();
 }
 
 void GLShapeDrawer::DrawTransGizmo(const glm::vec3 &pos,const glm::mat4& viewmat){
@@ -194,12 +195,14 @@ void GLShapeDrawer::DrawGrid(){
 }
 
 void GLShapeDrawer::DrawArrow(const glm::mat4 &model_mat){
+    renderer_.ApplyGLstate(LineMesh_GLstate);
     arrowshader_->Bind();
     renderer_.SetRasterizationMode(Setting::SRasterization::LINE);
     arrowshader_->SetUniMat4("ModelMat", model_mat);
     renderer_.Draw(*arrowmeshp_, Setting::SPrimitive::TRIANGLES);
     renderer_.SetRasterizationMode(Setting::SRasterization::FILL);
     arrowshader_->Unbind();
+    renderer_.ApplyPreviousGLstate();
 }
 
 
@@ -215,7 +218,7 @@ void GLShapeDrawer::InitCamFrameDrawer(){
     float tmpy[5]={-1,1,1,-1,-1};
     for (int i=0;i<5;++i){
         camv.push_back({
-            {tmpx[i],tmpy[i],1},
+            {tmpx[i],tmpy[i],-1},
             {0,0},
             {0,0,0}
         });

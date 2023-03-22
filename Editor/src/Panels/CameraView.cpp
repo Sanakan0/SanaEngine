@@ -23,7 +23,7 @@ CameraView::CameraView(Core::RuntimeContext& rtcontext):rtcontext_(rtcontext){
 void CameraView::LogicTick(float deltat){
     
     //update camctl if changed
-    if (auto curcam = rtcontext_.scene_manager_->GetSelectedActor();curcam!=nullptr&&curcam!=active_camera_actor_){
+    if (auto curcam = rtcontext_.scene_manager_->GetActiveCamera();curcam!=nullptr&&curcam!=active_camera_actor_){
         active_camera_actor_=curcam;
         auto camcomp = static_cast<ECS::Components::CameraComponent*>(
             active_camera_actor_->GetComponent("CameraComponent")
@@ -42,7 +42,7 @@ void CameraView::RenderTick(float deltat){
     auto& renderer = *(rtcontext_.core_renderer_);
     auto& shape_drawer = *(rtcontext_.shape_drawer_);
     renderer.SetClearColor(0.2f, 0.2f, 0.2f);
-    
+    renderer.ApplyGLstate(SRender::Core::Default_GLstate);
     renderer.ClearBuffer();
     
     // shape_drawer.DrawLine({0,0,0}, {5,0,0}, {1,0,0});
@@ -67,7 +67,7 @@ void CameraView::RenderTick(float deltat){
     model.CalcPalette();
     rtcontext_.anima_ssbo_->SendBlocks<glm::mat4>(model.palette_.data(), model.palette_.size()*sizeof(glm::mat4));
     
-    renderer.ApplyGLstate(SRender::Core::Default_GLstate);
+  
     shaderp->Bind();
     //auto& tmp =model.GetMeshes();
     shaderp->SetUniMat4("ModelMat", model.modelmat_);

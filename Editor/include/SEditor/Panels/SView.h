@@ -1,4 +1,5 @@
 #pragma once
+#include "SMath/Transform.h"
 #include <SRender/Buffers/GLFrameBuffer.h>
 #include <string>
 #include <SGUI/Panels/WndPanel.h>
@@ -14,8 +15,9 @@ public:
     void FillUBO();
     void UpdateViewCam(float deltat);
     void DrawContent() override;
-    Core::CameraCtrl camctrl_;
     SRender::LowRenderer::Camera cam_;
+    sm::Transform cam_extrinsic_;
+    Core::CameraCtrl camctrl_;
     SRender::Buffers::GLFrameBuffer fbo_; 
 };
 

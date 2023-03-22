@@ -25,6 +25,7 @@ DrawCmd TransformComponent::GetInspectorDrawCmd(){
 
 void TransformComponent::DrawInspector(){
     if(ImGui::CollapsingHeader("Transform")){
+        euler_xyz_deg_=sm::Quat2Eul(trans_.world_orien_);
         ImGui::DragFloat("trans x", &trans_.world_pos_.x);
         ImGui::DragFloat("trans y", &trans_.world_pos_.y);
         ImGui::DragFloat("trans z", &trans_.world_pos_.z);

@@ -26,6 +26,9 @@ void Inspector::RightClickMenu(){
     if (ImGui::BeginPopupContextItem()) // <-- use last item id as popup id
     {
         ImGui::Text("This a popup!");
+
+
+
         if (ImGui::Button("Close"))
             ImGui::CloseCurrentPopup();
         ImGui::EndPopup();
@@ -50,7 +53,10 @@ void Inspector::DrawContent(){
     }
     
     if (selected_actor_){
-        
+        ImGui::Text(selected_actor_->GetName().c_str());
+        if (selected_actor_->GetComponent("CameraComponent")) {
+            if (ImGui::Button("Set Active Cam")) scenemanager_.SetActiveCamera(selected_actor_->GetID());
+        }
         if (ImGui::Button("Move to Actor")){
             auto meshcomp = (ECS::Components::MeshComponent*)selected_actor_->GetComponent("MeshComponent");
             sceneview_.camctrl_.Move2Target(selected_actor_->GetTransformComponent()->trans_.world_pos_, meshcomp?meshcomp->GetModel()->GetBoundingSphere()->radius:5); 

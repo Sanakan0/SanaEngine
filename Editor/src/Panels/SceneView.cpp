@@ -140,7 +140,7 @@ void SceneView::RenderTick(float deltat){
     auto& renderer = *(rtcontext_.core_renderer_);
     auto& shape_drawer = *(rtcontext_.shape_drawer_);
     renderer.SetClearColor(0.2f, 0.2f, 0.2f);
-
+    renderer.ApplyGLstate(SRender::Core::Default_GLstate);
     glStencilMask(0xFF); // stencil mask also influence glclear()
     renderer.ClearBuffer();
     glStencilMask(0x00);
@@ -152,14 +152,14 @@ void SceneView::RenderTick(float deltat){
     //     renderer.Draw(*i, SRender::Setting::SPrimitive::TRIANGLES);
     // }
     //renderpass.Draw();
-    renderer.ApplyGLstate(SRender::Core::Default_GLstate);
+   
     scenerenderpass.Draw();
     
     shape_drawer.DrawGrid();
     
     if (auto actor = rtcontext_.scene_manager_->GetSelectedActor();actor!=nullptr){
         renderer.DrawActorOutline(*actor);
-        shape_drawer.DrawTransGizmo(actor->GetTransformComponent()->trans_.world_pos_,camctrl_.cam_.GetViewMat());
+        shape_drawer.DrawTransGizmo(actor->GetTransformComponent()->trans_.world_pos_,camctrl_.cam_->GetViewMat());
     }
    
 

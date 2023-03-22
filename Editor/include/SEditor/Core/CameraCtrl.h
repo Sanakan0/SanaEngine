@@ -12,15 +12,15 @@ namespace SEditor::Core{
 
 class CameraCtrl{
 public:
-    CameraCtrl(SGUI::Panels::WndPanel& view,SWnd::Context& wndcontext,SRender::LowRenderer::Camera& cam);
+    CameraCtrl(SGUI::Panels::WndPanel& view,SWnd::Context& wndcontext,SRender::LowRenderer::Camera& cam,sm::Transform& extrinsic);
     
     void HandleInputs(float delta_time);
     void HandleZoom();
     void HandleOrbitCamCtl(float delta_time);
     void HandleFpsCamCtl(float delta_time);
-    void SetCamInExParam(const SRender::LowRenderer::Camera& intrinsic,const sm::Transform& extrinsic);
-    const glm::vec3& GetPos() const{return pos_;}
-    const glm::quat& GetOrien() const{return orien_;} 
+    void SetCamInExParam(SRender::LowRenderer::Camera& intrinsic,sm::Transform& extrinsic);
+    const glm::vec3& GetPos() const{return extrinsic_->world_pos_;}
+    const glm::quat& GetOrien() const{return extrinsic_->world_orien_;} 
 
     void translate(glm::vec3 trans);
 	
@@ -36,7 +36,8 @@ public:
     SWnd::Context& wndcontext_;
     SGUI::Panels::WndPanel& view_;
     SWnd::Input::InputManager inputmanager_;
-    SRender::LowRenderer::Camera& cam_;
+    SRender::LowRenderer::Camera* cam_;
+    sm::Transform* extrinsic_;
     bool is_fps_cam_mod_=1;
 private:
     int mid_btn_=0;
@@ -49,10 +50,6 @@ private:
 //CAM extrinsic 
     glm::vec3 camcenter;
 	glm::vec3 worldup{0, 0, 1};
-
-	
-	glm::vec3 pos_;
-	glm::quat orien_;
 	glm::vec3 euler_xyz_deg_;
 
 //move to data
