@@ -1,4 +1,5 @@
 #pragma once
+#include "SEditor/Core/AssetLoader.h"
 #include "SRender/Buffers/GLShaderStorageBuffer.h"
 #include "SRender/Core/EntityRenderer.h"
 #include "SResourceManager/ModelManager.h"
@@ -30,6 +31,7 @@ public:
     std::unique_ptr<ResourceManager::ModelManager> model_manager_;
     std::unique_ptr<ResourceManager::TextureManager> texture_manager_;
     std::unique_ptr<SceneSys::SceneManager> scene_manager_;
+    std::unique_ptr<AssetLoader> asset_loader_;
 };
 
 }

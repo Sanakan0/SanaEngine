@@ -58,7 +58,10 @@ simplerenderpass(rtcontext)
         }
     }
     
+    
     trimeshp = std::make_unique<SRender::Resources::SMesh>(tmpv,idx);
+    
+    return;
     //model = modelmanager.CreateResources(R"(..\assets\models\Tile_+025_+034\Tile_+025_+034.obj)");
     //renderpass.render_resources_.push_back(model);
     namespace fs = std::filesystem;

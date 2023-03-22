@@ -14,6 +14,7 @@ public:
     ~SceneManager();
     void CreateScene();
     void LoadScene();
+    void LoadTiles();
     Scene* GetScene(){return scenep_.get();}
     //0 when no selected actor
     void SetSelectedActor(ECS::ActorID id){

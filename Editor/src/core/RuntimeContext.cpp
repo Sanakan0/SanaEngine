@@ -1,4 +1,5 @@
 #include "SEditor/Core/RuntimeContext.h"
+#include "SEditor/Core/AssetLoader.h"
 #include "SRender/Buffers/GLShaderStorageBuffer.h"
 #include "SRender/Core/EntityRenderer.h"
 #include "SRender/Core/GLRenderer.h"
@@ -51,6 +52,7 @@ RuntimeContext::RuntimeContext(){
     scene_manager_ = std::make_unique<SceneSys::SceneManager>();
     scene_manager_->CreateScene();
 
+    
 
     //upload service to servicelocator
     ServiceLocator::Provide<SRender::Core::EntityRenderer>(*core_renderer_);
@@ -61,6 +63,10 @@ RuntimeContext::RuntimeContext(){
     ServiceLocator::Provide<ResourceManager::ShaderManager>(*shader_manager_);
     ServiceLocator::Provide<ResourceManager::ModelManager>(*model_manager_);
     ServiceLocator::Provide<SceneSys::SceneManager>(*scene_manager_);
+
+
+    asset_loader_ = std::make_unique<AssetLoader>();
+    ServiceLocator::Provide<AssetLoader>(*asset_loader_);
 }
 
 RuntimeContext::~RuntimeContext(){}
