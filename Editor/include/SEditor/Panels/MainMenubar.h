@@ -1,6 +1,7 @@
 #pragma once
 #include "SEditor/Core/AssetLoader.h"
 #include "SGUI/Panels/Panel.h"
+#include "SceneSys/SceneManager.h"
 #include<SRender/Buffers/GLFrameBuffer.h>
 #include<SEditor/Panels/SView.h>
 #include<SEditor/Core/RuntimeContext.h>
@@ -13,6 +14,7 @@ public:
 
 private:
     Core::AssetLoader& assetloader_;
+    SceneSys::SceneManager& scenemanager_;
 };
 
 }

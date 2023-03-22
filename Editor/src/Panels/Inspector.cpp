@@ -1,3 +1,4 @@
+#include "ECS/Component/CameraComponent.h"
 #include "SCore/Global/ServiceLocator.h"
 #include "SGUI/Core/UImanager.h"
 #include "SceneSys/SceneManager.h"
@@ -10,7 +11,8 @@ namespace SEditor::Panels{
 
 const std::string Inspector::componentlist[]{
     "TransformComponent",
-    "MeshComponent"
+    "MeshComponent",
+    "CameraComponent"
 };
 
 Inspector::Inspector():
@@ -42,7 +44,7 @@ void Inspector::DrawContent(){
         if (selected_actor_!=nullptr){
             for (auto& compname:componentlist){
                 auto tmp = selected_actor_->GetComponent(compname);
-                component_drawlist_+=tmp->GetInspectorDrawCmd();
+                if (tmp) component_drawlist_+=tmp->GetInspectorDrawCmd();
             }
         }
     }
@@ -51,7 +53,7 @@ void Inspector::DrawContent(){
         
         if (ImGui::Button("Move to Actor")){
             auto meshcomp = (ECS::Components::MeshComponent*)selected_actor_->GetComponent("MeshComponent");
-                sceneview_.camctrl_.Move2Target(selected_actor_->GetTransformComponent()->trans_.world_pos_, meshcomp->GetModel()->GetBoundingSphere()->radius); 
+            sceneview_.camctrl_.Move2Target(selected_actor_->GetTransformComponent()->trans_.world_pos_, meshcomp?meshcomp->GetModel()->GetBoundingSphere()->radius:5); 
         }
 
         std::stringstream ss;

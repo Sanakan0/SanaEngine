@@ -26,7 +26,7 @@ void Hierarchy::DrawContent(){
     if (ImGui::TreeNode("root")){
         for (auto &actor:scenemanager_.GetScene()->GetActors()){
             
-            if (ImGui::Selectable(std::to_string(actor.second->GetID()).c_str())){
+            if (ImGui::Selectable((actor.second->GetName() + std::to_string(actor.second->GetID())).c_str())){
                 scenemanager_.SetSelectedActor(actor.second->GetID());
             }
             RightClickMenu();

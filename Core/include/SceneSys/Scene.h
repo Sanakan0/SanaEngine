@@ -1,5 +1,6 @@
 #pragma once
 #include "ECS/Actor.h"
+#include "ECS/Component/CameraComponent.h"
 #include "ECS/Component/Component.h"
 #include "ECS/Component/MeshComponent.h"
 #include "ECS/Component/TransformComponent.h"
@@ -14,6 +15,7 @@ namespace SceneSys{
 
 struct BasicRenderComponents{
     std::vector<ECS::Components::MeshComponent*> meshcomps;
+    std::vector<ECS::Components::CameraComponent*> camcomps;
 };
 
 class Scene{

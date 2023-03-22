@@ -47,17 +47,16 @@ public:
     void DrawLine(const glm::vec3& start,const glm::vec3& end,const glm::vec3& color,float width=1.0f);
     void DrawGrid();
     void DrawArrow(const glm::mat4& model_mat);
-    void DrawCamera(const glm::mat4& model_mat);
     // this cmd will clear depth buffer, read before it!
     void DrawTransGizmo(const glm::vec3& pos,const glm::mat4& viewmat);
     void DrawGizmoArrow(const glm::mat4& model_mat,const glm::vec4& diff_color);
-    void DrawCamFrame(const glm::mat4& model_mat,float fovy,float aspect);
+    void DrawCamFrame(const glm::mat4& model_mat,float fovyratio,float aspect,glm::vec4 diff_color);
 private:
-    void InitGridShader();
-    void InitLineShader();
-    void InitArrowShader();
-    void InitGizmoShader();
-    void InitCamFrameShader();
+    void InitGridDrawer();
+    void InitLineDrawer();
+    void InitArrowDrawer();
+    void InitGizmoDrawer();
+    void InitCamFrameDrawer();
     std::unique_ptr<Resources::SMesh> linemeshp_=nullptr;
     std::unique_ptr<Resources::SMesh> panelmeshp_=nullptr;
     std::unique_ptr<Resources::SMesh> arrowmeshp_=nullptr;

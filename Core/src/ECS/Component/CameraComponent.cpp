@@ -1,5 +1,6 @@
 #include "ECS/Component/CameraComponent.h"
 #include "ECS/Component/Component.h"
+#include "imgui/imgui.h"
 namespace ECS::Components {
 
 CameraComponent::CameraComponent(Actor& parentactor):
@@ -15,7 +16,9 @@ DrawCmd CameraComponent::GetInspectorDrawCmd() {
 }
 
 void CameraComponent::DrawInspector() {
-    
+    if(ImGui::CollapsingHeader("Camera")){
+
+    }
 }
 
 

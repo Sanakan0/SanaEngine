@@ -65,9 +65,11 @@ void EntityRenderer::DrawModelwithEmptyTex(Resources::SModel &model,Resources::S
 }
 
 void EntityRenderer::DrawActorOutline(ECS::Actor& actor,float linewidth){
+    auto meshcomp = static_cast<ECS::Components::MeshComponent*>(
+        actor.GetComponent("MeshComponent"));
     
-    auto model = static_cast<ECS::Components::MeshComponent*>(
-        actor.GetComponent("MeshComponent"))->GetModel();
+    if (!meshcomp) return;
+    auto model = meshcomp->GetModel();
     
     auto transcomp = actor.GetTransformComponent();
     
@@ -113,25 +115,31 @@ void EntityRenderer::DrawActorOutline(ECS::Actor& actor,float linewidth){
 namespace SRender::Core{
 GLShapeDrawer::GLShapeDrawer(EntityRenderer& renderer):renderer_(renderer){
     //std::vector <Vertex>& vs, std::vector <unsigned int> &vidx
-    InitLineShader();
+    InitLineDrawer();
     //init grid drawer
-    InitGridShader();
+    InitGridDrawer();
     
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     //
-    InitArrowShader();
-    InitGizmoShader();
-
-    auto cos45 = cos(SM_PI/4);
-    auto sin45 =sin(SM_PI/4);
-    gizmoarrow_ytrans = glm::mat4_cast(glm::quat(cos45,sin45,0,0));
-    gizmoarrow_xtrans = glm::mat4_cast(glm::quat(cos45,0,sin45,0)); 
+    InitArrowDrawer();
+    InitGizmoDrawer();
+    InitCamFrameDrawer();
+    
 }
 
 GLShapeDrawer::~GLShapeDrawer(){
     
 }
-
+void GLShapeDrawer::DrawCamFrame(const glm::mat4 &model_mat, float fovyratio, float aspect,glm::vec4 diff_color){
+    
+    gizmoshader_->Bind();
+    renderer_.SetRasterizationMode(Setting::SRasterization::LINE);
+    gizmoshader_->SetUniMat4("ModelMat", glm::scale(model_mat,{aspect,1,fovyratio}));
+    gizmoshader_->SetUniVec4("diffuse_color", diff_color);
+    renderer_.Draw(*camframemeshp_, Setting::SPrimitive::TRIANGLE_FAN);
+    renderer_.SetRasterizationMode(Setting::SRasterization::FILL);
+    gizmoshader_->Unbind();
+}
 
 void GLShapeDrawer::DrawTransGizmo(const glm::vec3 &pos,const glm::mat4& viewmat){
     
@@ -194,17 +202,9 @@ void GLShapeDrawer::DrawArrow(const glm::mat4 &model_mat){
     arrowshader_->Unbind();
 }
 
-void GLShapeDrawer::DrawCamFrame(const glm::mat4 &model_mat, float fovyratio, float aspect){
-    
-    arrowshader_->Bind();
-    renderer_.SetRasterizationMode(Setting::SRasterization::LINE);
-    arrowshader_->SetUniMat4("ModelMat", glm::scale(model_mat,{aspect,1,fovyratio}));
-    renderer_.Draw(*camframemeshp_, Setting::SPrimitive::TRIANGLE_FAN);
-    renderer_.SetRasterizationMode(Setting::SRasterization::FILL);
-    arrowshader_->Unbind();
-}
 
-void GLShapeDrawer::InitCamFrameShader(){
+
+void GLShapeDrawer::InitCamFrameDrawer(){
     std::vector<Resources::Vertex> camv;
     camv.push_back({
         {0,0,0},
@@ -224,7 +224,7 @@ void GLShapeDrawer::InitCamFrameShader(){
     camframemeshp_ = std::make_unique<Resources::SMesh>(camv,idx);
 }
 
-void GLShapeDrawer::InitGizmoShader(){
+void GLShapeDrawer::InitGizmoDrawer(){
     
 
     int cnt=10;
@@ -298,10 +298,15 @@ void GLShapeDrawer::InitGizmoShader(){
 
     gizmoshader_=std::unique_ptr<Resources::GLShader> (Resources::GLShaderLoader::LoadFromFile("../assets/shaders/gizmo.glsl"));
     assert(gizmoshader_!=nullptr&&"ShapeDrawer.gizmoshader_ create failed!");
+
+    auto cos45 = cos(SM_PI/4);
+    auto sin45 =sin(SM_PI/4);
+    gizmoarrow_ytrans = glm::mat4_cast(glm::quat(cos45,sin45,0,0));
+    gizmoarrow_xtrans = glm::mat4_cast(glm::quat(cos45,0,sin45,0)); 
    
 }
 
-void GLShapeDrawer::InitArrowShader(){
+void GLShapeDrawer::InitArrowDrawer(){
     std::vector<Resources::Vertex> tmpv;
     tmpv.push_back({
         {0,1,0},
@@ -341,7 +346,7 @@ void GLShapeDrawer::InitArrowShader(){
    
 }
 
-void GLShapeDrawer::InitLineShader(){
+void GLShapeDrawer::InitLineDrawer(){
     Resources::Vertex tmp{
         {0,0,0},
         {0,0},
@@ -382,7 +387,7 @@ void main(){
 
 }
 
-void GLShapeDrawer::InitGridShader(){
+void GLShapeDrawer::InitGridDrawer(){
     std::vector<Resources::Vertex> tmpv;
     tmpv.push_back({
         {1,1,0},

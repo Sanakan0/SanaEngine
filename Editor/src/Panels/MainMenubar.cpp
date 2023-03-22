@@ -1,5 +1,7 @@
+#include "ECS/Component/CameraComponent.h"
 #include "SCore/Global/ServiceLocator.h"
 #include "SEditor/Core/AssetLoader.h"
+#include "SceneSys/SceneManager.h"
 #include "imgui/imgui.h"
 #include "nfd.h"
 #include "spdlog/spdlog.h"
@@ -7,7 +9,8 @@
 namespace SEditor::Panels{
 
 MainMenubar::MainMenubar():
-assetloader_(SANASERVICE(Core::AssetLoader))
+assetloader_(SANASERVICE(Core::AssetLoader)),
+scenemanager_(SANASERVICE(SceneSys::SceneManager))
 {
 
 }
@@ -31,6 +34,15 @@ void MainMenubar::DrawImpl(){
                 else {
                     spdlog::error("[NFD] "+std::string(NFD_GetError()));
                 }
+            }
+            if (ImGui::BeginMenu("Add Actor")){
+                if (ImGui::MenuItem("Add Camera")){
+                    auto& tmpa=scenemanager_.GetScene()->CreateActor();
+                    tmpa.SetName("Camera");
+                    tmpa.AddComponent<ECS::Components::CameraComponent>();
+                    tmpa.AddComponent<ECS::Components::TransformComponent>();
+                }
+                ImGui::EndMenu();
             }
             ImGui::EndMenu();
         }

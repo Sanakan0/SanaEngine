@@ -1,8 +1,11 @@
+#include "ECS/Component/CameraComponent.h"
 #include "ECS/Component/Component.h"
 #include "ECS/Component/MeshComponent.h"
+#include "spdlog/spdlog.h"
 #include <SceneSys/Scene.h>
 #include <functional>
 #include <memory>
+#include <string>
 
 namespace SceneSys{
 
@@ -17,12 +20,16 @@ ECS::Actor& Scene::CreateActor(const std::string& name){
     // auto meshcmp = res.GetComponent<ECS::Components::MeshComponent>();
     // if(meshcmp) basicrendercomponents_.meshcomps.push_back(meshcmp);
     res.AddComponentEvent.AddListener(std::bind(&Scene::OnAddComponent,this,std::placeholders::_1));
+    spdlog::info("[SCENE] Actor created! id = "+std::to_string(res.GetID()));
     return res;
 }
 
 void Scene::OnAddComponent(ECS::Components::Component& component){
     if (auto tmp = dynamic_cast<ECS::Components::MeshComponent*>(&component)){
         basicrendercomponents_.meshcomps.push_back(tmp);
+    }
+    else if (auto tmp = dynamic_cast<ECS::Components::CameraComponent*>(&component)){
+        basicrendercomponents_.camcomps.push_back(tmp);
     }
 }
 

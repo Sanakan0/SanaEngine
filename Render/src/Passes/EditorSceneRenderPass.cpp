@@ -33,6 +33,10 @@ void EditorSceneRenderPass::Draw(){
         }
         renderer_.DrawModel(*meshcomp->GetModel());
     }
+    for (auto& camcomp:scenemanager_.GetScene()->GetBasicRenderComponent().camcomps){
+        auto transcomp =camcomp->parentactor_.GetTransformComponent();
+        renderer_.GetShapeDrawer()->DrawCamFrame(transcomp->GetMat(), 1, camcomp->cam_.aspect_ratio_, {1,1,1,1});
+    }
     shaderp_->Unbind();
    
 }
