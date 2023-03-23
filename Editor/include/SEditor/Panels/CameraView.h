@@ -1,5 +1,6 @@
 #pragma once
 #include "ECS/Actor.h"
+#include "SRender/Passes/SceneRenderPass.h"
 #include "SceneSys/Scene.h"
 #include<SRender/Buffers/GLFrameBuffer.h>
 #include<SEditor/Panels/SView.h>
@@ -13,6 +14,7 @@ public:
     void RenderTick(float deltat);
 private:
     Core::RuntimeContext& rtcontext_;
+    SRender::Passes::SceneRenderPass scenerenderpass_;
     ECS::Actor* active_camera_actor_;
 };
 

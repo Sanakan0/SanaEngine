@@ -32,7 +32,6 @@ private:
     SRender::Passes::ActorPickerMaskRenderPass actorpickerrenderpass;
     SRender::Buffers::GLFrameBuffer actor_picker_fbo_;
     void task1(std::string pth,int idx);
-    std::mutex test_m;
 };
 
 

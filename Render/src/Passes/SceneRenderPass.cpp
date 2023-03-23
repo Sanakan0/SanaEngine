@@ -1,4 +1,4 @@
-#include <SRender/Passes/EditorSceneRenderPass.h>
+#include <SRender/Passes/SceneRenderPass.h>
 #include "ECS/Component/MaterialComponent.h"
 #include "ECS/Component/TransformComponent.h"
 #include "SCore/Global/ServiceLocator.h"
@@ -12,14 +12,14 @@
 namespace SRender::Passes{
 
 
-EditorSceneRenderPass::EditorSceneRenderPass():
+SceneRenderPass::SceneRenderPass():
 renderer_(SANASERVICE(Core::EntityRenderer)),
 scenemanager_(SANASERVICE(SceneSys::SceneManager))
 {
     std::string pth = ResourceManager::Util::GetFullPath(":shaders\\unlit.glsl");
     shaderp_ = std::unique_ptr<Resources::GLShader> (Resources::GLShaderLoader::LoadFromFile(pth));
 }
-void EditorSceneRenderPass::Draw(){
+void SceneRenderPass::Draw(){
     shaderp_->Bind();
     shaderp_->SetUniFloat("k", k);
     glm::mat4 tmpmodel = glm::mat4(1);
@@ -33,12 +33,6 @@ void EditorSceneRenderPass::Draw(){
         }
         renderer_.DrawModel(*meshcomp->GetModel());
     }
-    for (auto& camcomp:scenemanager_.GetScene()->GetBasicRenderComponent().camcomps){
-        auto transcomp =camcomp->parentactor_.GetTransformComponent();
-        bool is_active = (&camcomp->parentactor_ == scenemanager_.GetActiveCamera()) ? true:false;
-        renderer_.GetShapeDrawer()->DrawCamFrame(transcomp->GetMat(), camcomp->cam_.Getfocal_length()/camcomp->cam_.Getsensor_size_h(), camcomp->cam_.Getaspect_ratio(), {0,0,0,1},is_active);
-    }
-    renderer_.GetShapeDrawer()->DrawArrow(glm::translate(glm::mat4(1),scenemanager_.cursor_pos_));
     shaderp_->Unbind();
    
 }

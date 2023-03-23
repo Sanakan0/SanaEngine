@@ -27,12 +27,14 @@ public:
         active_camera_p_=scenep_->GetActorbyID(id);
     }
     ECS::Actor* GetActiveCamera(){return active_camera_p_;}
+    glm::vec3 cursor_pos_{0,0,0};
 private:
     std::unique_ptr<Scene> scenep_;
     ECS::ActorID selected_actor_id_=0;
     ECS::Actor* selected_actor_p_=nullptr;
     ECS::ActorID active_camera_id_=0;
     ECS::Actor* active_camera_p_=nullptr;
+    
 };
 
 }

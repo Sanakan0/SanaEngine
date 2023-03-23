@@ -1,3 +1,4 @@
+#include "ECS/Component/CameraComponent.h"
 #include "ECS/Component/MeshComponent.h"
 #include "SRender/Core/GLRenderer.h"
 #include "SRender/Resources/GLShader.h"
@@ -68,43 +69,52 @@ void EntityRenderer::DrawActorOutline(ECS::Actor& actor,float linewidth){
     auto meshcomp = static_cast<ECS::Components::MeshComponent*>(
         actor.GetComponent("MeshComponent"));
     
-    if (!meshcomp) return;
-    auto model = meshcomp->GetModel();
-    
-    auto transcomp = actor.GetTransformComponent();
-    
-    
-    
-    unlitshader_->Bind();
-
-    if (transcomp) {
-        unlitshader_->SetUniMat4("ModelMat", transcomp->GetMat());
+    if (!meshcomp) {
+        auto camcomp = static_cast<ECS::Components::CameraComponent*>(
+            actor.GetComponent("CameraComponent"));
+        if (camcomp){
+            auto transcomp = actor.GetTransformComponent();
+            assert(transcomp!=nullptr&&"camera actor must have a transform component");
+            shapedrawer_->DrawCamFrame(transcomp->GetMat(), camcomp->cam_.Getfocal_length()/camcomp->cam_.Getsensor_size_h(), camcomp->cam_.Getaspect_ratio(), {1,0.2,0,1},false,3.0f,false);
+        }
     }else{
-        unlitshader_->SetUniMat4("ModelMat", glm::mat4(1));
+        auto model = meshcomp->GetModel();
+        
+        auto transcomp = actor.GetTransformComponent();
+        
+        
+        
+        unlitshader_->Bind();
+
+        if (transcomp) {
+            unlitshader_->SetUniMat4("ModelMat", transcomp->GetMat());
+        }else{
+            unlitshader_->SetUniMat4("ModelMat", glm::mat4(1));
+        }
+
+        
+        //draw to stencil
+        ApplyGLstate(Stencil_GLstate);
+        glStencilMask(0xFF);
+        DrawModel(*model);
+        glStencilMask(0x00);
+        ApplyPreviousGLstate();
+        //draw outline
+        ApplyGLstate(Outline_GLstate);
+        SetRasterizationMode(Setting::SRasterization::LINE);
+        SetRasterizationLineWdith(linewidth);
+        glStencilFunc(GL_NOTEQUAL,1,0XFF);
+        
+        
+        DrawModelwithEmptyTex(*model, outline_colored_texture_.get());
+
+
+        glStencilFunc(GL_ALWAYS,1,0xFF);
+        SetRasterizationLineWdith(1.0);
+        SetRasterizationMode(Setting::SRasterization::FILL);
+        ApplyPreviousGLstate();
+        unlitshader_->Unbind();
     }
-
-    
-    //draw to stencil
-    ApplyGLstate(Stencil_GLstate);
-    glStencilMask(0xFF);
-    DrawModel(*model);
-    glStencilMask(0x00);
-    ApplyPreviousGLstate();
-    //draw outline
-    ApplyGLstate(Outline_GLstate);
-    SetRasterizationMode(Setting::SRasterization::LINE);
-    SetRasterizationLineWdith(linewidth);
-    glStencilFunc(GL_NOTEQUAL,1,0XFF);
-    
-    
-    DrawModelwithEmptyTex(*model, outline_colored_texture_.get());
-
-
-    glStencilFunc(GL_ALWAYS,1,0xFF);
-    SetRasterizationLineWdith(1.0);
-    SetRasterizationMode(Setting::SRasterization::FILL);
-    ApplyPreviousGLstate();
-    unlitshader_->Unbind();
     
 }
 
@@ -130,13 +140,18 @@ GLShapeDrawer::GLShapeDrawer(EntityRenderer& renderer):renderer_(renderer){
 GLShapeDrawer::~GLShapeDrawer(){
     
 }
-void GLShapeDrawer::DrawCamFrame(const glm::mat4 &model_mat, float fovyratio, float aspect,glm::vec4 diff_color){
-    renderer_.ApplyGLstate(LineMesh_GLstate);
+void GLShapeDrawer::DrawCamFrame(const glm::mat4 &model_mat, float fovyratio, float aspect,glm::vec4 diff_color,bool is_activate,float width,bool enable_depth_test){
+    renderer_.ApplyGLstate(LineMesh_GLstate|(enable_depth_test?SGLState::DEPTH_TEST:SGLState::EMPTY));
     gizmoshader_->Bind();
     renderer_.SetRasterizationMode(Setting::SRasterization::LINE);
+    renderer_.SetRasterizationLineWdith(width);
     gizmoshader_->SetUniMat4("ModelMat", glm::scale(model_mat,{aspect,1,fovyratio}));
     gizmoshader_->SetUniVec4("diffuse_color", diff_color);
     renderer_.Draw(*camframemeshp_, Setting::SPrimitive::TRIANGLE_FAN);
+    
+    if (is_activate) renderer_.SetRasterizationMode(Setting::SRasterization::FILL);
+    renderer_.Draw(*camframemesh_upp_, Setting::SPrimitive::TRIANGLES);
+    renderer_.SetRasterizationLineWdith(1.0);
     renderer_.SetRasterizationMode(Setting::SRasterization::FILL);
     gizmoshader_->Unbind();
     renderer_.ApplyPreviousGLstate();
@@ -218,12 +233,31 @@ void GLShapeDrawer::InitCamFrameDrawer(){
     float tmpy[5]={-1,1,1,-1,-1};
     for (int i=0;i<5;++i){
         camv.push_back({
-            {tmpx[i],tmpy[i],-1},
+            {tmpx[i]*0.5f,tmpy[i]*0.5f,-1},
             {0,0},
             {0,0,0}
         });
     }
+
+    std::vector<Resources::Vertex> camup;
+    float trih=0.6f;
+    camup.push_back({
+        {0,trih+0.5f,-1},
+        {0,0},
+        {0,0,0}
+    });
+    camup.push_back({
+        {0.5,trih,-1},
+        {0,0},
+        {0,0,0}
+    });
+    camup.push_back({
+        {-0.5,trih,-1},
+        {0,0},
+        {0,0,0}
+    });
     std::vector<uint32_t> idx;
+    camframemesh_upp_ = std::make_unique<Resources::SMesh>(camup,idx);
     camframemeshp_ = std::make_unique<Resources::SMesh>(camv,idx);
 }
 
@@ -304,7 +338,7 @@ void GLShapeDrawer::InitGizmoDrawer(){
 
     auto cos45 = cos(SM_PI/4);
     auto sin45 =sin(SM_PI/4);
-    gizmoarrow_ytrans = glm::mat4_cast(glm::quat(cos45,sin45,0,0));
+    gizmoarrow_ytrans = glm::mat4_cast(glm::quat(-cos45,sin45,0,0));
     gizmoarrow_xtrans = glm::mat4_cast(glm::quat(cos45,0,sin45,0)); 
    
 }

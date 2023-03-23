@@ -95,7 +95,7 @@ void CameraCtrl::translate(glm::vec3 trans) {
 
 void CameraCtrl::zoom(float ratio) {
     auto& pos_=extrinsic_->world_pos_;
-    auto& orien_=extrinsic_->world_orien_;
+
 	glm::vec3 dir = pos_ - camcenter;
 	pos_ = camcenter + dir*(ratio + 1);
 }
@@ -144,7 +144,7 @@ void CameraCtrl::TickCamMove(float deltat){
 float CameraCtrl::CalcDisPerPix(int w,int h){
     auto& pos_=extrinsic_->world_pos_;
 	float dis = glm::distance(camcenter, pos_);
-	return dis*tan(cam_->fovy_ / 2 * SM_PI / 180)*2/h;
+	return dis*tan(cam_->Getfovy() / 2 * SM_PI / 180)*2/h;
 }
 
 void CameraCtrl::FpsRotate(float hori_deg,float verti_deg){

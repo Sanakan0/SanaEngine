@@ -34,7 +34,7 @@ inline constexpr uint8_t Grid_GLstate_=
         SGLState::EMPTY|SGLState::BLEND|SGLState::DEPTH_TEST|SGLState::COLOR_WRITING;//|SGLState::DEPTH_WRITING;
 
 inline constexpr uint8_t LineMesh_GLstate = 
-        SGLState::EMPTY|SGLState::COLOR_WRITING|SGLState::DEPTH_WRITING|SGLState::DEPTH_TEST;
+        SGLState::EMPTY|SGLState::COLOR_WRITING|SGLState::DEPTH_WRITING;
 
 class GLRenderer{
 public:
@@ -44,6 +44,7 @@ public:
     // e.g glenable(GL_DEPTH_TEST) or disable
     void SetGlxxable(GLenum capability,bool is_enable);
     void SetClearColor(float r,float g,float b,float a=1.0){glClearColor(r,g,b,a);};
+    void SetClearColor(glm::vec4 col){glClearColor(col.r,col.g,col.b,col.a);};
     void ClearBuffer(bool colorbuf = 1,bool depthbuf = 1, bool stencilbuf = 1);
     void SetCullFace(Setting::SCullFace cullface){glCullFace(static_cast<GLenum>(cullface));};
     void SetViewPort(unsigned int x,unsigned int y,unsigned int w,unsigned int h){glViewport(x,y,w,h);};

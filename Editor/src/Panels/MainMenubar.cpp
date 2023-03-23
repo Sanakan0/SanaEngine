@@ -41,6 +41,7 @@ void MainMenubar::DrawImpl(){
                     tmpa.SetName("Camera");
                     tmpa.AddComponent<ECS::Components::CameraComponent>();
                     tmpa.AddComponent<ECS::Components::TransformComponent>();
+                    tmpa.GetTransformComponent()->trans_.world_pos_=scenemanager_.cursor_pos_;
                 }
                 ImGui::EndMenu();
             }

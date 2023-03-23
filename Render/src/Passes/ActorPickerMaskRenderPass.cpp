@@ -36,6 +36,13 @@ void ActorPickerMaskRenderPass::Draw(){
         shaderp_->SetUniVec4("diffuse_color", glm::vec4(bytep[0]/255.0f,bytep[1]/255.0f,bytep[2]/255.0f,1.0f));
         renderer_.DrawModelwithEmptyTex(*meshcomp->GetModel());
     }
+    for (auto& camcomp:scenemanager_.GetScene()->GetBasicRenderComponent().camcomps){
+        uint32_t actorid = static_cast<uint32_t>( camcomp->parentactor_.GetID());
+        auto bytep = reinterpret_cast<uint8_t*>(&actorid);
+        auto transcomp =camcomp->parentactor_.GetTransformComponent();
+        renderer_.GetShapeDrawer()->DrawCamFrame(transcomp->GetMat(), camcomp->cam_.Getfocal_length()/camcomp->cam_.Getsensor_size_h(), camcomp->cam_.Getaspect_ratio(), glm::vec4(bytep[0]/255.0f,bytep[1]/255.0f,bytep[2]/255.0f,1.0f),true,10.0f);
+    }
+
     shaderp_->Unbind();
 }
 

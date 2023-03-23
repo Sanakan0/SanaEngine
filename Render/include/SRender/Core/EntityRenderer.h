@@ -50,7 +50,7 @@ public:
     // this cmd will clear depth buffer, read before it!
     void DrawTransGizmo(const glm::vec3& pos,const glm::mat4& viewmat);
     void DrawGizmoArrow(const glm::mat4& model_mat,const glm::vec4& diff_color);
-    void DrawCamFrame(const glm::mat4& model_mat,float fovyratio,float aspect,glm::vec4 diff_color);
+    void DrawCamFrame(const glm::mat4& model_mat,float fovyratio,float aspect,glm::vec4 diff_color,bool is_activate=false,float width=1.0f,bool enable_depth_test=true);
 private:
     void InitGridDrawer();
     void InitLineDrawer();
@@ -65,6 +65,7 @@ private:
     std::unique_ptr<Resources::SMesh> gizmoarrowmeshp_body_=nullptr;
     std::unique_ptr<Resources::SMesh> gizmoarrowmeshp_bodybase_=nullptr;
     std::unique_ptr<Resources::SMesh> camframemeshp_=nullptr;
+    std::unique_ptr<Resources::SMesh> camframemesh_upp_=nullptr;
     std::unique_ptr<Resources::GLShader> lineshader_=nullptr;
     std::unique_ptr<Resources::GLShader> gridshader_=nullptr;
     std::unique_ptr<Resources::GLShader> arrowshader_=nullptr;

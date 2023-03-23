@@ -19,6 +19,8 @@ public:
     sm::Transform cam_extrinsic_;
     Core::CameraCtrl camctrl_;
     SRender::Buffers::GLFrameBuffer fbo_; 
+    bool has_cursor_=false;
+    bool cursor_selecting=false;
 };
 
 }

@@ -15,6 +15,7 @@
 #include "SWnd/Input/InputManager.h"
 #include "SceneSys/SceneManager.h"
 #include "glm/ext/matrix_transform.hpp"
+#include "glm/ext/quaternion_common.hpp"
 #include "imgui/imgui.h"
 #include <spdlog/spdlog.h>
 #include <SRender/Resources/SModel.h>
@@ -35,6 +36,9 @@ modelmanager(SANASERVICE(ResourceManager::ModelManager)),
 simplerenderpass(rtcontext)
 {
     name_="Scene View";
+    has_cursor_=true;
+    camctrl_.is_fps_cam_mod_=false;
+    camctrl_.cam_->Setfovy(90);
     std::vector<SRender::Resources::Vertex> tmpv;
     float sqrt3=sqrtf(3);
    
@@ -200,12 +204,28 @@ void SceneView::ActorPickerTick(float deltat){
     if (mouse_start_in_view){
         if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)){
             mouse_start_in_view=0;
-            uint32_t actorid=0;
-            rtcontext_.core_renderer_->ReadPixels(static_cast<uint32_t>(io.MousePos.x)-canvas_pos_.first,
-             canvas_size_.second-static_cast<uint32_t>(io.MousePos.y)+canvas_pos_.second, 
-             1, 1, GL_RGB, GL_UNSIGNED_BYTE, &actorid);
-            
-            rtcontext_.scene_manager_->SetSelectedActor(actorid);
+            auto x= static_cast<uint32_t>(io.MousePos.x)-canvas_pos_.first;
+            auto y = canvas_size_.second-static_cast<uint32_t>(io.MousePos.y)+canvas_pos_.second;
+            if (cursor_selecting){
+                float depth=0;
+                rtcontext_.core_renderer_->ReadPixels(x,y, 
+                 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+                if (depth!=1&&depth!=0){
+                    glm::vec4 ndcpos(1);
+                    ndcpos.x = 2.0f*x/canvas_size_.first-1.0f;
+                    ndcpos.y = 2.0f*y/canvas_size_.second-1.0f;
+                    ndcpos.z = 2.0f*depth-1.0f;
+                    auto tmp =glm::inverse(camctrl_.cam_->GetProjectionMat()*camctrl_.cam_->GetViewMat())*ndcpos;
+                    rtcontext_.scene_manager_->cursor_pos_ = tmp/tmp.w;
+                }
+            }else{
+                uint32_t actorid=0;
+                rtcontext_.core_renderer_->ReadPixels(x,y, 
+                1, 1, GL_RGB, GL_UNSIGNED_BYTE, &actorid);
+
+                rtcontext_.scene_manager_->SetSelectedActor(actorid);
+            }
+
         }
     }
     actor_picker_fbo_.Unbind();
