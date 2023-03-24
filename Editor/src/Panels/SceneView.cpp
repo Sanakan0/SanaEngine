@@ -159,7 +159,7 @@ void SceneView::RenderTick(float deltat){
    
     scenerenderpass.Draw();
     
-    shape_drawer.DrawGrid();
+    shape_drawer.DrawCursor(rtcontext_.scene_manager_->cursor_pos_, {0,1,0.8,1},camctrl_.cam_->GetViewMat());
     
     if (auto actor = rtcontext_.scene_manager_->GetSelectedActor();actor!=nullptr){
         renderer.DrawActorOutline(*actor);
@@ -210,7 +210,11 @@ void SceneView::ActorPickerTick(float deltat){
                 float depth=0;
                 rtcontext_.core_renderer_->ReadPixels(x,y, 
                  1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
-                if (depth!=1&&depth!=0){
+                {
+                    if (depth==1) {
+                        auto tmpcenter = camctrl_.cam_->GetProjectionMat()*camctrl_.cam_->GetViewMat()*glm::vec4(camctrl_.GetCamcenter(),1);
+                        depth = tmpcenter.z/tmpcenter.w;
+                    }
                     glm::vec4 ndcpos(1);
                     ndcpos.x = 2.0f*x/canvas_size_.first-1.0f;
                     ndcpos.y = 2.0f*y/canvas_size_.second-1.0f;

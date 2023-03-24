@@ -56,16 +56,19 @@ void SView::DrawContent(){
     
     ImGui::SetCursorPos({10,40});
     auto& tmpuimanager = SANASERVICE(SGUI::Core::UImanager);
-
-  
+    auto h =ImGui::GetFrameHeight();
+    ImGui::BeginChild("childwnd",{h*2,has_cursor_?h*2.5f:h},0,ImGuiWindowFlags_NoBackground|ImGuiWindowFlags_NoScrollbar);
     {
+        
         ImGui::BeginGroup();
 
         SGUI::ToggleButton("cam_mode_sw",ICON_FA_CAMERA,ICON_FA_CAMERA_ROTATE,&camctrl_.is_fps_cam_mod_);
         //ImGui::ImageButton(ImTextureID user_texture_id, const ImVec2 &size)
         if (has_cursor_) SGUI::ToggleButton("cursor_sw",  ICON_FA_CROSSHAIRS,ICON_FA_SLASH, &cursor_selecting);
         ImGui::EndGroup();
+        
     }
+    ImGui::EndChild();
     // if (ImGui::CollapsingHeader("tesst")){
     //     ImGui::Button("test");
     // }

@@ -32,6 +32,8 @@ unlitshader_(Resources::GLShaderLoader::LoadFromFile(ResourceManager::Util::GetF
 
 EntityRenderer::~EntityRenderer(){}
 
+
+
 void EntityRenderer::DrawSkeleton(Resources::SModel& model){
     ApplyGLstate(Skeleton_Default_GLstate);
     glm::mat4 scale=  glm::scale(glm::mat4(1),glm::vec3(0.1));
@@ -134,13 +136,55 @@ GLShapeDrawer::GLShapeDrawer(EntityRenderer& renderer):renderer_(renderer){
     InitArrowDrawer();
     InitGizmoDrawer();
     InitCamFrameDrawer();
-    
+    InitCircleDrawer();
 }
 
 GLShapeDrawer::~GLShapeDrawer(){
     
 }
-void GLShapeDrawer::DrawCamFrame(const glm::mat4 &model_mat, float fovyratio, float aspect,glm::vec4 diff_color,bool is_activate,float width,bool enable_depth_test){
+
+
+void GLShapeDrawer::DrawCircle(const glm::mat4& model_mat,const glm::vec4& diff_color,float width){
+    renderer_.ApplyGLstate(LineMesh_GLstate);
+    gizmoshader_->Bind();
+    //renderer_.SetRasterizationMode(Setting::SRasterization::LINE);
+    renderer_.SetRasterizationLineWdith(width);
+    gizmoshader_->SetUniMat4("ModelMat", model_mat);
+    gizmoshader_->SetUniVec4("diffuse_color", diff_color);
+    renderer_.Draw(*circlemeshp_, Setting::SPrimitive::LINE_LOOP);
+    renderer_.SetRasterizationLineWdith(1.0);
+    //renderer_.SetRasterizationMode(Setting::SRasterization::FILL);
+    gizmoshader_->Unbind();
+    renderer_.ApplyPreviousGLstate();
+}
+
+void GLShapeDrawer::DrawPoint(const glm::vec3& pos,const glm::vec4& color){
+    renderer_.ApplyGLstate(LineMesh_GLstate);
+    glPointSize(4.0f);
+    gizmoshader_->Bind();
+    gizmoshader_->SetUniMat4("ModelMat", glm::translate(glm::mat4(1),pos));
+    gizmoshader_->SetUniVec4("diffuse_color", color);
+    renderer_.Draw(*singlepointp_, Setting::SPrimitive::POINTS);
+    gizmoshader_->Unbind();
+    glPointSize(1.0f);
+    renderer_.ApplyPreviousGLstate();
+}
+
+void GLShapeDrawer::DrawCursor(const glm::vec3 &pos, const glm::vec4& diff_color,const glm::mat4& viewmat,float width){
+    float scale = -(viewmat*glm::vec4(pos,1)).z*0.025;
+    auto mz = glm::mat4(scale);
+    mz[3] = glm::vec4(pos,1);
+    auto my = gizmoarrow_ytrans*scale;
+    my[3] = glm::vec4(pos,1);
+    auto mx = gizmoarrow_xtrans*scale;
+    mx[3] = glm::vec4(pos,1);
+    DrawCircle(mx, diff_color);
+    DrawCircle(my, diff_color);
+    DrawCircle(mz, diff_color);
+    DrawPoint(pos, diff_color);
+}
+
+void GLShapeDrawer::DrawCamFrame(const glm::mat4 &model_mat, float fovyratio, float aspect,const glm::vec4& diff_color,bool is_activate,float width,bool enable_depth_test){
     renderer_.ApplyGLstate(LineMesh_GLstate|(enable_depth_test?SGLState::DEPTH_TEST:SGLState::EMPTY));
     gizmoshader_->Bind();
     renderer_.SetRasterizationMode(Setting::SRasterization::LINE);
@@ -337,10 +381,36 @@ void GLShapeDrawer::InitGizmoDrawer(){
     assert(gizmoshader_!=nullptr&&"ShapeDrawer.gizmoshader_ create failed!");
 
     auto cos45 = cos(SM_PI/4);
-    auto sin45 =sin(SM_PI/4);
+    auto sin45 = sin(SM_PI/4);
     gizmoarrow_ytrans = glm::mat4_cast(glm::quat(-cos45,sin45,0,0));
     gizmoarrow_xtrans = glm::mat4_cast(glm::quat(cos45,0,sin45,0)); 
    
+}
+
+void GLShapeDrawer::InitCircleDrawer(){
+    std::vector<Resources::Vertex> tmpv;
+    int cnt=32;
+    float r=1;    
+    for (int i=0;i<cnt;++i){
+        float theta = 2.0f*i*SM_PI/cnt;
+        float x=cosf(-theta)*r;
+        float y=sinf(-theta)*r;
+        tmpv.push_back({
+            {x,y,0},
+            {0,0},
+            {0,0,0}
+        });
+    }
+    std::vector<uint32_t> idx;
+    circlemeshp_ = std::make_unique<Resources::SMesh>(tmpv,idx);
+    std::vector<Resources::Vertex> pointv;
+    pointv.push_back({
+        {0,0,0},
+        {0,0},
+        {0,0,0}
+    });
+    singlepointp_ = std::make_unique<Resources::SMesh>(pointv,idx);
+
 }
 
 void GLShapeDrawer::InitArrowDrawer(){

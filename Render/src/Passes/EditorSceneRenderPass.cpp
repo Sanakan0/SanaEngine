@@ -33,12 +33,14 @@ void EditorSceneRenderPass::Draw(){
         }
         renderer_.DrawModel(*meshcomp->GetModel());
     }
+    renderer_.GetShapeDrawer()->DrawGrid();
     for (auto& camcomp:scenemanager_.GetScene()->GetBasicRenderComponent().camcomps){
         auto transcomp =camcomp->parentactor_.GetTransformComponent();
         bool is_active = (&camcomp->parentactor_ == scenemanager_.GetActiveCamera()) ? true:false;
         renderer_.GetShapeDrawer()->DrawCamFrame(transcomp->GetMat(), camcomp->cam_.Getfocal_length()/camcomp->cam_.Getsensor_size_h(), camcomp->cam_.Getaspect_ratio(), {0,0,0,1},is_active);
     }
-    renderer_.GetShapeDrawer()->DrawArrow(glm::translate(glm::mat4(1),scenemanager_.cursor_pos_));
+    
+    //renderer_.GetShapeDrawer()->DrawArrow(glm::translate(glm::mat4(1),scenemanager_.cursor_pos_));
     shaderp_->Unbind();
    
 }

@@ -21,7 +21,7 @@ public:
     void SetCamInExParam(SRender::LowRenderer::Camera& intrinsic,sm::Transform& extrinsic);
     const glm::vec3& GetPos() const{return extrinsic_->world_pos_;}
     const glm::quat& GetOrien() const{return extrinsic_->world_orien_;} 
-
+    const glm::vec3& GetCamcenter(){return camcenter;}
     void translate(glm::vec3 trans);
 	
 	void Orbit(float hori_deg,float verti_deg );
@@ -39,6 +39,7 @@ public:
     SRender::LowRenderer::Camera* cam_;
     sm::Transform* extrinsic_;
     bool is_fps_cam_mod_=1;
+   
 private:
     int mid_btn_=0;
     int left_btn_=0;
