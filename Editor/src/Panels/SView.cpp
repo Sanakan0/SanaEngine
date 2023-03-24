@@ -42,20 +42,10 @@ void SView::UpdateViewCam(float deltat){
 
 void SView::DrawContent(){
     
-    
-    // int windowFlags = ImGuiWindowFlags_None;
-     static bool open=true;
-    // if (ImGui::BeginChild("test",{100,200},windowFlags)){
-    //     ImGui::Button("test");
-    //     ImGui::EndChild();
-    // }
-    //showtest(&open, ImVec2( pos_.first,pos_.second), ImVec2(size_.first,size_.second));
-    
-    //ShowExampleAppSimpleOverlay(&open, ImVec2( pos_.first,pos_.second), ImVec2(size_.first,size_.second),name_+"childwind");
-    ImGui::Image((void*)fbo_.tex_buf_id_, ImVec2(canvas_size_.first,canvas_size_.second), ImVec2(0.f, 1.f), ImVec2(1.f, 0.f));
+
+    ImGui::Image((void*)(uint64_t)fbo_.tex_buf_id_, ImVec2(canvas_size_.first,canvas_size_.second), ImVec2(0.f, 1.f), ImVec2(1.f, 0.f));
     
     ImGui::SetCursorPos({10,40});
-    auto& tmpuimanager = SANASERVICE(SGUI::Core::UImanager);
     auto h =ImGui::GetFrameHeight();
     ImGui::BeginChild("childwnd",{h*2,has_cursor_?h*2.5f:h},0,ImGuiWindowFlags_NoBackground|ImGuiWindowFlags_NoScrollbar);
     {
@@ -63,15 +53,13 @@ void SView::DrawContent(){
         ImGui::BeginGroup();
 
         SGUI::ToggleButton("cam_mode_sw",ICON_FA_CAMERA,ICON_FA_CAMERA_ROTATE,&camctrl_.is_fps_cam_mod_);
-        //ImGui::ImageButton(ImTextureID user_texture_id, const ImVec2 &size)
+
         if (has_cursor_) SGUI::ToggleButton("cursor_sw",  ICON_FA_CROSSHAIRS,ICON_FA_SLASH, &cursor_selecting);
         ImGui::EndGroup();
         
     }
     ImGui::EndChild();
-    // if (ImGui::CollapsingHeader("tesst")){
-    //     ImGui::Button("test");
-    // }
+
     ImGui::SetCursorPos({size_.first-100.0f,100});
     SGUI::Campass(camctrl_.GetOrien());
     
