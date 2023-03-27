@@ -10,9 +10,12 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+
 namespace SceneSys{
 
-
+enum SceneSetting{
+    Actor_ID_Max = (1<<24)-5
+};
 struct BasicRenderComponents{
     std::vector<ECS::Components::MeshComponent*> meshcomps;
     std::vector<ECS::Components::CameraComponent*> camcomps;

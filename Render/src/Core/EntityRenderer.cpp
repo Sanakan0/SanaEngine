@@ -8,6 +8,7 @@
 #include "SRender/Resources/STextureLoader.h"
 #include "SResourceManager/Util.h"
 #include "SMath/Quaternion.h"
+#include "SceneSys/Scene.h"
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/fwd.hpp"
 #include "glm/geometric.hpp"
@@ -201,20 +202,34 @@ void GLShapeDrawer::DrawCamFrame(const glm::mat4 &model_mat, float fovyratio, fl
     renderer_.ApplyPreviousGLstate();
 }
 
-void GLShapeDrawer::DrawTransGizmo(const glm::vec3 &pos,const glm::mat4& viewmat){
+void GLShapeDrawer::DrawTransGizmo(const glm::vec3 &pos,const glm::mat4& viewmat,bool is_render_for_pick){
     
     renderer_.ClearBuffer(0,1,0);
+    glm::vec4 xcolor{1,0,0,1};
+    glm::vec4 ycolor{0,1,0,1};
+    glm::vec4 zcolor{0,0,1,1};
+    float scale = -0.05;
+    if (is_render_for_pick){
+        uint32_t gizmoid = SceneSys::SceneSetting::Actor_ID_Max+1;
+        auto bytep = reinterpret_cast<uint8_t*>(&gizmoid);
+        xcolor = glm::vec4(bytep[0]/255.0f,bytep[1]/255.0f,bytep[2]/255.0f,1.0f);
+        ++gizmoid;
+        ycolor = glm::vec4(bytep[0]/255.0f,bytep[1]/255.0f,bytep[2]/255.0f,1.0f);
+        ++gizmoid;
+        zcolor = glm::vec4(bytep[0]/255.0f,bytep[1]/255.0f,bytep[2]/255.0f,1.0f);
+        scale*=1.2;
+    }
 
-    float scale = -(viewmat*glm::vec4(pos,1)).z*0.05;
+    scale*=(viewmat*glm::vec4(pos,1)).z;
     auto ztrans = glm::mat4(scale);
     ztrans[3]=glm::vec4(pos,1);
     auto ytrans = gizmoarrow_ytrans*scale;
     ytrans[3]=glm::vec4(pos,1);
     auto xtrans = gizmoarrow_xtrans*scale;
     xtrans[3]=glm::vec4(pos,1);
-    DrawGizmoArrow(ztrans,{0,0,1,1});
-    DrawGizmoArrow(xtrans,{1,0,0,1});
-    DrawGizmoArrow(ytrans,{0,1,0,1});
+    DrawGizmoArrow(ztrans,zcolor);
+    DrawGizmoArrow(xtrans,xcolor);
+    DrawGizmoArrow(ytrans,ycolor);
 }
 void GLShapeDrawer::DrawGizmoArrow(const glm::mat4& model_mat,const glm::vec4& diff_color){
     gizmoshader_->Bind();

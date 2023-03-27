@@ -27,7 +27,6 @@ private:
     ResourceManager::ModelManager& modelmanager;
     //SWnd::Input::InputManager& inputmanager;
     SRender::Resources::SModel* model;
-    SRender::Passes::SimpleRenderPass simplerenderpass;
     SRender::Passes::EditorSceneRenderPass scenerenderpass;
     SRender::Passes::ActorPickerMaskRenderPass actorpickerrenderpass;
     SRender::Buffers::GLFrameBuffer actor_picker_fbo_;

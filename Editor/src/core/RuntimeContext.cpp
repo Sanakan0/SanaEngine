@@ -16,7 +16,7 @@ using namespace SCore::Global;
 RuntimeContext::RuntimeContext(){
     SWnd::contextSETTING wndset{800,800,true};
     //set engine assetpath
-    ResourceManager::Util::SetEngineAssetPath("..\\assets\\");
+    ResourceManager::Util::SetEngineAssetPath(".\\assets\\");
     wndcontext_ = std::make_unique<SWnd::Context>(wndset);
     wndcontext_->setup_GLAD();
 

@@ -13,9 +13,10 @@
 namespace SRender::Passes{
 
 
-ActorPickerMaskRenderPass::ActorPickerMaskRenderPass():
+ActorPickerMaskRenderPass::ActorPickerMaskRenderPass(SEditor::Core::CameraCtrl & viewcamctl):
 renderer_(SANASERVICE(Core::EntityRenderer)),
-scenemanager_(SANASERVICE(SceneSys::SceneManager))
+scenemanager_(SANASERVICE(SceneSys::SceneManager)),
+viewcamctl_(viewcamctl)
 {
     std::string pth = ResourceManager::Util::GetFullPath(":shaders\\unlit.glsl");
     shaderp_ = std::unique_ptr<Resources::GLShader> (Resources::GLShaderLoader::LoadFromFile(pth));
@@ -42,7 +43,9 @@ void ActorPickerMaskRenderPass::Draw(){
         auto transcomp =camcomp->parentactor_.GetTransformComponent();
         renderer_.GetShapeDrawer()->DrawCamFrame(transcomp->GetMat(), camcomp->cam_.Getfocal_length()/camcomp->cam_.Getsensor_size_h(), camcomp->cam_.Getaspect_ratio(), glm::vec4(bytep[0]/255.0f,bytep[1]/255.0f,bytep[2]/255.0f,1.0f),true,10.0f);
     }
-
+    if (auto actor = scenemanager_.GetSelectedActor();actor!=nullptr){
+        renderer_.GetShapeDrawer()->DrawTransGizmo(actor->GetTransformComponent()->trans_.world_pos_,viewcamctl_.cam_->GetViewMat(),true);
+    }
     shaderp_->Unbind();
 }
 

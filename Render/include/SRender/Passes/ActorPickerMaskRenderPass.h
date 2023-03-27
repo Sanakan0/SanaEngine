@@ -1,5 +1,6 @@
 #pragma once
 #include "ECS/Actor.h"
+#include "SEditor/Core/CameraCtrl.h"
 #include "SRender/Core/EntityRenderer.h"
 #include "SRender/Resources/GLShader.h"
 #include "SRender/Resources/SModel.h"
@@ -16,14 +17,14 @@ namespace SRender::Passes{
 
 class ActorPickerMaskRenderPass{
 public:
-    ActorPickerMaskRenderPass();
+    ActorPickerMaskRenderPass(SEditor::Core::CameraCtrl & viewcamctl);
     ~ActorPickerMaskRenderPass()=default;
     void Draw();
 private:
     std::unique_ptr<Resources::GLShader> shaderp_;
     Core::EntityRenderer& renderer_;
     SceneSys::SceneManager& scenemanager_;
-
+    SEditor::Core::CameraCtrl& viewcamctl_;
 };
 
 

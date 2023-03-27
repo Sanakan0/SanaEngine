@@ -9,7 +9,7 @@
             "name":"CL sanaengine debug",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/Editor/Editor.exe",
+            "program": "${workspaceFolder}/build/SanaEngine.exe",
             "symbolSearchPath": "C:\\Symbols;C:\\SymbolDir2",
             "console": "externalTerminal",
             "logging": {

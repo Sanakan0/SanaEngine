@@ -13,6 +13,7 @@
 #include "SResourceManager/TextureManager.h"
 #include "SResourceManager/Util.h"
 #include "SWnd/Input/InputManager.h"
+#include "SceneSys/Scene.h"
 #include "SceneSys/SceneManager.h"
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/quaternion_common.hpp"
@@ -32,8 +33,7 @@ rtcontext_(rtcontext),
 shadermanager(SANASERVICE(ResourceManager::ShaderManager)),
 texturemanager(SANASERVICE(ResourceManager::TextureManager)),
 modelmanager(SANASERVICE(ResourceManager::ModelManager)),
-
-simplerenderpass(rtcontext)
+actorpickerrenderpass(camctrl_)
 {
     name_="Scene View";
     has_cursor_=true;
@@ -148,17 +148,13 @@ void SceneView::RenderTick(float deltat){
     glStencilMask(0xFF); // stencil mask also influence glclear()
     renderer.ClearBuffer();
     glStencilMask(0x00);
-    //ImGui::InputFloat("k:", &k);
-    //ImGui::SliderFloat("k",&simplerenderpass.k,-3,3);
-    ImGui::SliderFloat("scene-k",&scenerenderpass.k,-3,3);
-    //renderer.Draw(*trimeshp,SRender::Setting::SPrimitive::TRIANGLES);
-    // for (auto i:model->GetMeshes()){
-    //     renderer.Draw(*i, SRender::Setting::SPrimitive::TRIANGLES);
-    // }
-    //renderpass.Draw();
+
    
     scenerenderpass.Draw();
-    
+
+    ActorPickerTick(deltat);
+
+    fbo_.Bind();
     shape_drawer.DrawCursor(rtcontext_.scene_manager_->cursor_pos_, {0,1,0.8,1},camctrl_.cam_->GetViewMat());
     
     if (auto actor = rtcontext_.scene_manager_->GetSelectedActor();actor!=nullptr){
@@ -167,10 +163,8 @@ void SceneView::RenderTick(float deltat){
     }
    
 
-    ActorPickerTick(deltat);
-    //test
     
-    //
+
     
     
     fbo_.Unbind();
@@ -202,14 +196,18 @@ void SceneView::ActorPickerTick(float deltat){
         }
     }
     if (mouse_start_in_view){
+        auto x= static_cast<uint32_t>(io.MousePos.x)-canvas_pos_.first;
+        auto y = canvas_size_.second-static_cast<uint32_t>(io.MousePos.y)+canvas_pos_.second;
+        
         if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)){
             mouse_start_in_view=0;
-            auto x= static_cast<uint32_t>(io.MousePos.x)-canvas_pos_.first;
-            auto y = canvas_size_.second-static_cast<uint32_t>(io.MousePos.y)+canvas_pos_.second;
+            
             if (cursor_selecting){
                 float depth=0;
+                fbo_.Bind();
                 rtcontext_.core_renderer_->ReadPixels(x,y, 
                  1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+                actor_picker_fbo_.Bind();
                 {
                     if (depth==1) {
                         auto tmpcenter = camctrl_.cam_->GetProjectionMat()*camctrl_.cam_->GetViewMat()*glm::vec4(camctrl_.GetCamcenter(),1);
@@ -225,9 +223,13 @@ void SceneView::ActorPickerTick(float deltat){
             }else{
                 uint32_t actorid=0;
                 rtcontext_.core_renderer_->ReadPixels(x,y, 
-                1, 1, GL_RGB, GL_UNSIGNED_BYTE, &actorid);
+                   1, 1, GL_RGB, GL_UNSIGNED_BYTE, &actorid);
+                if (actorid>SceneSys::Actor_ID_Max){
 
-                rtcontext_.scene_manager_->SetSelectedActor(actorid);
+                }else{
+                    rtcontext_.scene_manager_->SetSelectedActor(actorid);
+                }
+                
             }
 
         }
