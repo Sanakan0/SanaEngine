@@ -5,6 +5,7 @@
 #include "SRender/Resources/SAnimation.h"
 #include "SRender/Settings/GLSet.h"
 #include "glm/ext/matrix_transform.hpp"
+#include "glm/fwd.hpp"
 #include "imgui/imgui.h"
 #include <SRender/Resources/SModel.h>
 #include <SRender/Resources/SModelLoader.h>
@@ -49,8 +50,10 @@ void CameraView::RenderTick(float deltat){
     
     scenerenderpass_.Draw();
 
-
-    shape_drawer.DrawCamFrame(camctrl_.extrinsic_->GetMat(),camctrl_.cam_->Getfocal_length()/camctrl_.cam_->Getsensor_size_h() ,camctrl_.cam_->Getaspect_ratio(), {1,1,1,1});
+    auto fovyratio = camctrl_.cam_->Getfocal_length()/camctrl_.cam_->Getsensor_size_h();
+    auto tmpscale = glm::mat4((camctrl_.cam_->near_+camctrl_.cam_->far_)/2.0f/fovyratio);
+    tmpscale[3][3]=1;
+    shape_drawer.DrawCamFrame(camctrl_.extrinsic_->GetMat()*tmpscale,camctrl_.cam_->Getfocal_length()/camctrl_.cam_->Getsensor_size_h() ,camctrl_.cam_->Getaspect_ratio(), {1,1,1,1});
 
     fbo_.Unbind();
 

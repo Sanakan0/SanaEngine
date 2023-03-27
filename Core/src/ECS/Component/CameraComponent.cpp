@@ -31,7 +31,7 @@ void CameraComponent::DrawInspector() {
         cam_.Setsensor_size_h(ssz);
 
         auto ar = cam_.Getaspect_ratio();
-        ImGui::DragFloat("aspect ratio(w/h)",&ar,0.5,0,180);
+        ImGui::DragFloat("aspect ratio(w/h)",&ar,0.05,0,180);
         cam_.Setaspect_ratio(ar);
 
         ImGui::DragFloat("near",&cam_.near_,std::numeric_limits<float>::min(),cam_.far_);

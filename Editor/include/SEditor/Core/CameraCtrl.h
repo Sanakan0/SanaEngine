@@ -44,7 +44,7 @@ private:
     int mid_btn_=0;
     int left_btn_=0;
     int right_btn_=0;
-    float around_speed_=0.4f;
+    float around_speed_=0.2f;
     float zoom_speed_=0.05f;
     float move_speed_=1.0f;//  meter per second
 

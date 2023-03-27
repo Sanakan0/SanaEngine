@@ -20,7 +20,7 @@ void AssetLoader::LoadTiles(const std::string& filename){
     //fs::path tile_pth(R"(E:\user\cnt0\beihang reconstruction data\dxobj)");
     
     fs::path tile_pth(filename);
-    int cnt=3;
+    int cnt=60;
     int cur=0;
     int st=1;
     int ed=st+cnt-1;
@@ -55,7 +55,7 @@ void AssetLoader::LoadTiles(const std::string& filename){
 void AssetLoader::LoadAModelTask(std::string pth,int idx){
     auto tmpmodel = modelmanager_.CreateResources(pth,true);
     //renderpass.render_resources_[idx] = tmpmodel;
-    auto& tmpa=scenemanager_.GetScene()->CreateActor();
+    auto& tmpa=scenemanager_.GetScene()->CreateActor("Tile_");
     
     tmpa.AddComponent<ECS::Components::MeshComponent>(tmpmodel);
     if (tmpmodel->GetMaterial()){

@@ -24,14 +24,27 @@ void Hierarchy::RightClickMenu(){
 void Hierarchy::DrawContent(){
 
     if (ImGui::TreeNode("root")){
-        for (auto &actor:scenemanager_.GetScene()->GetActors()){
-            
-            if (ImGui::Selectable((actor.second->GetName() + std::to_string(actor.second->GetID())).c_str())){
-                scenemanager_.SetSelectedActor(actor.second->GetID());
+        if (ImGui::TreeNode("model")){
+            for  (auto &meshcomp:scenemanager_.GetScene()->GetBasicRenderComponent().meshcomps){
+                auto& actor = meshcomp->parentactor_;
+                if (ImGui::Selectable((actor.GetName() + std::to_string(actor.GetID())).c_str())){
+                    scenemanager_.SetSelectedActor(actor.GetID());
+                }
             }
-            RightClickMenu();
-        
+            ImGui::TreePop();
         }
+        if (ImGui::TreeNode("camera")){
+            for  (auto &meshcomp:scenemanager_.GetScene()->GetBasicRenderComponent().camcomps){
+                auto& actor = meshcomp->parentactor_;
+                if (ImGui::Selectable((actor.GetName() + std::to_string(actor.GetID())).c_str())){
+                    scenemanager_.SetSelectedActor(actor.GetID());
+                }
+            }
+            ImGui::TreePop();
+        }
+
+
+
         ImGui::TreePop();
     }
     
