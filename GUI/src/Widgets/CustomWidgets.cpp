@@ -40,7 +40,36 @@ void ToggleButton(const char* str_id,const char* icon0,const char* icon1, bool* 
     draw_list->AddText(nullptr,fontsz,ImVec2(p.x+center0.x-fontsz/3,p.y+center0.y-fontsz/2),*v?icon_c0:icon_c1,icon0);
     draw_list->AddText(nullptr,fontsz,ImVec2(p.x+center1.x-fontsz/3,p.y+center0.y-fontsz/2),*v?icon_c1:icon_c0,icon1);
 }
+void ToggleButton(const char* str_id,const char* icon0, bool* v)
+{
 
+	ImVec2 p = ImGui::GetCursorScreenPos();
+	ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+	float height = ImGui::GetFrameHeight();
+	float width = height;
+	float radius = height * 0.50f;
+	float rounding = 0.2f;
+
+	ImGui::InvisibleButton(str_id, ImVec2(width, height));
+	if (ImGui::IsItemClicked()) *v = !*v;
+
+	if (ImGui::IsItemHovered())
+		draw_list->AddRectFilled(p, ImVec2(p.x + width, p.y + height), ImGui::GetColorU32( ImVec4(0.78f, 0.78f, 0.78f, 1.0f)), height * rounding);
+	else
+		draw_list->AddRectFilled(p, ImVec2(p.x + width, p.y + height), ImGui::GetColorU32(ImVec4(0.85f, 0.85f, 0.85f, 1.0f)), height * rounding);
+	ImVec2 center = ImVec2(radius,radius);
+
+
+	//ImVec2 center = *v ? center0:center1;
+	draw_list->AddRectFilled(ImVec2((p.x + center.x) - radius, p.y + 1.5f),
+		ImVec2((p.x  + center.x) + radius, p.y + height - 1.5f), IM_COL32(255, 255, 255, 255), height * rounding);
+    
+    float fontsz=height;
+    auto icon_c0= IM_COL32(255,0,255,255);
+    auto icon_c1 =IM_COL32(255,0,255,127);
+    draw_list->AddText(nullptr,fontsz,ImVec2(p.x+center.x-fontsz/3,p.y+center.y-fontsz/2),*v?icon_c0:icon_c1,icon0);
+}
 
 
 void Campass(const glm::quat& main_cam_orien_,float sz){

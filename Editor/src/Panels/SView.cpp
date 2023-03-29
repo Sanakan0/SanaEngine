@@ -54,7 +54,7 @@ void SView::DrawContent(){
 
         SGUI::ToggleButton("cam_mode_sw",ICON_FA_CAMERA,ICON_FA_CAMERA_ROTATE,&camctrl_.is_fps_cam_mod_);
 
-        if (has_cursor_) SGUI::ToggleButton("cursor_sw",  ICON_FA_CROSSHAIRS,ICON_FA_SLASH, &cursor_selecting);
+        if (has_cursor_) SGUI::ToggleButton("cursor_sw",  ICON_FA_CROSSHAIRS, &cursor_selecting);
         ImGui::EndGroup();
         
     }
