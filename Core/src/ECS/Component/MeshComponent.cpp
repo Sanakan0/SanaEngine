@@ -34,7 +34,7 @@ void MeshComponent::DrawInspector(){
                     
                     ImGui::BeginChild("textureimg",ImVec2(0,0),true,ImGuiWindowFlags_HorizontalScrollbar);
                     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));
-                    ImGui::Image(reinterpret_cast<void*>((uint64_t)texs.DiffuseTex->id) , ImVec2((float)texs.DiffuseTex->width,(float)texs.DiffuseTex->height),ImVec2(0.f, 1.f), ImVec2(1.f, 0.f));
+                    ImGui::Image(reinterpret_cast<void*>((uint64_t)texs.DiffuseTex->id) , ImVec2((float)texs.DiffuseTex->width/10,(float)texs.DiffuseTex->height/10),ImVec2(0.f, 1.f), ImVec2(1.f, 0.f));
                     ImGui::PopStyleVar();
                     ImGui::EndChild();
                 }

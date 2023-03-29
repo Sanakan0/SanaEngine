@@ -11,7 +11,7 @@ add_subdirectory(GUI)
 add_subdirectory(Core)
 add_subdirectory(Editor)
 add_subdirectory(Render)
-
+add_subdirectory(VisualLoc)
 add_executable(SanaEngine main.cpp)
 target_link_libraries(SanaEngine PUBLIC Editor)
 

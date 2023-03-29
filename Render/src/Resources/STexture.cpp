@@ -22,6 +22,7 @@ void STexture::Unbind(){
 }
 
 void STexture::UploadTexture(){
+    //if (rawdata==nullptr) return;
     glGenTextures(1,&id);
     
     glBindTexture(GL_TEXTURE_2D,id);

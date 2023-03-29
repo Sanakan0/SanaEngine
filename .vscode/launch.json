@@ -17,7 +17,7 @@
               "trace": true
             },
             "visualizerFile": "${workspaceFolder}/my.natvis",
-            "cwd": "${workspaceFolder}/build/Editor/"
+            "cwd": "${workspaceFolder}/build/"
         }
     ]
 

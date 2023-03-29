@@ -74,6 +74,11 @@ uint32_t GLShaderLoader::CreateProgram(const std::string& v_shader,const std::st
 }
 
 uint32_t GLShaderLoader::CompileShader(GLenum type,const std::string& src){
+    if (src==""){
+        std::string typestr = type == GL_VERTEX_SHADER? "VERTEX shader":"FRAGMENT shader";
+        spdlog::error("[SHADER COMPILE FAILED] > " + typestr + " > " + file_path_ + " file is empty or no such file \n");
+        return 0;
+    }
     uint32_t shaderid = glCreateShader(type);
     const char* src_code = src.c_str();
     glShaderSource(shaderid,1,&src_code,NULL);

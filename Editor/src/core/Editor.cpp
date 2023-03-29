@@ -4,6 +4,7 @@
 #include "SEditor/Panels/Inspector.h"
 #include "SEditor/Panels/MainMenubar.h"
 #include "SEditor/Panels/TestView.h"
+#include "SEditor/Panels/VisLocPanel.h"
 #include <SCore/Global/ServiceLocator.h>
 using namespace SEditor::Core;
 
@@ -77,4 +78,5 @@ void Editor::SetUpUI(){
     rtcontext_.uimanager_->CreatePanel<SEditor::Panels::MainMenubar>("MainMenuBar");
     rtcontext_.uimanager_->CreatePanel<Panels::Hierarchy>("Hierarchy");
     rtcontext_.uimanager_->CreatePanel<Panels::Inspector>("Inspector");
+    rtcontext_.uimanager_->CreatePanel<Panels::VisLocPanel>("VisLocPanel");
 }

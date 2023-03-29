@@ -22,10 +22,7 @@ void ToggleButton(const char* str_id,const char* icon0,const char* icon1, bool* 
 
 	ImGui::InvisibleButton(str_id, ImVec2(width, height));
 	if (ImGui::IsItemClicked()) *v = !*v;
-	ImGuiContext& gg = *GImGui;
-	float ANIM_SPEED = 0.085f;
-	// if (gg.LastActiveId == gg.CurrentWindow->GetID(str_id))// && g.LastActiveIdTimer < ANIM_SPEED)
-	// 	float t_anim = ImSaturate(gg.LastActiveIdTimer / ANIM_SPEED);
+
 	if (ImGui::IsItemHovered())
 		draw_list->AddRectFilled(p, ImVec2(p.x + width, p.y + height), ImGui::GetColorU32( ImVec4(0.78f, 0.78f, 0.78f, 1.0f)), height * rounding);
 	else
