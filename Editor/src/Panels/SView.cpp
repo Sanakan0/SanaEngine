@@ -20,10 +20,7 @@ SView::SView():camctrl_(*this,SANASERVICE(SWnd::Context),cam_,cam_extrinsic_){
 
 void SView::FillUBO(){
     auto& editor_ubo = SANASERVICE(SRender::Buffers::GLUniformBuffer);
-    editor_ubo.BufferSubData(camctrl_.cam_->GetViewMat(),0);
-    editor_ubo.BufferSubData(camctrl_.cam_->GetProjectionMat(),sizeof(glm::mat4)*1);
-    editor_ubo.BufferSubData(camctrl_.cam_->GetProjectionMat()*camctrl_.cam_->GetViewMat(),sizeof(glm::mat4)*2); //viewprj
-    editor_ubo.BufferSubData(camctrl_.GetPos(),sizeof(glm::mat4)*3);
+    camctrl_.FillUBO(editor_ubo);
 }
 
 void SView::UpdateViewCam(float deltat){

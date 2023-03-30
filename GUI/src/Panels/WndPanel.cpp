@@ -87,12 +87,12 @@ void WndPanel::DrawImpl(){
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, window_padding_);
     if (opened_){
         int windowFlags = ImGuiWindowFlags_None;
-
+        
 		if (!resizable_)				windowFlags |= ImGuiWindowFlags_NoResize;
 		if (!movable_)					windowFlags |= ImGuiWindowFlags_NoMove;
 		if (!dockable_)					windowFlags |= ImGuiWindowFlags_NoDocking;
         if (!scrollable_)               windowFlags |= ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar;
-        
+        if (hori_scrollable_)           windowFlags |= ImGuiWindowFlags_HorizontalScrollbar;
         ImVec2 minszcons = {0,0};
         ImVec2 maxszcons = {10000,10000};
         ImGui::SetNextWindowSizeConstraints(minszcons,maxszcons);

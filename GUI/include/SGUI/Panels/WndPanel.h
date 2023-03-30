@@ -27,6 +27,7 @@ public:
     bool movable_=true;
     bool dockable_=true;
     bool scrollable_=true;
+    bool hori_scrollable_=false;
     std::pair<int,int> size_={65535,65535};
     std::pair<int,int> pos_;
     std::pair<int,int> canvas_size_={65535,65535};

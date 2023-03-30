@@ -15,11 +15,11 @@ public:
 
 
 	glm::mat4 CalcViewMat(const glm::vec3& pos,const glm::quat& orien) const;
-	glm::mat4 CalcProjectionMat(int w,int h) const;
+	glm::mat4 CalcProjectionMat(float w,float h) const;
 	const glm::mat4& GetViewMat() const{return view_;};
 	const glm::mat4& GetProjectionMat() const{return prj_;};
 	void CacheViewMat(const glm::vec3& pos,const glm::quat& orien){view_ = CalcViewMat(pos,orien);};
-	void CacheProjectionMat(int w,int h){prj_=CalcProjectionMat(w,h);};
+	void CacheProjectionMat(float w,float h){prj_=CalcProjectionMat(w,h);};
 
 
 	void Setfovy(float fovy){

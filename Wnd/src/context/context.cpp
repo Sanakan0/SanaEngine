@@ -1,5 +1,6 @@
 
 #include "SWnd/context/context.h"
+#include "spdlog/spdlog.h"
 #include <GLFW/glfw3.h>
 #include <iostream>
 namespace SWnd{
@@ -8,7 +9,7 @@ Context::Context(contextSETTING s):setting(s){
     //glfw init
     int initcode=glfwInit();
     if (initcode == GLFW_FALSE){
-        std::cout << "glfwinit failed"<<std::endl;
+        spdlog::error("[GLFW] Glfw init failed");
     }else{
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -21,7 +22,7 @@ Context::Context(contextSETTING s):setting(s){
 
     if (Wnd_p == NULL)
     {
-        std::cout << "Failed to create GLFW window" << std::endl;
+        spdlog::error("[GLFW] Failed to create GLFW window");
         glfwTerminate();
     }
     glfwMakeContextCurrent(Wnd_p);
@@ -40,7 +41,7 @@ Context::~Context(){
 
 int Context::setup_GLAD(){
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)){
-		std::cout << "Failed to initialize GLAD" << std::endl;
+        spdlog::error("[GLAD] Failed to initialize GLAD");
 		return -1;
     }
     return 0;

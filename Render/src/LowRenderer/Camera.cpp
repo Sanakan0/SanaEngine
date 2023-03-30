@@ -20,8 +20,8 @@ glm::mat4 Camera::CalcViewMat(const glm::vec3& pos,const glm::quat& orien)const 
     return res;
 }
 
-glm::mat4 Camera::CalcProjectionMat(int w,int h) const{
-	float ratio = w/static_cast<float>(h);
+glm::mat4 Camera::CalcProjectionMat(float w,float h) const{
+	float ratio = w/h;
 	return glm::perspective(glm::radians(fovy_) ,ratio,near_,far_);
 }
 

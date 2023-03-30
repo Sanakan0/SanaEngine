@@ -197,7 +197,7 @@ void SceneView::ActorPickerTick(float deltat){
     }
     if (mouse_start_in_view){
         auto x= static_cast<uint32_t>(io.MousePos.x)-canvas_pos_.first;
-        auto y = canvas_size_.second-static_cast<uint32_t>(io.MousePos.y)+canvas_pos_.second;
+        auto y = canvas_size_.second-static_cast<uint32_t>(io.MousePos.y)+canvas_pos_.second-1;
         
         if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)){
             mouse_start_in_view=0;
@@ -214,8 +214,8 @@ void SceneView::ActorPickerTick(float deltat){
                         depth = tmpcenter.z/tmpcenter.w;
                     }
                     glm::vec4 ndcpos(1);
-                    ndcpos.x = 2.0f*x/canvas_size_.first-1.0f;
-                    ndcpos.y = 2.0f*y/canvas_size_.second-1.0f;
+                    ndcpos.x = 2.0f*x/canvas_size_.first+1.0f/canvas_size_.first-1.0f;
+                    ndcpos.y = 2.0f*y/canvas_size_.second+1.0f/canvas_size_.second-1.0f;
                     ndcpos.z = 2.0f*depth-1.0f;
                     auto tmp =glm::inverse(camctrl_.cam_->GetProjectionMat()*camctrl_.cam_->GetViewMat())*ndcpos;
                     rtcontext_.scene_manager_->cursor_pos_ = tmp/tmp.w;
