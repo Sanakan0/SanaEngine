@@ -2,8 +2,8 @@
 
 namespace SGUI::Panels{
 
-void Panel::DrawTick(){
-    DrawImpl();
+void Panel::DrawTick(float deltat){
+    DrawImpl(deltat);
 }
 
 }

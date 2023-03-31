@@ -229,10 +229,10 @@ void UImanager::StartAFrame(){
     }
 }
 
-void UImanager::RenderTick(){
+void UImanager::RenderTick(float deltat){
     ImGui::ShowDemoWindow();
     for (auto& panel : panels_){
-        panel->DrawTick();
+        panel->DrawTick(deltat);
     }
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

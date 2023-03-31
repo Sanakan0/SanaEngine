@@ -83,16 +83,18 @@ static void ShowExampleAppSimpleOverlay(bool* p_open,ImVec2 pos,ImVec2 sz)
 }
 
 
-void WndPanel::DrawImpl(){
+void WndPanel::DrawImpl(float deltat){
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, window_padding_);
     if (opened_){
         int windowFlags = ImGuiWindowFlags_None;
-        
+       
 		if (!resizable_)				windowFlags |= ImGuiWindowFlags_NoResize;
 		if (!movable_)					windowFlags |= ImGuiWindowFlags_NoMove;
 		if (!dockable_)					windowFlags |= ImGuiWindowFlags_NoDocking;
         if (!scrollable_)               windowFlags |= ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar;
         if (hori_scrollable_)           windowFlags |= ImGuiWindowFlags_HorizontalScrollbar;
+
+        if (isoverlay_) windowFlags=ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
         ImVec2 minszcons = {0,0};
         ImVec2 maxszcons = {10000,10000};
         ImGui::SetNextWindowSizeConstraints(minszcons,maxszcons);

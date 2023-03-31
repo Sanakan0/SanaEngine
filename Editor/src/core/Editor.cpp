@@ -1,6 +1,7 @@
 #include "SEditor/Core/Editor.h"
 #include "SEditor/Panels/CameraView.h"
 #include "SEditor/Panels/Hierarchy.h"
+#include "SEditor/Panels/InfoPanel.h"
 #include "SEditor/Panels/Inspector.h"
 #include "SEditor/Panels/MainMenubar.h"
 #include "SEditor/Panels/TestView.h"
@@ -64,7 +65,7 @@ void Editor::RenderTick(float deltat){
     sceneview.RenderTick(deltat);
     testview.RenderTick(deltat);
     cameraview.RenderTick(deltat);
-    rtcontext_.uimanager_->RenderTick();
+    rtcontext_.uimanager_->RenderTick(deltat);
 }
 
 void Editor::PostTick(){
@@ -79,4 +80,5 @@ void Editor::SetUpUI(){
     rtcontext_.uimanager_->CreatePanel<Panels::Hierarchy>("Hierarchy");
     rtcontext_.uimanager_->CreatePanel<Panels::Inspector>("Inspector");
     rtcontext_.uimanager_->CreatePanel<Panels::VisLocPanel>("VisLocPanel");
+    rtcontext_.uimanager_->CreatePanel<Panels::InfoPanel>("InfoPanel");
 }

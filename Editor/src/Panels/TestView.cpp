@@ -72,15 +72,7 @@ void TestView::RenderTick(float deltat){
 
     shape_drawer.DrawGrid();
     fbo_.Unbind();
-    float tmp = 1.0f/deltat;
-    ImGui::InputFloat("fps:",&tmp);
-    //imgui debug
-    // ImGui::Text("hello");
-    // char out[20];
-    // sprintf(out, "t %f", deltat);
-    // ImGui::Text(out);
-    // ImGui::Button("shoot")?sgun.Shoot():0;
-    //
+
 
 }
 

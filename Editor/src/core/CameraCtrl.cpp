@@ -142,8 +142,10 @@ void ACamera::CalcLookAt(){
 void CameraCtrl::Move2Target(glm::vec3 targetpos,float dis){
     camcenter=targetpos;
     dist2center=dis;
-    mv2pos_ = targetpos+dis*glm::vec3(1);
-    mv2orien_ = sm::LookAt(worldup,camcenter-mv2pos_);
+
+    mv2pos_ = targetpos+dis*glm::vec3(1/sm::sqrt3);
+    mv2orien_ = sm::LookAt(worldup,targetpos-mv2pos_);
+
     anima_activate_=1;
 }
 
@@ -157,7 +159,7 @@ void CameraCtrl::TickCamMove(float deltat){
         anima_process_normalized_=0;
         orien_=mv2orien_;
         pos_=mv2pos_;
-        euler_xyz_deg_ = sm::Quat2Eul(orien_);
+        UpdateExtraParam();
         return;
     }
     orien_ = glm::slerp(orien_,mv2orien_,anima_process_normalized_);
@@ -190,7 +192,7 @@ void ACamera::FpsRotate(float hori_deg,float verti_deg){
 void ACamera::UpdateExtraParam(){
     auto& pos_=extrinsic_->world_pos_;
     auto& orien_=extrinsic_->world_orien_;
-    camcenter=pos_ + orien_*sm::OglCamPrimForward*dist2center;
+    camcenter=pos_ + dist2center*(orien_*sm::OglCamPrimForward);
     euler_xyz_deg_=sm::Quat2Eul(orien_);
 }
 

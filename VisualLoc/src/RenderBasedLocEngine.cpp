@@ -42,26 +42,26 @@ cv::Mat RenderBasedLocEngine::GetIntrinsicMat(double fx,double fy,double cx,doub
 }
 
 
-cv::Mat RenderBasedLocEngine::Test2(ECS::Actor& initialcam){
+cv::Mat RenderBasedLocEngine::TestRenderCapture(ECS::Actor& initialcam){
     acam_.InitFromActor(initialcam);
     renderpipline_.RenderTick();
     
     return Fbo2Cvmat();
 }
 
-matchpairvec RenderBasedLocEngine::Test(const cv::Mat& ref_img,ECS::Actor& initialcam){
+matchpairvec RenderBasedLocEngine::TestFeatureMatch(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting){
     acam_.InitFromActor(initialcam);
     renderpipline_.RenderTick();
     
-    auto res = SURFFeatureMatch(ref_img, Fbo2Cvmat());
+    auto res = SURFFeatureMatch(ref_img, Fbo2Cvmat(),setting.fm_lowesratio);
     return res;
 }
 
-void RenderBasedLocEngine::LocPipeline(const cv::Mat& ref_img,ECS::Actor& initialcam){
+void RenderBasedLocEngine::LocPipeline(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting){
     acam_.InitFromActor(initialcam);
     renderpipline_.RenderTick();
     
-    auto res = SURFFeatureMatch(ref_img, Fbo2Cvmat());
+    auto res = SURFFeatureMatch(ref_img, Fbo2Cvmat(),setting.fm_lowesratio);
     std::vector<cv::Point3f> objpts;
     std::vector<cv::Point2f> imgpts;
     if (res.size()<4) return;
@@ -71,7 +71,7 @@ void RenderBasedLocEngine::LocPipeline(const cv::Mat& ref_img,ECS::Actor& initia
         objpts.push_back({tmp.x,tmp.y,tmp.z});
     }
     double fpix = (double)acam_.cam_->Getfocal_length()*ref_img.size().height/acam_.cam_->Getsensor_size_h();
-
+    
     auto inmat = GetIntrinsicMat(fpix, fpix, ref_img.size().width/2.0 , ref_img.size().height/2.0);
     
     cv::Mat distCoeffs = cv::Mat::zeros(4, 1, CV_64FC1);
@@ -80,9 +80,25 @@ void RenderBasedLocEngine::LocPipeline(const cv::Mat& ref_img,ECS::Actor& initia
     cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);
 
     bool useExtrinsicGuess = false;
-    int iterationscount=100;
-    float reprojectionerror=10;
-    double confidence=0.99;
+    int iterationscount=setting.pnp_iterationscount;
+    float reprojectionerror=setting.pnp_reprojectionerror;
+    double confidence=setting.pnp_confidence;
+    
+    auto[orien,trans,inliers] = RansacPnpPass(objpts,imgpts,inmat,distCoeffs,useExtrinsicGuess,iterationscount,reprojectionerror,confidence);
+    
+    acam_.SetExtrinsic(orien, trans);
+}
+
+std::tuple<glm::quat,glm::vec3,cv::Mat> RenderBasedLocEngine::RansacPnpPass(const std::vector<cv::Point3f>& objpts,const std::vector<cv::Point2f>& imgpts,
+const cv::Mat& inmat,const cv::Mat& distCoeffs,
+ bool useExtrinsicGuess ,
+    int iterationscount,
+    float reprojectionerror,
+    double confidence){
+    
+    cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);
+    cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);
+
     cv::Mat inliers;
     cv::solvePnPRansac(
         objpts,imgpts,inmat,
@@ -99,8 +115,7 @@ void RenderBasedLocEngine::LocPipeline(const cv::Mat& ref_img,ECS::Actor& initia
     glmvec[1]*=-1;
     glmvec[2]*=-1;
     auto orien = glm::conjugate( glm::quat_cast(glmmat));
-    
-    acam_.SetExtrinsic(orien, orien*-glmvec);
+    return {orien,orien*-glmvec,inliers};
 }
 
 cv::Mat RenderBasedLocEngine::Fbo2Cvmat(){
@@ -133,7 +148,7 @@ glm::vec3 RenderBasedLocEngine::RetrievPosFromPixel(int x,int y){
     return tmp/tmp.w;
 }
 
-matchpairvec RenderBasedLocEngine::SURFFeatureMatch(const cv::Mat& img1,const cv::Mat& img2){
+matchpairvec RenderBasedLocEngine::SURFFeatureMatch(const cv::Mat& img1,const cv::Mat& img2,float lowe_nnr){
     auto bfmatcher = cv::cuda::DescriptorMatcher::createBFMatcher(cv::NORM_L2);
     auto surf = cv::cuda::SURF_CUDA::create(400);
 
@@ -169,9 +184,9 @@ matchpairvec RenderBasedLocEngine::SURFFeatureMatch(const cv::Mat& img1,const cv
     std::vector<cv::DMatch> resmatches;
     
     // lowe's ratio test
-    constexpr float nnr=0.75;
+    
     for (auto& top2match:cpuknnmatches){
-        if (top2match.size()>1&&top2match[0].distance/top2match[1].distance < nnr){
+        if (top2match.size()>1&&top2match[0].distance/top2match[1].distance < lowe_nnr){
             resmatches.push_back(top2match[0]); //good match
         }
     }

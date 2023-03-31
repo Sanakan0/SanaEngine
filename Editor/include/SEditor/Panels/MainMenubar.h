@@ -10,7 +10,7 @@ namespace SEditor::Panels{
 class MainMenubar:public SGUI::Panels::Panel {
 public:
     MainMenubar();
-    void DrawImpl() override;  
+    void DrawImpl(float deltat) override;  
 
 private:
     Core::AssetLoader& assetloader_;

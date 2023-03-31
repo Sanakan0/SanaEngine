@@ -10,7 +10,7 @@ class WndPanel:public SGUI::Panels::Panel {
 public:
     WndPanel();
 
-    void DrawImpl() override;
+    void DrawImpl(float deltat) override;
     void UpdateWndStates();
 
     virtual void DrawContent() = 0; //Draw UI on canvas
@@ -28,6 +28,7 @@ public:
     bool dockable_=true;
     bool scrollable_=true;
     bool hori_scrollable_=false;
+    bool isoverlay_ = false;
     std::pair<int,int> size_={65535,65535};
     std::pair<int,int> pos_;
     std::pair<int,int> canvas_size_={65535,65535};

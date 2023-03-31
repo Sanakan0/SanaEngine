@@ -18,13 +18,26 @@ struct MatchPair{
 
 using matchpairvec = std::vector<MatchPair>;
 
+
+struct LocPipelineSetting{
+    float fm_lowesratio=0.65;
+    int pnp_iterationscount=1000;
+    float pnp_reprojectionerror=8;
+    double pnp_confidence=0.99;
+};
+
 class RenderBasedLocEngine{
 public:
     RenderBasedLocEngine();
-    void LocPipeline(const cv::Mat& ref_img,ECS::Actor& initialcam);
-    
-    matchpairvec Test(const cv::Mat& ref_img,ECS::Actor& initialcam);
-    cv::Mat Test2(ECS::Actor& initialcam);
+    void LocPipeline(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting);
+    std::tuple<glm::quat,glm::vec3,cv::Mat> RansacPnpPass(const std::vector<cv::Point3f>& objpts,const std::vector<cv::Point2f>& imgpts,
+        const cv::Mat& inmat,const cv::Mat& distCoeffs,
+        bool useExtrinsicGuess ,
+            int iterationscount,
+            float reprojectionerror,
+            double confidence);
+    matchpairvec TestFeatureMatch(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting);
+    cv::Mat TestRenderCapture(ECS::Actor& initialcam);
     
     cv::Mat Fbo2Cvmat();
 
@@ -33,7 +46,7 @@ public:
     cv::Mat GetIntrinsicMat(double fx,double fy,double cx,double cy);
 
     matchpairvec ORBFeatureMatch(const cv::Mat& img1,const cv::Mat& img2);
-    matchpairvec SURFFeatureMatch(const cv::Mat& img1,const cv::Mat& img2);
+    matchpairvec SURFFeatureMatch(const cv::Mat& img1,const cv::Mat& img2,float lowe_nnr=0.65);
     
     SRender::Buffers::GLFrameBuffer fbo_;
 private:

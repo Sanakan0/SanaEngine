@@ -38,7 +38,7 @@ public:
     void SetupFont();
     void ApplyStyle();
     void StartAFrame();
-    void RenderTick();
+    void RenderTick(float deltat);
     void EnableDocking(bool flg);
     bool dock_state_;
     bool dockspace_on_=true;

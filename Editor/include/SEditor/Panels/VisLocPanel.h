@@ -13,6 +13,7 @@ public:
     void DrawContent() override;  
 private:
     VisualLoc::RenderBasedLocEngine locengine;
+    VisualLoc::LocPipelineSetting locsetting;
     cv::Mat img1,img2;
     std::unique_ptr<SRender::Resources::STexture> imgp1,imgp2;
     SceneSys::SceneManager& scenemanager_;

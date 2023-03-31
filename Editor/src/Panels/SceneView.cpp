@@ -128,16 +128,16 @@ void SceneView::LogicTick(float deltat){
 void SceneView::RenderTick(float deltat){   
     UpdateViewCam(deltat);
     rtcontext_.core_renderer_->SetViewPort(0, 0,canvas_size_.first ,canvas_size_.second );
-    static bool rasflag=0;
-    if(ImGui::Button("switch ras")){
-        rasflag^=1;
-    }
-    if (rasflag){
-        rtcontext_.core_renderer_->SetRasterizationMode(SRender::Setting::SRasterization::LINE);
-        rtcontext_.core_renderer_->SetRasterizationLineWdith(1);
-    }else{
-        rtcontext_.core_renderer_->SetRasterizationMode(SRender::Setting::SRasterization::FILL);
-    }
+    // static bool rasflag=0;
+    // if(ImGui::Button("switch ras")){
+    //     rasflag^=1;
+    // }
+    // if (rasflag){
+    //     rtcontext_.core_renderer_->SetRasterizationMode(SRender::Setting::SRasterization::LINE);
+    //     rtcontext_.core_renderer_->SetRasterizationLineWdith(1);
+    // }else{
+    //     rtcontext_.core_renderer_->SetRasterizationMode(SRender::Setting::SRasterization::FILL);
+    // }
     
 
     fbo_.Bind();
