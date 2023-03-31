@@ -2,6 +2,7 @@
 
 #include "ECS/Actor.h"
 #include "SRender/LowRenderer/Camera.h"
+#include "SRender/Resources/STexture.h"
 #include "SceneSys/Scene.h"
 #include <cstddef>
 #include <memory>
@@ -28,7 +29,10 @@ public:
     }
     ECS::Actor* GetActiveCamera(){return active_camera_p_;}
     glm::vec3 cursor_pos_{0,0,0};
+    bool enable_img_prj_=0;
+    std::shared_ptr<SRender::Resources::STexture> img_tex_;
 private:
+    
     std::unique_ptr<Scene> scenep_;
     ECS::ActorID selected_actor_id_=0;
     ECS::Actor* selected_actor_p_=nullptr;

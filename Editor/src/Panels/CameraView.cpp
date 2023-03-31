@@ -32,6 +32,11 @@ void CameraView::LogicTick(float deltat){
         auto transcomp = active_camera_actor_->GetTransformComponent();
         camctrl_.SetCamInExParam(camcomp->cam_, transcomp->trans_);
     }
+    
+    camctrl_.cam_->CacheProjectionMat(camctrl_.cam_->Getaspect_ratio(),1);
+    auto& editor_ubo = SANASERVICE(SRender::Buffers::GLUniformBuffer);
+    editor_ubo.BufferSubData(camctrl_.cam_->GetProjectionMat()*camctrl_.cam_->GetViewMat(),sizeof(glm::mat4)*3+sizeof(glm::vec4));
+
 }
 
 void CameraView::RenderTick(float deltat){   
@@ -57,6 +62,8 @@ void CameraView::RenderTick(float deltat){
 
     fbo_.Unbind();
 
+    
+    
 }
 
 

@@ -27,6 +27,7 @@ scenemanager_(SANASERVICE(SceneSys::SceneManager)){
 
     cv::Mat tmp;
     cv::cvtColor(img1, tmp, cv::COLOR_BGR2RGBA);
+    cv::flip(tmp, tmp, 0);
     imgp1.reset(SRender::Resources::STextureLoader::LoadFromMemory(tmp.data, tmp.size().width, tmp.size().height, "img1"));
 
 
@@ -41,7 +42,7 @@ void VisLocPanel::DrawContent(){
     ImVec2 lupos(ImGui::GetCursorScreenPos());
 	ImVec2 lupos1(lupos);
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {0,0});
-    ImGui::Image((void*)(uint64_t)imgp1->id, {(float)imgp1->width/scale,(float)imgp1->height/scale});
+    ImGui::Image((void*)(uint64_t)imgp1->id, {(float)imgp1->width/scale,(float)imgp1->height/scale},ImVec2(0,1),ImVec2(1,0));
     ImGui::SameLine();
     //ImGui::Image((void*)(uint64_t)imgp2->id, {(float)imgp2->width/scale,(float)imgp2->height/scale});
     ImGui::Image((void*)(uint64_t)locengine.fbo_.tex_buf_id_,ImVec2(locengine.fbo_.buf_size_.first/scale,locengine.fbo_.buf_size_.second/scale),ImVec2(0,1),ImVec2(1,0) );
@@ -66,6 +67,7 @@ void VisLocPanel::DrawContent(){
             img1 = cv::imread(filepth);
             cv::Mat tmp;
             cv::cvtColor(img1, tmp, cv::COLOR_BGR2RGBA);
+            cv::flip(tmp, tmp, 0);
             imgp1.reset(SRender::Resources::STextureLoader::LoadFromMemory(tmp.data, tmp.size().width, tmp.size().height, "img1"));
         }
     }
@@ -91,6 +93,11 @@ void VisLocPanel::DrawContent(){
     if (ImGui::Button("feature test")){
         res.clear();
         res =locengine.TestFeatureMatch(img1,*scenemanager_.GetActiveCamera(),locsetting);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("project img")){
+        scenemanager_.enable_img_prj_^=1;
+        scenemanager_.img_tex_ = imgp1;
     }
 
     if (ImGui::Button("save")){

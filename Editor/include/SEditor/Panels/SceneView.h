@@ -1,6 +1,7 @@
 #pragma once
 #include "SRender/Passes/ActorPickerMaskRenderPass.h"
 #include "SRender/Passes/EditorSceneRenderPass.h"
+#include "SRender/Passes/ImgPrjDepthMapRenderPass.h"
 #include "SRender/Resources/SBaseRenderResources.h"
 #include "SRender/Passes/SimpleRenderPass.h"
 #include "SRender/Resources/SModel.h"
@@ -27,9 +28,11 @@ private:
     ResourceManager::ModelManager& modelmanager;
     //SWnd::Input::InputManager& inputmanager;
     SRender::Resources::SModel* model;
+    SRender::Passes::ImgPrjDepthMapRenderPass imgprjdepthmaprenderpass;
     SRender::Passes::EditorSceneRenderPass scenerenderpass;
     SRender::Passes::ActorPickerMaskRenderPass actorpickerrenderpass;
     SRender::Buffers::GLFrameBuffer actor_picker_fbo_;
+    SRender::Buffers::GLFrameBuffer imgprj_depth_fbo_;
     void task1(std::string pth,int idx);
 };
 

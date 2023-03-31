@@ -29,7 +29,8 @@ void ACamera::FillUBO(SRender::Buffers::GLUniformBuffer& ubo){
     ubo.BufferSubData(cam_->GetProjectionMat(),sizeof(glm::mat4)*1);
     ubo.BufferSubData(cam_->GetProjectionMat()*cam_->GetViewMat(),sizeof(glm::mat4)*2); //viewprj
     ubo.BufferSubData(GetPos(),sizeof(glm::mat4)*3);
-}
+    ubo.BufferSubData((int)0,sizeof(glm::mat4)*4+sizeof(glm::vec4));
+}   
 
 void CameraCtrl::HandleInputs(float delta_time){
     UpdateExtraParam();

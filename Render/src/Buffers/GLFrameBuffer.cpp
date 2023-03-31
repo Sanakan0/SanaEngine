@@ -2,6 +2,19 @@
 
 namespace SRender::Buffers{
 
+void GLFrameBuffer::BindColor(uint32_t slot){
+    glActiveTexture(GL_TEXTURE0 + slot);
+	glBindTexture(GL_TEXTURE_2D, tex_buf_id_);
+}
+
+void GLFrameBuffer::BindDepth(uint32_t slot){
+    glActiveTexture(GL_TEXTURE0 + slot);
+	glBindTexture(GL_TEXTURE_2D, depth_buf_id_);
+}
+
+void GLFrameBuffer::UnbindTex(){
+    glBindTexture(GL_TEXTURE_2D,0);
+}
 
 void GLFrameBuffer::Setup(int w,int h){
     glGenFramebuffers(1,&fbo_id_);
@@ -26,15 +39,42 @@ void GLFrameBuffer::Setup(int w,int h){
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depth_stencil_buf_id_);
     Unbind();
 }
+
+void GLFrameBuffer::SetupDepthonly(int w,int h){
+    glGenFramebuffers(1,&fbo_id_);
+
+    glGenTextures(1,&depth_buf_id_);
+    
+    	/* Setup texture */
+
+
+	/* Setup framebuffer */
+
+    glBindTexture(GL_TEXTURE_2D, depth_buf_id_);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D,0,GL_DEPTH_COMPONENT32F,w,h,0,GL_DEPTH_COMPONENT,GL_FLOAT,0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+    Bind();
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depth_buf_id_, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    Unbind();
+}
+
 void GLFrameBuffer::DeleteBuf(){
     glDeleteFramebuffers(1, &fbo_id_);
     glDeleteTextures(1,&tex_buf_id_);
+    glDeleteTextures(1,&depth_buf_id_);
     glDeleteRenderbuffers(1,&depth_stencil_buf_id_);
 }
 
-GLFrameBuffer::GLFrameBuffer(int w,int h):buf_size_(w,h){
+GLFrameBuffer::GLFrameBuffer(int w,int h,bool readable_depth):
+buf_size_(w,h),readable_depth_(readable_depth){
     buf_size_=std::make_pair(w,h);
-    Setup(w, h);
+    if (readable_depth_) SetupDepthonly(w,h);
+    else Setup(w, h);
 }
 
 GLFrameBuffer::~GLFrameBuffer(){
@@ -56,7 +96,8 @@ void GLFrameBuffer::Resize(int w,int h){
     }
     buf_size_=std::make_pair(w,h);
     DeleteBuf();
-    Setup(w, h);
+    if (readable_depth_) SetupDepthonly(w, h);
+    else Setup(w, h);
 }
 
 

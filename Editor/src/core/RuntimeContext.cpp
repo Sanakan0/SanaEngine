@@ -32,7 +32,9 @@ RuntimeContext::RuntimeContext(){
         sizeof(glm::mat4)+
         sizeof(glm::mat4)+
         sizeof(glm::mat4)+ //prjview
-        sizeof(glm::vec4), //pos
+        sizeof(glm::vec4)+ //pos
+        sizeof(glm::mat4)+ 
+        sizeof(int), 
         0,
         GL_STREAM_DRAW
     );

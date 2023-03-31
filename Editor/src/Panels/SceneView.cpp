@@ -33,7 +33,8 @@ rtcontext_(rtcontext),
 shadermanager(SANASERVICE(ResourceManager::ShaderManager)),
 texturemanager(SANASERVICE(ResourceManager::TextureManager)),
 modelmanager(SANASERVICE(ResourceManager::ModelManager)),
-actorpickerrenderpass(camctrl_)
+actorpickerrenderpass(camctrl_),
+imgprj_depth_fbo_(0,0,1)
 {
     name_="Scene View";
     has_cursor_=true;
@@ -149,9 +150,30 @@ void SceneView::RenderTick(float deltat){
     renderer.ClearBuffer();
     glStencilMask(0x00);
 
-   
+    if (rtcontext_.scene_manager_->enable_img_prj_){
+        auto& editor_ubo = SANASERVICE(SRender::Buffers::GLUniformBuffer);
+        editor_ubo.BufferSubData((int)1,sizeof(glm::mat4)*4+sizeof(glm::vec4));
+        
+        auto w =rtcontext_.scene_manager_->img_tex_->width;
+        auto h =rtcontext_.scene_manager_->img_tex_->height;
+        imgprj_depth_fbo_.Resize(w,h);
+        imgprj_depth_fbo_.Bind();
+        
+        glStencilMask(0xFF); // stencil mask also influence glclear()
+        renderer.ClearBuffer();
+        glStencilMask(0x00);
+        rtcontext_.core_renderer_->SetViewPort(0, 0,w ,h );
+        imgprjdepthmaprenderpass.Draw();
+        imgprj_depth_fbo_.BindDepth(5);
+        rtcontext_.scene_manager_->img_tex_->Bind(6);
+        fbo_.Bind();
+        rtcontext_.core_renderer_->SetViewPort(0, 0,canvas_size_.first ,canvas_size_.second );
+    }
     scenerenderpass.Draw();
 
+    auto& editor_ubo = SANASERVICE(SRender::Buffers::GLUniformBuffer);
+    editor_ubo.BufferSubData((int)0,sizeof(glm::mat4)*4+sizeof(glm::vec4));
+    // turn prj off before render id
     ActorPickerTick(deltat);
 
     fbo_.Bind();
