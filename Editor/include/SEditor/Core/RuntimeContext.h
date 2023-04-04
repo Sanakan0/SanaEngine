@@ -5,6 +5,7 @@
 #include "SResourceManager/ModelManager.h"
 #include "SResourceManager/ShaderManager.h"
 #include "SResourceManager/TextureManager.h"
+#include "SWnd/Input/InputManager.h"
 #include "SceneSys/SceneManager.h"
 #include <memory>
 #include <SWnd/context/context.h>
@@ -31,6 +32,7 @@ public:
     std::unique_ptr<ResourceManager::ModelManager> model_manager_;
     std::unique_ptr<ResourceManager::TextureManager> texture_manager_;
     std::unique_ptr<SceneSys::SceneManager> scene_manager_;
+    std::unique_ptr<SWnd::Input::InputManager> input_manager_;
     std::unique_ptr<AssetLoader> asset_loader_;
 };
 

@@ -1,5 +1,7 @@
 #include "SEditor/Core/CameraCtrl.h"
 #include "ECS/Component/CameraComponent.h"
+#include "SCore/Global/ServiceLocator.h"
+#include "SWnd/Input/InputManager.h"
 #include "glm/ext/quaternion_common.hpp"
 #include <SMath/Quaternion.h>
 #include <algorithm>
@@ -11,7 +13,7 @@ ACamera::ACamera(SRender::LowRenderer::Camera& cam,sm::Transform& extrinsic)
 }
 
 CameraCtrl::CameraCtrl(SGUI::Panels::WndPanel& view,SWnd::Context& wndcontext,SRender::LowRenderer::Camera& cam,sm::Transform& extrinsic)
-:ACamera(cam,extrinsic), wndcontext_(wndcontext),view_(view){
+:ACamera(cam,extrinsic), wndcontext_(wndcontext),view_(view),inputmanager_(SANASERVICE(SWnd::Input::InputManager)){
     extrinsic_->world_pos_ = glm::vec3(5, 5, 5);
 	camcenter = glm::vec3(0, 0, 0);
     dist2center = glm::length(camcenter-extrinsic_->world_pos_);
@@ -34,8 +36,8 @@ void ACamera::FillUBO(SRender::Buffers::GLUniformBuffer& ubo){
 
 void CameraCtrl::HandleInputs(float delta_time){
     UpdateExtraParam();
-    if(view_.hovered_||inputmanager_.first_mouse_pressed_){
-        inputmanager_.UpdateMouse();
+    if(view_.hovered_||mouse_start_in_view_){
+        mouse_start_in_view_ = inputmanager_.first_mouse_pressed_;
         HandleZoom();
         if (is_fps_cam_mod_){
         HandleFpsCamCtl(delta_time);

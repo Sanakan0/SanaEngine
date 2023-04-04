@@ -1,4 +1,5 @@
 #include "SEditor/Panels/SceneView.h"
+#include "ECS/Actor.h"
 #include "ECS/Component/MeshComponent.h"
 #include "ECS/Component/TransformComponent.h"
 #include "SCore/Global/ServiceLocator.h"
@@ -17,6 +18,9 @@
 #include "SceneSys/SceneManager.h"
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/quaternion_common.hpp"
+#include "glm/ext/quaternion_geometric.hpp"
+#include "glm/fwd.hpp"
+#include "glm/geometric.hpp"
 #include "imgui/imgui.h"
 #include <spdlog/spdlog.h>
 #include <SRender/Resources/SModel.h>
@@ -39,7 +43,7 @@ imgprj_depth_fbo_(0,0,1)
     name_="Scene View";
     has_cursor_=true;
     camctrl_.is_fps_cam_mod_=false;
-    camctrl_.cam_->Setfovy(90);
+    camctrl_.cam_->Setfovy(50);
     std::vector<SRender::Resources::Vertex> tmpv;
     float sqrt3=sqrtf(3);
    
@@ -192,6 +196,61 @@ void SceneView::RenderTick(float deltat){
     fbo_.Unbind();
 }
 
+void SceneView::HandleGizmoPick(float deltat){
+    static ECS::ActorID tmpid;
+    static glm::mat4 prjviewmat,inv_prjviewmat;
+    static glm::vec3 disvec,positivevec,prjpoint,campos;
+    static float dist;
+    static glm::vec4 ndcv1,ndcv0;
+    static glm::vec2 tmpn;
+    static glm::vec2 cursor_delta,start_cursor;
+    if (gizpickhandler_init_flag_) { //data initialization
+        tmpid = selectedgizmoid_-SceneSys::Actor_ID_Max-1;
+        auto gizvec = glm::vec3(0);
+        gizvec[tmpid] =1;
+        campos = camctrl_.extrinsic_->world_pos_;
+        auto gizpos = rtcontext_.scene_manager_->GetSelectedActor()->GetTransformComponent()->trans_.world_pos_;
+        prjpoint = gizpos + gizvec * glm::dot(campos-gizpos, gizvec);
+        disvec = prjpoint-campos;
+        dist = glm::length(disvec);
+        positivevec = glm::normalize( glm::cross(disvec,prjpoint+gizvec-campos));
+        prjviewmat=camctrl_.cam_->GetProjectionMat()*camctrl_.cam_->GetViewMat();
+        inv_prjviewmat=glm::inverse(prjviewmat);
+
+        ndcv0 = prjviewmat*glm::vec4(gizpos,1);
+        ndcv1 =prjviewmat*glm::vec4(gizpos+gizvec,1);
+        ndcv0/=ndcv0.w;
+        ndcv1/=ndcv1.w;
+        tmpn = glm::normalize( glm::vec2(ndcv1)-glm::vec2(ndcv0));
+
+        cursor_delta=glm::vec2(0,0);
+        gizpickhandler_init_flag_=0;
+    }
+    auto[dx,dy] = rtcontext_.input_manager_->GetCursorDelta();
+    cursor_delta.x+=2.0*dx/canvas_size_.first;
+    cursor_delta.y-=2.0*dy/canvas_size_.second;
+
+
+    glm::vec2 cursorpos;
+    glm::vec2 cur_ndcpos2 = glm::vec2(ndcv0) + glm::dot(cursor_delta,tmpn)*tmpn;
+
+    glm::vec4 cur_ndcpos = glm::vec4(cur_ndcpos2,0,1); //input
+    
+    auto tmpworld =  inv_prjviewmat*cur_ndcpos;//
+    tmpworld/=tmpworld.w;
+    glm::vec3 tmpvec = glm::normalize(glm::vec3(tmpworld)-campos);//
+    
+    auto theta = acos(glm::dot(disvec,tmpvec)/dist); //
+   
+    int sign = glm::dot(positivevec, glm::normalize( glm::cross(disvec,tmpvec)))>0?1:-1;//
+    float delta = tan(theta)*dist*sign;//
+
+    float res = prjpoint[tmpid]+delta;
+
+    rtcontext_.scene_manager_->GetSelectedActor()->GetTransformComponent()->trans_.world_pos_[tmpid]=res;
+
+}
+
 
 void SceneView::ActorPickerTick(float deltat){
     actor_picker_fbo_.Resize(canvas_size_.first, canvas_size_.second);
@@ -207,8 +266,21 @@ void SceneView::ActorPickerTick(float deltat){
     ImGuiIO& io = ImGui::GetIO();
     static bool mouse_start_in_view=0;
     if (hovered_){
-        if (ImGui::IsMouseDown(ImGuiMouseButton_Left)){
+        if ((!mouse_start_in_view)&&ImGui::IsMouseDown(ImGuiMouseButton_Left)){
             mouse_start_in_view=1;
+            if (!cursor_selecting){
+                uint32_t actorid=0;
+                auto x= static_cast<uint32_t>(io.MousePos.x)-canvas_pos_.first;
+                auto y = canvas_size_.second-static_cast<uint32_t>(io.MousePos.y)+canvas_pos_.second-1;
+                rtcontext_.core_renderer_->ReadPixels(x,y, 
+                        1, 1, GL_RGB, GL_UNSIGNED_BYTE, &actorid);
+                if (actorid>SceneSys::Actor_ID_Max){
+                        //Gizmo selected
+                    selectedgizmoid_ = actorid;
+                    gizpickhandler_init_flag_=1;
+                }
+            }
+            
         }
         if (ImGui::IsKeyPressed(ImGuiKey_F)){
             if (auto actor = rtcontext_.scene_manager_->GetSelectedActor()){
@@ -221,6 +293,10 @@ void SceneView::ActorPickerTick(float deltat){
         auto x= static_cast<uint32_t>(io.MousePos.x)-canvas_pos_.first;
         auto y = canvas_size_.second-static_cast<uint32_t>(io.MousePos.y)+canvas_pos_.second-1;
         
+        if(selectedgizmoid_){
+            HandleGizmoPick(deltat);
+        }
+
         if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)){
             mouse_start_in_view=0;
             
@@ -242,11 +318,15 @@ void SceneView::ActorPickerTick(float deltat){
                     auto tmp =glm::inverse(camctrl_.cam_->GetProjectionMat()*camctrl_.cam_->GetViewMat())*ndcpos;
                     rtcontext_.scene_manager_->cursor_pos_ = tmp/tmp.w;
                 }
-            }else{
+            }else if(selectedgizmoid_){
+                selectedgizmoid_ = 0;
+            }
+            else{
                 uint32_t actorid=0;
                 rtcontext_.core_renderer_->ReadPixels(x,y, 
                    1, 1, GL_RGB, GL_UNSIGNED_BYTE, &actorid);
                 if (actorid>SceneSys::Actor_ID_Max){
+                    //Gizmo selected
 
                 }else{
                     rtcontext_.scene_manager_->SetSelectedActor(actorid);

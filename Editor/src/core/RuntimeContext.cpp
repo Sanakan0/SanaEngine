@@ -8,6 +8,7 @@
 #include "SResourceManager/ShaderManager.h"
 #include "SResourceManager/TextureManager.h"
 #include "SResourceManager/Util.h"
+#include "SWnd/Input/InputManager.h"
 #include "SceneSys/SceneManager.h"
 #include <SCore/Global/ServiceLocator.h>
 #include <memory>
@@ -54,7 +55,7 @@ RuntimeContext::RuntimeContext(){
     scene_manager_ = std::make_unique<SceneSys::SceneManager>();
     scene_manager_->CreateScene();
 
-    
+    input_manager_ = std::make_unique<SWnd::Input::InputManager>(wndcontext_->Wnd_p);
 
     //upload service to servicelocator
     ServiceLocator::Provide<SRender::Core::EntityRenderer>(*core_renderer_);
@@ -65,8 +66,9 @@ RuntimeContext::RuntimeContext(){
     ServiceLocator::Provide<ResourceManager::ShaderManager>(*shader_manager_);
     ServiceLocator::Provide<ResourceManager::ModelManager>(*model_manager_);
     ServiceLocator::Provide<SceneSys::SceneManager>(*scene_manager_);
+    ServiceLocator::Provide<SWnd::Input::InputManager>(*input_manager_);
 
-
+    
     asset_loader_ = std::make_unique<AssetLoader>();
     ServiceLocator::Provide<AssetLoader>(*asset_loader_);
 }

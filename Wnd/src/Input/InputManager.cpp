@@ -2,6 +2,7 @@
 #include <imgui/imgui.h>
 namespace SWnd::Input{
 
+InputManager::InputManager(GLFWwindow* wndp):wndp_(wndp){}
 
 KeyState InputManager::GetGlfwKeyState(AKey key){
     return glfwGetKey(wndp_,key);
@@ -10,7 +11,7 @@ MouseBtnState InputManager::GetGlfwMouseState(AMouseBtn btn){
     return glfwGetMouseButton(wndp_,btn);
 }
 
-void InputManager::UpdateMouse(){
+void InputManager::Tick(){
     mid_btn_ = GetGlfwMouseState(GLFW_MOUSE_BUTTON_MIDDLE);
     left_btn_ = GetGlfwMouseState(GLFW_MOUSE_BUTTON_LEFT);
     right_btn_ = GetGlfwMouseState(GLFW_MOUSE_BUTTON_RIGHT);

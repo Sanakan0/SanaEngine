@@ -1,4 +1,5 @@
 #pragma once
+#include "ECS/Actor.h"
 #include "SRender/Passes/ActorPickerMaskRenderPass.h"
 #include "SRender/Passes/EditorSceneRenderPass.h"
 #include "SRender/Passes/ImgPrjDepthMapRenderPass.h"
@@ -21,6 +22,9 @@ public:
     void RenderTick(float deltat);
 private:   
     void ActorPickerTick(float deltat);
+    void HandleGizmoPick(float deltat);
+    ECS::ActorID selectedgizmoid_=0;
+    bool gizpickhandler_init_flag_=0;
     Core::RuntimeContext& rtcontext_;
     std::unique_ptr<SRender::Resources::SMesh> trimeshp;
     ResourceManager::ShaderManager& shadermanager;

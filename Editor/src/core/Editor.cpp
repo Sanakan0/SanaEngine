@@ -50,6 +50,8 @@ void Editor::Tick(float deltat){
 }
 
 void Editor::LogicTick(float deltat){
+    rtcontext_.input_manager_->Tick();
+    
     auto& sceneview = rtcontext_.uimanager_->GetPanel<SEditor::Panels::SceneView>("Scene View");
     auto& testview = rtcontext_.uimanager_->GetPanel<SEditor::Panels::TestView>("Test View");
     auto& cameraview = rtcontext_.uimanager_->GetPanel<Panels::CameraView>("Camera View");

@@ -67,8 +67,8 @@ public:
 
     SWnd::Context& wndcontext_;
     SGUI::Panels::WndPanel& view_;
-    SWnd::Input::InputManager inputmanager_;
-
+    SWnd::Input::InputManager& inputmanager_;
+    bool mouse_start_in_view_=0;
     bool is_fps_cam_mod_=1;
    
 private:

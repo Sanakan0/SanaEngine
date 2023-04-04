@@ -1,5 +1,6 @@
 #include "SEditor/Panels/CameraView.h"
 #include "ECS/Component/CameraComponent.h"
+#include "SCore/Global/ServiceLocator.h"
 #include "SRender/Resources/GLShader.h"
 #include "SRender/Resources/GLShaderLoader.h"
 #include "SRender/Resources/SAnimation.h"
@@ -32,7 +33,7 @@ void CameraView::LogicTick(float deltat){
         auto transcomp = active_camera_actor_->GetTransformComponent();
         camctrl_.SetCamInExParam(camcomp->cam_, transcomp->trans_);
     }
-    
+
     camctrl_.cam_->CacheProjectionMat(camctrl_.cam_->Getaspect_ratio(),1);
     auto& editor_ubo = SANASERVICE(SRender::Buffers::GLUniformBuffer);
     editor_ubo.BufferSubData(camctrl_.cam_->GetProjectionMat()*camctrl_.cam_->GetViewMat(),sizeof(glm::mat4)*3+sizeof(glm::vec4));

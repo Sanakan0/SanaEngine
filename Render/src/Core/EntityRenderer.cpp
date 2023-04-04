@@ -205,10 +205,11 @@ void GLShapeDrawer::DrawCamFrame(const glm::mat4 &model_mat, float fovyratio, fl
 void GLShapeDrawer::DrawTransGizmo(const glm::vec3 &pos,const glm::mat4& viewmat,bool is_render_for_pick){
     
     renderer_.ClearBuffer(0,1,0);
-    glm::vec4 xcolor{1,0,0,1};
-    glm::vec4 ycolor{0,1,0,1};
-    glm::vec4 zcolor{0,0,1,1};
-    float scale = -0.05;
+    glm::vec4 xcolor{222.0/255,100.0/255,100.0/255,1};
+    glm::vec4 ycolor{100.0/255,222.0/255,100.0/255,1};
+    glm::vec4 zcolor{100.0/255,100.0/255,222.0/255,1};
+    auto scale = glm::vec3(-0.1,-0.1,-0.08);
+    
     if (is_render_for_pick){
         uint32_t gizmoid = SceneSys::SceneSetting::Actor_ID_Max+1;
         auto bytep = reinterpret_cast<uint8_t*>(&gizmoid);
@@ -217,15 +218,17 @@ void GLShapeDrawer::DrawTransGizmo(const glm::vec3 &pos,const glm::mat4& viewmat
         ycolor = glm::vec4(bytep[0]/255.0f,bytep[1]/255.0f,bytep[2]/255.0f,1.0f);
         ++gizmoid;
         zcolor = glm::vec4(bytep[0]/255.0f,bytep[1]/255.0f,bytep[2]/255.0f,1.0f);
-        scale*=1.2;
+        scale.x*=10;
+        scale.y*=10;
     }
 
     scale*=(viewmat*glm::vec4(pos,1)).z;
-    auto ztrans = glm::mat4(scale);
+    auto scalemat = glm::scale(glm::mat4(1),scale);
+    auto ztrans = scalemat;
     ztrans[3]=glm::vec4(pos,1);
-    auto ytrans = gizmoarrow_ytrans*scale;
+    auto ytrans = gizmoarrow_ytrans*scalemat;
     ytrans[3]=glm::vec4(pos,1);
-    auto xtrans = gizmoarrow_xtrans*scale;
+    auto xtrans = gizmoarrow_xtrans*scalemat;
     xtrans[3]=glm::vec4(pos,1);
     DrawGizmoArrow(ztrans,zcolor);
     DrawGizmoArrow(xtrans,xcolor);
@@ -357,7 +360,7 @@ void GLShapeDrawer::InitGizmoDrawer(){
 
    
     
-    float rhead=0.1f;
+    float rhead=0.04f;
     float hhead=0.5f;
     std::vector<Resources::Vertex> headv;
     headv.push_back({
