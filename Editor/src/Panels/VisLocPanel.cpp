@@ -19,9 +19,15 @@ namespace SEditor::Panels {
 VisLocPanel::VisLocPanel():
 scenemanager_(SANASERVICE(SceneSys::SceneManager)){
     window_padding_={0,0};
-    name_ = "Visual Localization";
+    name_ = "视觉定位控制面板";
     hori_scrollable_=true;
-    img1 = cv::imread(R"(C:\Users\cnt0\BUAA\DATA\ExperimentsData\Photos\GovFacility\DJI_0314.JPG)");
+
+    std::string test=R"(C:\Users\cnt0\BUAA\DATA\ExperimentsData\Photos\中文测试\DJI_0314.JPG)";
+    auto tmptex = SRender::Resources::STextureLoader::LoadFromFile_cached(test);
+    img1 = cv::Mat(tmptex->height,tmptex->width,CV_8UC4,tmptex->rawdata);
+    cv::cvtColor(img1, img1, cv::COLOR_RGBA2BGR);
+    cv::flip(img1, img1, 0);
+    //img1 = cv::imread(R"(C:\Users\cnt0\BUAA\DATA\ExperimentsData\Photos\GovFacility\DJI_0314.JPG)");
     img2 = cv::imread(R"(C:\Users\cnt0\BUAA\DATA\ExperimentsData\Photos\GovFacility\DJI_0315.JPG)");
     
 
@@ -61,10 +67,13 @@ void VisLocPanel::DrawContent(){
         draw_list->AddLine(p1, p2,IM_COL32(255,255,255,255));
     }
     ImGui::Spacing();
-    if (ImGui::Button("Open img")){
+    if (ImGui::Button("打开文件")){
         auto filepth = Util::NfdDialog::OpenFileDlg();
         if (filepth!=""){
-            img1 = cv::imread(filepth);
+            auto tmptex = SRender::Resources::STextureLoader::LoadFromFile_cached(filepth);
+            img1 = cv::Mat(tmptex->height,tmptex->width,CV_8UC4,tmptex->rawdata);
+            cv::cvtColor(img1, img1, cv::COLOR_RGBA2BGR);
+            cv::flip(img1, img1, 0);
             cv::Mat tmp;
             cv::cvtColor(img1, tmp, cv::COLOR_BGR2RGBA);
             cv::flip(tmp, tmp, 0);

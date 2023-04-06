@@ -3,7 +3,9 @@
 #include "SResourceManager/ModelManager.h"
 #include "SResourceManager/TextureManager.h"
 #include "SceneSys/SceneManager.h"
+#include "iconv/iconv.h"
 #include <filesystem>
+#include <string>
 namespace SEditor::Core{
 
 AssetLoader::AssetLoader():
@@ -18,8 +20,18 @@ void AssetLoader::LoadTiles(const std::string& filename){
      namespace fs = std::filesystem;
     //fs::path tile_pth(R"(D:\beihang reconstruction data\dxobj)");
     //fs::path tile_pth(R"(E:\user\cnt0\beihang reconstruction data\dxobj)");
+    size_t srclen = filename.size();
+    size_t dstlen = 200;
+    wchar_t dst[200];
+    iconv_t conv = iconv_open("wchar_t","utf-8");
+    std::string tmpstr(filename);
+    char* inptr = tmpstr.data();
+    char* outptr = reinterpret_cast<char*>(dst);
+    auto tmpres = iconv(conv,&inptr,&srclen,&outptr,&dstlen);
     
-    fs::path tile_pth(filename);
+    
+    auto tmpwstr = std::wstring(dst);
+    auto tile_pth = std::filesystem::u8path(filename);
     int cnt=60;
     int cur=0;
     int st=1;
@@ -38,7 +50,7 @@ void AssetLoader::LoadTiles(const std::string& filename){
                     // renderpass.render_resources_.push_back(
                     //     modelmanager.CreateResources(objpth.generic_string()));
                     ///task1(objpth.generic_string(),cur-st);
-                    threadtest.emplace_back(&SEditor::Core::AssetLoader::LoadAModelTask,this,objpth.generic_string(),cur-st);
+                    threadtest.emplace_back(&SEditor::Core::AssetLoader::LoadAModelTask,this,objpth.generic_u8string(),cur-st);
                 }
             }
             if (cur==ed) break;
@@ -55,6 +67,7 @@ void AssetLoader::LoadTiles(const std::string& filename){
 void AssetLoader::LoadAModelTask(std::string pth,int idx){
     auto tmpmodel = modelmanager_.CreateResources(pth,true);
     //renderpass.render_resources_[idx] = tmpmodel;
+    if (tmpmodel == nullptr) return;
     auto& tmpa=scenemanager_.GetScene()->CreateActor("Tile_");
     
     tmpa.AddComponent<ECS::Components::MeshComponent>(tmpmodel);

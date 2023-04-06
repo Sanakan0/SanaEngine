@@ -1,6 +1,8 @@
 #include "SEditor/Util/NfdDialog.h"
 #include "nfd.h"
 #include "spdlog/spdlog.h"
+#include "iconv/iconv.h"
+#include <iostream>
 namespace SEditor::Util{
 
 
@@ -28,6 +30,17 @@ std::string NfdDialog::OpenFolderDlg(){
     if ( result == NFD_OKAY ) {
         auto folderpth = std::string(outPath);
         free(outPath);
+
+        // size_t srclen = folderpth.size();
+        // size_t dstlen = 100;
+        // char dst[100];
+        // iconv_t conv = iconv_open("GBK","utf-8");
+        // std::string tmpfolderpth(folderpth);
+        // char* inptr = tmpfolderpth.data();
+        // char* outptr = dst;
+        // auto tmpres = iconv(conv,&inptr,&srclen,&outptr,&dstlen);
+ 
+       
         spdlog::info("[NFD] Folder Open Success! "+folderpth);
         return folderpth;
            

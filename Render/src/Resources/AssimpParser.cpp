@@ -5,10 +5,12 @@
 #include "assimp/texture.h"
 #include "assimp/types.h"
 #include "assimp/vector3.h"
+#include "assimp/DefaultIOSystem.h"
 #include "glm/gtc/type_ptr.hpp"
 #include "glm/matrix.hpp"
 #include "spdlog/spdlog.h"
 #include <SRender/Resources/AssimpParser.h>
+#include <assimp/IOSystem.hpp>
 #include <assimp/anim.h>
 #include <assimp/matrix4x4.h>
 #include <assimp/mesh.h>
@@ -29,13 +31,16 @@ bool AssimpParser::LoadModel(glm::mat4& model_mat,std::string path, std::vector<
     loadwithskeleton=0;
     is_cached_=is_cached;
     Assimp::Importer imp;
+    
+    //imp.SetIOHandler(new Assimp::DefaultIOSystem());
+
 	const aiScene *scene = imp.ReadFile(path, assimp_flag );
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
         spdlog::error("[ASSIMP ERROR]"+std::string(imp.GetErrorString()));
 		return false;
 	}
-
+    
 
     aiMatrix4x4 identity;
     ProcessNode(identity, scene->mRootNode, scene);
