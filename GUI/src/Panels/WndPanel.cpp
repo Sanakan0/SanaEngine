@@ -99,7 +99,7 @@ void WndPanel::DrawImpl(float deltat){
         ImVec2 maxszcons = {10000,10000};
         ImGui::SetNextWindowSizeConstraints(minszcons,maxszcons);
         if (ImGui::Begin(name_.c_str(),&opened_,windowFlags)){
-            hovered_ = ImGui::IsWindowHovered();
+            hovered_ = ImGui::IsWindowHovered(0);
             focused_ = ImGui::IsWindowFocused();
             
             UpdateWndStates();

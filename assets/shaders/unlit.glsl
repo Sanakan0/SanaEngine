@@ -5,18 +5,7 @@ layout(location = 0) in vec3 pos;
 layout(location = 1) in vec2 tex_coord;
 layout(location = 2) in vec3 normal; 
 
-layout (std140,binding = 0) uniform EngineUBO{
-    mat4 ubo_ViewMat; //0
-    mat4 ubo_PrjMat; //64
-    mat4 ubo_PrjViewMat; //128
-    vec3 ubo_ViewPos; //192
-    mat4 imgprj_PrjViewMat; //208
-    int ubo_mask;//272
-
-    
-    
-    
-};
+#include "./UBOlayout.h"
 
 
 uniform mat4 ModelMat;
@@ -45,17 +34,7 @@ in VS_OUT{
     vec2 tex_coord;
 } fs_in;
 
-layout (std140,binding = 0) uniform EngineUBO{
-    mat4 ubo_ViewMat; //0
-    mat4 ubo_PrjMat; //64
-    mat4 ubo_PrjViewMat; //128
-    vec3 ubo_ViewPos; //192
-    mat4 imgprj_PrjViewMat; //208
-    int ubo_mask;//272
-    
-    
-    
-};
+#include "./UBOlayout.h"
 
 uniform vec4 diffuse_color=vec4(1,1,1,1);
 

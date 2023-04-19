@@ -5,12 +5,7 @@ layout(location = 0) in vec3 pos;
 layout(location = 1) in vec2 tex_coord;
 layout(location = 2) in vec3 normal; 
 
-layout (std140,binding = 0) uniform EngineUBO{
-    mat4 ubo_ViewMat;
-    mat4 ubo_PrjMat;
-    mat4 ubo_PrjViewMat;
-    vec3 ubo_ViewPos;
-};
+#include "./UBOlayout.h"
 
 
 uniform mat4 ModelMat;
@@ -24,8 +19,9 @@ out VS_OUT{
 
 void main(){
     vs_out.norm = mat3(ModelMat)*normal;
+    vs_out.pos = (ModelMat*vec4(pos,1.0)).xyz;
     vs_out.tex_coord = tex_coord;
-    gl_Position = ubo_PrjViewMat*ModelMat*vec4(pos,1.0);
+    gl_Position = ubo_PrjViewMat*vec4(vs_out.pos,1.0);
 }
 
 #FRAGMENT
@@ -38,7 +34,7 @@ in VS_OUT{
     vec2 tex_coord;
 } fs_in;
 const vec3 Lightpos=vec3(200,200,200);
-
+uniform vec4 diffuse_color=vec4(1,1,1,1);
 void main(){
     vec3 ambcolor = vec3(texture(diff_tex,fs_in.tex_coord))*0.5;
     vec3 lightdir = normalize(Lightpos-fs_in.pos);

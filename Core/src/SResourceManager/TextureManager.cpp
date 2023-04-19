@@ -38,6 +38,10 @@ void TextureManager::ClearAll(){
 }
 void TextureManager::UploadAll(){
     for (auto& i:repo_.resources_){
+        i.second->LoadFromDisk();
+    }
+    for (auto& i:repo_.resources_){
+        
         i.second->UploadTexture();
     }
 }
