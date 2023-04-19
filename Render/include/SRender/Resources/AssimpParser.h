@@ -36,6 +36,9 @@ private:
     void ProcessSkeleton(const aiNode* node, const aiScene *scene,std::vector<SJoint>& joints);
     void ProcessAnimation(const aiScene *scene,std::vector<SAnimation>& sanimas,std::vector<SJoint>& joints); //after skeletonproc
     void MarkSkeleton(const aiNode* node);
+
+    // Dont use in model with skeleton,tighten meshes
+    void ReArrangeMeshData();
     void Clear();
     bool loadwithskeleton;
     bool is_cached_;

@@ -46,6 +46,7 @@ void SModel::CalcBoundingSphere(){
     minx=miny=minz = std::numeric_limits<float>::max();
     maxx=maxy=maxz = std::numeric_limits<float>::lowest();
     for (auto& m:meshes_){
+        if (m->VertexSize()==0) continue;
         auto& bs = m->boundingsphere_;
         minx = std::min(bs.pos.x-bs.radius,minx);
         miny = std::min(bs.pos.y-bs.radius,miny);

@@ -10,6 +10,7 @@
 #include "glm/matrix.hpp"
 #include "spdlog/spdlog.h"
 #include <SRender/Resources/AssimpParser.h>
+#include <algorithm>
 #include <assimp/IOSystem.hpp>
 #include <assimp/anim.h>
 #include <assimp/matrix4x4.h>
@@ -45,6 +46,11 @@ bool AssimpParser::LoadModel(glm::mat4& model_mat,std::string path, std::vector<
     aiMatrix4x4 identity;
     ProcessNode(identity, scene->mRootNode, scene);
     model_mat=glm::transpose( glm::make_mat4x4(&ai_model_mat.a1));
+    
+    //Rearrange Meshdata
+    ReArrangeMeshData();
+    
+    
     meshes.reserve(vertex_data_.size());
     for (uint32_t i =0;i<vertex_data_.size();i++){
         //meshes.push_back(SMesh(vertex_data_[i],idx_data_[i]));
@@ -53,9 +59,43 @@ bool AssimpParser::LoadModel(glm::mat4& model_mat,std::string path, std::vector<
 
     ProcessMaterial(scene,materials,tex_manager,path);
 
+    
+
     Clear();
     return true;
 }
+
+
+void AssimpParser::ReArrangeMeshData(){
+    std::vector<std::vector<Vertex>> tight_vertex_data;
+    std::vector<std::vector<uint32_t>> tight_index_data;
+    uint32_t tightsz=0;
+    for (int i=0;i<material_idx_.size();++i){
+        tightsz = std::max(tightsz,material_idx_[i]);
+    }
+    tightsz+=1;
+    tight_vertex_data.resize(tightsz);
+    tight_index_data.resize(tightsz);
+    for (int i=0;i<vertex_data_.size();++i){
+        auto itight = material_idx_[i];
+        for (auto& j:idx_data_[i]) j+=tight_vertex_data[itight].size();
+        tight_index_data[itight].insert(tight_index_data[itight].end(),idx_data_[i].begin(),idx_data_[i].end());
+        tight_vertex_data[itight].insert(tight_vertex_data[itight].end(),vertex_data_[i].begin(),vertex_data_[i].end());
+    }
+    material_idx_.resize(tightsz);
+    for (int i=0;i<tightsz;++i) material_idx_[i]=i;
+    if (tight_vertex_data[0].size()==0){
+        tight_vertex_data.erase(tight_vertex_data.begin());
+        tight_index_data.erase(tight_index_data.begin());
+        material_idx_.erase(material_idx_.begin());
+    }
+
+    vertex_data_ = std::move(tight_vertex_data);
+    idx_data_ = std::move(tight_index_data);
+}
+
+
+
 //load with skeleton
 bool AssimpParser::LoadModel(glm::mat4& model_mat,std::string path, std::vector<SMesh*>& meshes,std::vector<SJoint>& joints,std::vector<SAnimation>& sanimas,bool is_cached,uint32_t assimp_flag){
     loadwithskeleton=1;
@@ -117,6 +157,7 @@ bool AssimpParser::LoadModel(glm::mat4& model_mat,std::string path, std::vector<
     return true;
 }
 
+
 void AssimpParser::Clear(){
     aimeshofmesh_.clear();
     name2jointidx_.clear();
@@ -155,7 +196,7 @@ void AssimpParser::ProcessMaterial(const aiScene* scene,std::vector<TextureStack
         int shadingm;
         material->Get(AI_MATKEY_SHADING_MODEL,shadingm);
         
-        // load texture (only diffuse tex supported)
+        // load texture 
         aiString aidiff_tex_file;
         material->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE,0),aidiff_tex_file);
         std::string diff_tex_file(aidiff_tex_file.C_Str());

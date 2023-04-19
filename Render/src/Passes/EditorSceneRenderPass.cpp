@@ -17,8 +17,20 @@ renderer_(SANASERVICE(Core::EntityRenderer)),
 scenemanager_(SANASERVICE(SceneSys::SceneManager))
 {
     std::string pth = ResourceManager::Util::GetFullPath(":shaders\\unlit.glsl");
-    shaderp_ = std::unique_ptr<Resources::GLShader> (Resources::GLShaderLoader::LoadFromFile(pth));
+    unlit_shaderp_ = std::unique_ptr<Resources::GLShader> (Resources::GLShaderLoader::LoadFromFile(pth));
+    pth = ResourceManager::Util::GetFullPath(":shaders\\standard.glsl");
+    standard_shaderp_ = std::unique_ptr<Resources::GLShader> (Resources::GLShaderLoader::LoadFromFile(pth));
+    DisableNormal();
 }
+
+void EditorSceneRenderPass::EnableNormal(){
+    shaderp_ = standard_shaderp_.get();
+}
+
+void EditorSceneRenderPass::DisableNormal(){
+    shaderp_ = unlit_shaderp_.get();
+}
+
 void EditorSceneRenderPass::Draw(){
     shaderp_->Bind();
     shaderp_->SetUniFloat("k", k);

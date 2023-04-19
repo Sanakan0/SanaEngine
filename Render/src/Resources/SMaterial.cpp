@@ -13,7 +13,7 @@ SMaterial::SMaterial(){
 }
 
 void SMaterial::BindTexturebyidx(uint32_t idx,STexture* empty_tex){
-    if (texturelist_.size()==0){
+    if (texturelist_.size()==0|| texturelist_.size()<idx+1 ||texturelist_[idx].DiffuseTex==nullptr||texturelist_[idx].DiffuseTex->id==0){
         for (int i=0;i<TEXTURESTACK_NUM;++i){
             empty_tex->Bind(i);
         }

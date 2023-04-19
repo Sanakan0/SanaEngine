@@ -11,12 +11,9 @@ STexture* STextureLoader::LoadFromFile_cached(const std::string &pth,GLenum minf
 	int width;
 	int height;
 	int bitsPerPixel;
-    stbi_set_flip_vertically_on_load(true);
-    unsigned char* rawdata = stbi_load(pth.c_str(),&width,&height,&bitsPerPixel,4);
-    if (rawdata!=nullptr){
-        STexture* res=new STexture(0,width,height,pth,minfilter,magfilter,mipmap,rawdata);
-        return res;
-    }
+    
+    STexture* res=new STexture(0,0,0,pth,minfilter,magfilter,mipmap,nullptr);
+    return res;
     return nullptr;
 }
 
@@ -31,6 +28,7 @@ STexture* STextureLoader::LoadFromFile(const std::string &pth,GLenum minfilter,G
         res = LoadFromMemory(static_cast<void*>(rawdata),width, height,pth,minfilter, magfilter, mipmap);
     }
     stbi_image_free(rawdata);
+    rawdata = nullptr;
     return res;
 }
 STexture* STextureLoader::LoadFromMemory(void* data,uint32_t width,uint32_t height,const std::string& pth,GLenum minfilter,GLenum magfilter,bool mipmap){

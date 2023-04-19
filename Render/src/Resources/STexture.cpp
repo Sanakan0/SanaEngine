@@ -1,8 +1,9 @@
 #include"SRender/Resources/STexture.h"
-
+#include"stb_image/stb_image.h"
+#include <stdint.h>
 namespace SRender::Resources{
 
-STexture::STexture(uint32_t pid,uint32_t pwidth,uint32_t pheight,const std::string& ppath,GLenum pminfilter,GLenum pmagfilter,bool mipmap_generate,unsigned char* prawdata):
+STexture::STexture(uint32_t pid,int pwidth,int pheight,const std::string& ppath,GLenum pminfilter,GLenum pmagfilter,bool mipmap_generate,unsigned char* prawdata):
 id(pid),width(pwidth),height(pheight),path(ppath),minfilter(pminfilter),magfilter(pmagfilter),mipmap(mipmap_generate),rawdata(prawdata){}
 
 STexture::~STexture(){
@@ -21,13 +22,22 @@ void STexture::Unbind(){
     glBindTexture(GL_TEXTURE_2D,0);
 }
 
+void STexture::LoadFromDisk(){
+    int bitsPerPixel;
+    stbi_set_flip_vertically_on_load(true);
+    rawdata = stbi_load(path.c_str(),&width,&height,&bitsPerPixel,4);
+}
+
 void STexture::UploadTexture(){
     //if (rawdata==nullptr) return;
+    
+
+
     glGenTextures(1,&id);
     
     glBindTexture(GL_TEXTURE_2D,id);
     
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,rawdata);
+    glTexImage2D(GL_TEXTURE_2D,0,GL_COMPRESSED_RGBA_S3TC_DXT5_EXT,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,rawdata);
     if(mipmap){
         glGenerateMipmap(GL_TEXTURE_2D);
     }
