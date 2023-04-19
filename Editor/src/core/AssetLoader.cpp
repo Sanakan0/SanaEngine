@@ -16,7 +16,7 @@ texturemanager_(SANASERVICE(ResourceManager::TextureManager))
 
 }
 
-void AssetLoader::LoadTiles(const std::string& filename){
+void AssetLoader::LoadTiles(const std::string& filename,int st,int cnt){
      namespace fs = std::filesystem;
     //fs::path tile_pth(R"(D:\beihang reconstruction data\dxobj)");
     //fs::path tile_pth(R"(E:\user\cnt0\beihang reconstruction data\dxobj)");
@@ -32,9 +32,9 @@ void AssetLoader::LoadTiles(const std::string& filename){
      
     auto tmpwstr = std::wstring(dst);
     auto tile_pth = std::filesystem::u8path(filename);
-    int cnt=60;
+
     int cur=0;
-    int st=1;
+
     int ed=st+cnt-1;
     //simplerenderpass.render_resources_.resize(cnt);
     std::vector<std::thread>threadtest;

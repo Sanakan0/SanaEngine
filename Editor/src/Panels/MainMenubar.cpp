@@ -15,12 +15,17 @@ scenemanager_(SANASERVICE(SceneSys::SceneManager))
 }
 
 void MainMenubar::DrawImpl(float deltat){
+    static int st=0;
+    static int cnt=60;
+    ImGui::InputInt("st", &st);
+    ImGui::InputInt("cnt", &cnt);
+
     if (ImGui::BeginMainMenuBar()){
         if (ImGui::BeginMenu("SanaEngine")){
             if (ImGui::MenuItem("Load tile")){
                 auto res = Util::NfdDialog::OpenFolderDlg();
                 if (res!=""){
-                    assetloader_.LoadTiles(res);
+                    assetloader_.LoadTiles(res,st,cnt);
                 }
             }
             if (ImGui::BeginMenu("Add Actor")){

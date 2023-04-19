@@ -137,12 +137,12 @@ void SceneView::RenderTick(float deltat){
     // if(ImGui::Button("switch ras")){
     //     rasflag^=1;
     // }
-    // if (rasflag){
-    //     rtcontext_.core_renderer_->SetRasterizationMode(SRender::Setting::SRasterization::LINE);
-    //     rtcontext_.core_renderer_->SetRasterizationLineWdith(1);
-    // }else{
-    //     rtcontext_.core_renderer_->SetRasterizationMode(SRender::Setting::SRasterization::FILL);
-    // }
+    if (enable_line){
+        rtcontext_.core_renderer_->SetRasterizationMode(SRender::Setting::SRasterization::LINE);
+        rtcontext_.core_renderer_->SetRasterizationLineWdith(1);
+    }else{
+        rtcontext_.core_renderer_->SetRasterizationMode(SRender::Setting::SRasterization::FILL);
+    }
     
 
     fbo_.Bind();
@@ -173,6 +173,9 @@ void SceneView::RenderTick(float deltat){
         fbo_.Bind();
         rtcontext_.core_renderer_->SetViewPort(0, 0,canvas_size_.first ,canvas_size_.second );
     }
+
+    if (enable_normal) scenerenderpass.EnableNormal();
+    else scenerenderpass.DisableNormal();
     scenerenderpass.Draw();
 
     auto& editor_ubo = SANASERVICE(SRender::Buffers::GLUniformBuffer);

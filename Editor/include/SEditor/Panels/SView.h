@@ -21,6 +21,8 @@ public:
     SRender::Buffers::GLFrameBuffer fbo_; 
     bool has_cursor_=false;
     bool cursor_selecting=false;
+    bool enable_normal=false;
+    bool enable_line = false;
 };
 
 }

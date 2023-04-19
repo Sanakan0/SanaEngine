@@ -12,6 +12,7 @@ std::string NfdDialog::OpenFileDlg(){
     if ( result == NFD_OKAY ) {
         auto filepth = std::string(outPath);
         free(outPath);
+        outPath = nullptr;
         spdlog::info("[NFD] File Open Success! "+filepth);
         return filepth;
            
@@ -30,7 +31,7 @@ std::string NfdDialog::OpenFolderDlg(){
     if ( result == NFD_OKAY ) {
         auto folderpth = std::string(outPath);
         free(outPath);
-
+        outPath = nullptr;
         // size_t srclen = folderpth.size();
         // size_t dstlen = 100;
         // char dst[100];

@@ -52,10 +52,20 @@ void SView::DrawContent(){
         SGUI::ToggleButton("cam_mode_sw",ICON_FA_CAMERA,ICON_FA_CAMERA_ROTATE,&camctrl_.is_fps_cam_mod_);
 
         if (has_cursor_) SGUI::ToggleButton("cursor_sw",  ICON_FA_CROSSHAIRS, &cursor_selecting);
+        
+        
+
         ImGui::EndGroup();
         
     }
     ImGui::EndChild();
+    ImGui::SameLine();
+    ImGui::BeginChild("childwnd2",{h*10,h},0,ImGuiWindowFlags_NoBackground|ImGuiWindowFlags_NoScrollbar);
+    ImGui::Checkbox("enable normal", &enable_normal);
+    ImGui::SameLine();
+    ImGui::Checkbox("line view", &enable_line);
+    ImGui::EndChild();
+
 
     ImGui::SetCursorPos({size_.first-100.0f,100});
     SGUI::Campass(camctrl_.GetOrien());

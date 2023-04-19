@@ -24,6 +24,7 @@ scenemanager_(SANASERVICE(SceneSys::SceneManager)){
 
     std::string test=R"(C:\Users\cnt0\BUAA\DATA\ExperimentsData\Photos\中文测试\DJI_0314.JPG)";
     auto tmptex = SRender::Resources::STextureLoader::LoadFromFile_cached(test);
+    tmptex->LoadFromDisk();
     img1 = cv::Mat(tmptex->height,tmptex->width,CV_8UC4,tmptex->rawdata);
     cv::cvtColor(img1, img1, cv::COLOR_RGBA2BGR);
     cv::flip(img1, img1, 0);

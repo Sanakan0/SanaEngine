@@ -9,7 +9,7 @@ namespace SEditor::Core{
 class AssetLoader{
 public:
     AssetLoader();
-    void LoadTiles(const std::string& filename);
+    void LoadTiles(const std::string& filename,int st=0,int cnt=60);
 
 
 private:
