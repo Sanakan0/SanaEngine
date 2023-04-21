@@ -3,6 +3,7 @@
 #include "ECS/Component/TransformComponent.h"
 #include "SCore/Global/ServiceLocator.h"
 #include "SRender/Core/EntityRenderer.h"
+#include "SRender/LowRenderer/Camera.h"
 #include "SRender/Resources/GLShader.h"
 #include "SRender/Resources/GLShaderLoader.h"
 #include "SRender/Resources/SModel.h"
@@ -17,11 +18,24 @@ renderer_(SANASERVICE(Core::EntityRenderer)),
 scenemanager_(SANASERVICE(SceneSys::SceneManager))
 {
     std::string pth = ResourceManager::Util::GetFullPath(":shaders\\unlit.glsl");
-    shaderp_ = std::unique_ptr<Resources::GLShader> (Resources::GLShaderLoader::LoadFromFile(pth));
+    unlit_shaderp_ = std::unique_ptr<Resources::GLShader> (Resources::GLShaderLoader::LoadFromFile(pth));
+    pth = ResourceManager::Util::GetFullPath(":shaders\\standard.glsl");
+    standard_shaderp_ = std::unique_ptr<Resources::GLShader> (Resources::GLShaderLoader::LoadFromFile(pth));
+    pth = ResourceManager::Util::GetFullPath(":shaders\\distortion.glsl");
+    distortion_shaderp_ = std::unique_ptr<Resources::GLShader> (Resources::GLShaderLoader::LoadFromFile(pth));
+    shaderp_ = unlit_shaderp_.get();
 }
 void SceneRenderPass::Draw(){
     shaderp_->Bind();
-    shaderp_->SetUniFloat("k", k);
+    
+    if (distortioninfo_&&distortioninfo_->dist_type!=LowRenderer::DistortionModel::NONE){
+        shaderp_=distortion_shaderp_.get();
+        shaderp_->SetUniFloatV("DistInfo.dist_para",const_cast<float*>(distortioninfo_->dist_para),3);
+        shaderp_->SetUniInt("DistInfo.dist_type",(int)distortioninfo_->dist_type);
+    }else{
+        shaderp_=unlit_shaderp_.get();
+    }
+
     glm::mat4 tmpmodel = glm::mat4(1);
     for (auto& meshcomp:scenemanager_.GetScene()->GetBasicRenderComponent().meshcomps){
         auto transcomp =meshcomp->parentactor_.GetTransformComponent();
@@ -37,8 +51,9 @@ void SceneRenderPass::Draw(){
    
 }
 
-
-
+void SceneRenderPass::BindDistortionInfo(const LowRenderer::Camera& cam){
+    distortioninfo_ = &cam.distortion_;
+}
 
 
 }

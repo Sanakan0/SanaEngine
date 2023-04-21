@@ -7,6 +7,19 @@
 #include <tuple>
 namespace SRender::LowRenderer{
 
+enum DistortionModel:int{
+	NONE = 0,
+	INDEX = 1,
+	POLY3 = 2,
+	POLY5 = 3,
+	PTLENS = 4,
+	DIVISION = 5
+};
+
+struct RadialDistortion{
+	float dist_para[3];
+	int dist_type=DistortionModel::NONE;
+};
 
 //Opengl Camera model: forward -z,up y
 class Camera {
@@ -39,6 +52,7 @@ public:
 	float Getaspect_ratio(){return aspect_ratio_;}
 	float Getfocal_length(){return focal_length_;}
 	float Getsensor_size_h(){return sensor_size_h_;}
+
 	//CAM extrinsic and intrinsic
 	
 	float near_=1;
@@ -46,13 +60,14 @@ public:
 
 	
 	glm::vec4 clear_color_{0.2,0.2,0.5,1.0};
-	
+	RadialDistortion distortion_;
 private:
 	float fovy_=27;
 	float focal_length_=50;
 	float sensor_size_h_=24;
 	float aspect_ratio_=1.5; //3:2
 	glm::mat4 view_,prj_;
+
 };
 
 }

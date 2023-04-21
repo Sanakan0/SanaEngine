@@ -1,5 +1,6 @@
 #include "ECS/Component/CameraComponent.h"
 #include "ECS/Component/Component.h"
+#include "SRender/LowRenderer/Camera.h"
 #include "imgui/imgui.h"
 #include <limits>
 namespace ECS::Components {
@@ -18,6 +19,7 @@ DrawCmd CameraComponent::GetInspectorDrawCmd() {
 
 void CameraComponent::DrawInspector() {
     if(ImGui::CollapsingHeader("Camera")){
+        ImGui::Text("basic config");
         auto fovy = cam_.Getfovy();
         ImGui::DragFloat("fovy(degree)",&fovy,0.5,0,180);
         cam_.Setfovy(fovy);
@@ -47,6 +49,40 @@ void CameraComponent::DrawInspector() {
 
         ImGui::ColorEdit4("background color", &cam_.clear_color_.r);
         
+        
+        
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Text("advance config");
+        const char* models[] = { "NONE","INDEX","POLY3","POLY5","PTLENS" ,"DIVISION"};
+        ImGui::Combo("Distortion Model", &cam_.distortion_.dist_type, models, IM_ARRAYSIZE(models));
+        ImGui::PushItemWidth(80);
+        switch (cam_.distortion_.dist_type) {
+        case 0:
+            break;
+        case 1:
+            ImGui::DragFloat("k",&cam_.distortion_.dist_para[0],0.01);
+            break;
+        case 2:
+            ImGui::DragFloat("k",&cam_.distortion_.dist_para[0],0.01);
+            break;
+        case 3:
+            ImGui::DragFloat("k1",&cam_.distortion_.dist_para[0],0.01);
+            ImGui::SameLine();
+            ImGui::DragFloat("k2",&cam_.distortion_.dist_para[1],0.01);
+            break;
+        case 4:
+            ImGui::DragFloat("a",&cam_.distortion_.dist_para[0],0.01);
+            ImGui::SameLine();
+            ImGui::DragFloat("b",&cam_.distortion_.dist_para[1],0.01);
+            ImGui::SameLine();
+            ImGui::DragFloat("c",&cam_.distortion_.dist_para[2],0.01);
+            break;
+        case 5:
+            ImGui::DragFloat("K",&cam_.distortion_.dist_para[0],0.01);
+            break;
+        }
+        ImGui::PopItemWidth();
         
         
     }

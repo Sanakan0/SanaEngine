@@ -18,6 +18,10 @@ void GLShader::SetUniFloat(const std::string& name, float val){
     glUniform1f(GetUniformLocation(name),val);
 }
 
+void GLShader::SetUniFloatV(const std::string &name, float* arr,int len){
+    glUniform1fv(GetUniformLocation(name),len,arr);
+}
+
 void GLShader::SetUniVec2(const std::string& name, glm::vec2 val){
     glUniform2f(GetUniformLocation(name),val.x,val.y);
 }

@@ -32,6 +32,8 @@ void CameraView::LogicTick(float deltat){
         );
         auto transcomp = active_camera_actor_->GetTransformComponent();
         camctrl_.SetCamInExParam(camcomp->cam_, transcomp->trans_);
+    
+        scenerenderpass_.BindDistortionInfo(camcomp->cam_);
     }
 
     camctrl_.cam_->CacheProjectionMat(camctrl_.cam_->Getaspect_ratio(),1);

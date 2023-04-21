@@ -15,19 +15,14 @@ scenemanager_(SANASERVICE(SceneSys::SceneManager))
 }
 
 void MainMenubar::DrawImpl(float deltat){
-    static int st=0;
-    static int cnt=60;
-    ImGui::InputInt("st", &st);
-    ImGui::InputInt("cnt", &cnt);
-
+    
+    int loadtileopen=0;
     if (ImGui::BeginMainMenuBar()){
         if (ImGui::BeginMenu("SanaEngine")){
             if (ImGui::MenuItem("Load tile")){
-                auto res = Util::NfdDialog::OpenFolderDlg();
-                if (res!=""){
-                    assetloader_.LoadTiles(res,st,cnt);
-                }
+                loadtileopen=1;
             }
+            
             if (ImGui::BeginMenu("Add Actor")){
                 if (ImGui::MenuItem("Add Camera")){
                     auto& tmpa=scenemanager_.GetScene()->CreateActor("Camera");
@@ -46,6 +41,54 @@ void MainMenubar::DrawImpl(float deltat){
         }
 
         ImGui::EndMainMenuBar();
+    }
+
+    if (loadtileopen)
+        ImGui::OpenPopup("Loadtile?");
+
+    ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+
+
+
+    if (ImGui::BeginPopupModal("Loadtile?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        ImGui::Text("LOAD TILE!\n\n");
+        ImGui::Separator();
+
+        //static int unused_i = 0;
+        //ImGui::Combo("Combo", &unused_i, "Delete\0Delete harder\0");
+
+        static int st=0;
+        static int cnt=60;
+        ImGui::InputInt("st", &st);
+        ImGui::InputInt("cnt", &cnt);
+                    
+        // static bool dont_ask_me_next_time = false;
+        // ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+        // ImGui::Checkbox("Don't ask me next time", &dont_ask_me_next_time);
+        // ImGui::PopStyleVar();
+
+        static std::string tilefolder="";
+        if(ImGui::Button("Folder...")){
+            tilefolder = Util::NfdDialog::OpenFolderDlg();
+        }
+        ImGui::SameLine();
+        ImGui::Text(("pth: "+tilefolder).c_str());
+        
+        
+
+        if (ImGui::Button("OK", ImVec2(120, 0))) { 
+            
+            if (tilefolder!=""){
+                assetloader_.LoadTiles(tilefolder,st,cnt);
+            }
+            ImGui::CloseCurrentPopup(); 
+        }
+        ImGui::SetItemDefaultFocus();
+        ImGui::SameLine();
+        if (ImGui::Button("Cancel", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+        ImGui::EndPopup();
     }
 
 }

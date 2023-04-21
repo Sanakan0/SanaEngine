@@ -17,6 +17,7 @@ public:
     void Unbind();
     void SetUniInt(const std::string& name, int val);
     void SetUniFloat(const std::string& name, float val);
+    void SetUniFloatV(const std::string &name, float* arr,int len);
     void SetUniVec2(const std::string& name, glm::vec2 val);
     void SetUniVec3(const std::string& name, glm::vec3 val);
     void SetUniVec4(const std::string& name, glm::vec4 val);
