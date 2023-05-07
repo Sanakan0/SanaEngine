@@ -22,24 +22,31 @@ scenemanager_(SANASERVICE(SceneSys::SceneManager)){
     name_ = "视觉定位控制面板";
     hori_scrollable_=true;
 
-    std::string test=R"(C:\Users\cnt0\BUAA\DATA\ExperimentsData\Photos\中文测试\DJI_0314.JPG)";
-    auto tmptex = SRender::Resources::STextureLoader::LoadFromFile_cached(test);
-    tmptex->LoadFromDisk();
-    img1 = cv::Mat(tmptex->height,tmptex->width,CV_8UC4,tmptex->rawdata);
-    cv::cvtColor(img1, img1, cv::COLOR_RGBA2BGR);
-    cv::flip(img1, img1, 0);
-    //img1 = cv::imread(R"(C:\Users\cnt0\BUAA\DATA\ExperimentsData\Photos\GovFacility\DJI_0314.JPG)");
-    img2 = cv::imread(R"(C:\Users\cnt0\BUAA\DATA\ExperimentsData\Photos\GovFacility\DJI_0315.JPG)");
+    {
+        auto tmptex = SRender::Resources::STextureLoader::CreateColor(0);
+        img1 = cv::Mat(tmptex->height,tmptex->width,CV_8UC4,tmptex->rawdata);
+        cv::cvtColor(img1, img1, cv::COLOR_RGBA2BGR);
+        cv::flip(img1, img1, 0);
+        imgp1.reset(tmptex);
+        imgp1->FreeRawData();
+    }
+
+
+
+    std::string filepth=R"(C:\Users\cnt0\BUAA\DATA\ExperimentsData\Photos\中文测试\DJI_0314.JPG)";
+    auto tmptex = SRender::Resources::STextureLoader::LoadFromFile(filepth);
+    if (tmptex!=nullptr){
+        img1 = cv::Mat(tmptex->height,tmptex->width,CV_8UC4,tmptex->rawdata);
+        cv::cvtColor(img1, img1, cv::COLOR_RGBA2BGR);
+        cv::flip(img1, img1, 0);
+        imgp1.reset(tmptex);
+        imgp1->FreeRawData();
+    }
+
     
 
-    cv::Mat tmp;
-    cv::cvtColor(img1, tmp, cv::COLOR_BGR2RGBA);
-    cv::flip(tmp, tmp, 0);
-    imgp1.reset(SRender::Resources::STextureLoader::LoadFromMemory(tmp.data, tmp.size().width, tmp.size().height, "img1"));
-
-
-    cv::cvtColor(img2, tmp, cv::COLOR_BGR2RGBA);
-    imgp2.reset(SRender::Resources::STextureLoader::LoadFromMemory(tmp.data, tmp.size().width, tmp.size().height, "img2"));
+    // cv::cvtColor(img2, tmp, cv::COLOR_BGR2RGBA);
+    // imgp2.reset(SRender::Resources::STextureLoader::LoadFromMemory(tmp.data, tmp.size().width, tmp.size().height, "img2"));
 
 
 }
@@ -71,14 +78,15 @@ void VisLocPanel::DrawContent(){
     if (ImGui::Button("打开文件")){
         auto filepth = Util::NfdDialog::OpenFileDlg();
         if (filepth!=""){
-            auto tmptex = SRender::Resources::STextureLoader::LoadFromFile_cached(filepth);
-            img1 = cv::Mat(tmptex->height,tmptex->width,CV_8UC4,tmptex->rawdata);
-            cv::cvtColor(img1, img1, cv::COLOR_RGBA2BGR);
-            cv::flip(img1, img1, 0);
-            cv::Mat tmp;
-            cv::cvtColor(img1, tmp, cv::COLOR_BGR2RGBA);
-            cv::flip(tmp, tmp, 0);
-            imgp1.reset(SRender::Resources::STextureLoader::LoadFromMemory(tmp.data, tmp.size().width, tmp.size().height, "img1"));
+            auto tmptex = SRender::Resources::STextureLoader::LoadFromFile(filepth);
+            if (tmptex!=nullptr){
+                img1 = cv::Mat(tmptex->height,tmptex->width,CV_8UC4,tmptex->rawdata);
+                cv::cvtColor(img1, img1, cv::COLOR_RGBA2BGR);
+                cv::flip(img1, img1, 0);
+                imgp1.reset(tmptex);
+                imgp1->FreeRawData();
+            }
+            
         }
     }
 
@@ -96,13 +104,25 @@ void VisLocPanel::DrawContent(){
     ImGui::PopItemWidth();
     ImGui::Separator();
     if (ImGui::Button("run pipeline")){
-        locengine.LocPipeline(img1,*scenemanager_.GetActiveCamera(),locsetting);
+        auto tmp = scenemanager_.GetActiveCamera();
+        if (tmp==nullptr){
+            spdlog::error("[VISLOC] No Camera Activated");
+        }
+        else{
+            locengine.LocPipeline(img1,*scenemanager_.GetActiveCamera(),locsetting);
+        }
     }
     
     
     if (ImGui::Button("feature test")){
-        res.clear();
-        res =locengine.TestFeatureMatch(img1,*scenemanager_.GetActiveCamera(),locsetting);
+        auto tmp = scenemanager_.GetActiveCamera();
+        if (tmp==nullptr){
+            spdlog::error("[VISLOC] No Camera Activated");
+        }
+        else{
+            res.clear();
+            res =locengine.TestFeatureMatch(img1,*scenemanager_.GetActiveCamera(),locsetting);
+        }
     }
     ImGui::SameLine();
     if (ImGui::Button("project img")){
@@ -111,10 +131,16 @@ void VisLocPanel::DrawContent(){
     }
 
     if (ImGui::Button("save")){
-        img1 = locengine.TestRenderCapture(*scenemanager_.GetActiveCamera());
-        cv::Mat tmp;
-        cv::cvtColor(img1, tmp, cv::COLOR_BGR2RGBA);
-        imgp1.reset(SRender::Resources::STextureLoader::LoadFromMemory(tmp.data, tmp.size().width, tmp.size().height, "img2"));
+        auto tmp = scenemanager_.GetActiveCamera();
+        if (tmp==nullptr){
+            spdlog::error("[VISLOC] No Camera Activated");
+        }
+        else{
+            img1 = locengine.TestRenderCapture(*scenemanager_.GetActiveCamera());
+            cv::Mat tmp;
+            cv::cvtColor(img1, tmp, cv::COLOR_BGR2RGBA);
+            imgp1.reset(SRender::Resources::STextureLoader::LoadFromMemory(tmp.data, tmp.size().width, tmp.size().height, "img2"));
+        }
     }
     //ImGui::Image((void*)(uint64_t)locengine.fbo_.tex_buf_id_,ImVec2(locengine.fbo_.buf_size_.first/10.0,locengine.fbo_.buf_size_.second/10.0),ImVec2(0,1),ImVec2(1,0) );
 

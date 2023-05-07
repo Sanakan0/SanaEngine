@@ -41,8 +41,10 @@ void TextureManager::UploadAll(){
         i.second->LoadFromDisk();
     }
     for (auto& i:repo_.resources_){
-        
         i.second->UploadTexture();
+    }
+    for (auto& i:repo_.resources_){
+        i.second->FreeRawData();
     }
 }
 
