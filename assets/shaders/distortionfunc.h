@@ -31,10 +31,10 @@ vec3 Distortion_Ptlens(vec3 pos,float a,float b,float c){
     return pos;
 }
 
-vec3 Distortion_Division(vec3 pos,float k){
+vec3 Distortion_Division(vec3 pos,float k){ // change
     vec2 normpos=pos.xy/pos.z;
     float ru2 = normpos.x*normpos.x + normpos.y*normpos.y;
-    float a = sqrt(1.0/(k*ru2+1.0));
+    float a = 1.0/(k*ru2+1.0);
     pos.xy*=a;
     return pos;
 }
