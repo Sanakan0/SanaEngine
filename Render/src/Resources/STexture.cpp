@@ -5,8 +5,8 @@
 #include <stdlib.h>
 namespace SRender::Resources{
 
-STexture::STexture(uint32_t pid,int pwidth,int pheight,const std::string& ppath,GLenum pminfilter,GLenum pmagfilter,bool mipmap_generate,unsigned char* prawdata):
-id(pid),width(pwidth),height(pheight),path(ppath),minfilter(pminfilter),magfilter(pmagfilter),mipmap(mipmap_generate),rawdata(prawdata){}
+STexture::STexture(uint32_t pid,int pwidth,int pheight,const std::string& ppath,GLenum pminfilter,GLenum pmagfilter,bool mipmap_generate,unsigned char* prawdata,TexInternalFormat pinternal):
+id(pid),width(pwidth),height(pheight),path(ppath),minfilter(pminfilter),magfilter(pmagfilter),internalformat(pinternal),mipmap(mipmap_generate),rawdata(prawdata){}
 
 STexture::~STexture(){
     glDeleteTextures(1,&id);
@@ -24,11 +24,12 @@ void STexture::Unbind(){
     glBindTexture(GL_TEXTURE_2D,0);
 }
 
-void STexture::LoadFromDisk(){
+bool STexture::LoadFromDisk(){
+    FreeRawData();
     stbi_set_flip_vertically_on_load(true);
     int filechannel;
     rawdata = stbi_load(path.c_str(),&width,&height,&filechannel,4);
-    
+    if (rawdata == nullptr) return false;
     if (height>2048){
         int clampedheight = 2048;
         int clampedwidth = (int)(width*(2048.0/height));
@@ -40,6 +41,7 @@ void STexture::LoadFromDisk(){
         height=clampedheight;
         resizedata=nullptr;
     }
+    return true;
 }
 
 void STexture::UploadTexture(){
@@ -51,7 +53,7 @@ void STexture::UploadTexture(){
     
     glBindTexture(GL_TEXTURE_2D,id);
     
-    glTexImage2D(GL_TEXTURE_2D,0,GL_COMPRESSED_RGBA_S3TC_DXT5_EXT,width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,rawdata);
+    glTexImage2D(GL_TEXTURE_2D,0,static_cast<GLint>(internalformat),width,height,0,GL_RGBA,GL_UNSIGNED_BYTE,rawdata);
     if(mipmap){
         glGenerateMipmap(GL_TEXTURE_2D);
     }
@@ -61,6 +63,10 @@ void STexture::UploadTexture(){
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magfilter);
 
     glBindTexture(GL_TEXTURE_2D,0);
+    
+}
+
+void STexture::FreeRawData(){
     free(rawdata);
     rawdata=nullptr;
 }
