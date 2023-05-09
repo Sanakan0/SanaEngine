@@ -16,8 +16,8 @@ friend class STextureLoader;
 public:
     STexture(uint32_t pid,int pwidth,int pheight,const std::string& ppath,GLenum pminfilter,GLenum pmagfilter,bool mipmap_generate,unsigned char* prawdata=nullptr,TexInternalFormat pinternal=TexInternalFormat::Default);
     ~STexture();
-    void Bind(uint32_t slot);
-    void Unbind();
+    void Bind(uint32_t slot) const;
+    void Unbind()const;
     bool LoadFromDisk();
     void UploadTexture();
     void FreeRawData();

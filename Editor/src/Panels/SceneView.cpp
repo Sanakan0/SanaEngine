@@ -194,9 +194,9 @@ void SceneView::RenderTick(float deltat){
 
     
 
-    
-    
+    rtcontext_.core_renderer_->SetRasterizationMode(SRender::Setting::SRasterization::FILL);
     fbo_.Unbind();
+    
 }
 
 void SceneView::HandleGizmoPick(float deltat){

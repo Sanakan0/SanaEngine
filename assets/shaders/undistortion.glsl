@@ -1,6 +1,5 @@
 #VERTEX
 #version 430 core
-#include "./distortionfunc.h"
 layout(location = 0) in vec3 pos;
 layout(location = 1) in vec2 tex_coord;
 layout(location = 2) in vec3 normal; 
@@ -10,19 +9,35 @@ layout(location = 2) in vec3 normal;
 
 layout(location = 0) uniform mat4 ModelMat;
 
+
+void main(){
+    gl_Position = vec4(pos,1);
+}
+
+#FRAGMENT
+
+
+#version 430 core
+layout(binding = 0) uniform sampler2D dist_img;
+out vec4 FRAGMENT_COLOR;
+
 struct DistortionInfo{
     float dist_para[3];
     int dist_type;
 };
 uniform DistortionInfo DistInfo;
 
-out VS_OUT{
-    vec3 norm;
-    vec3 world_pos;
-    vec2 tex_coord;
-} vs_out;
+
+uniform vec4 diffuse_color=vec4(1,1,1,1);
 
 
+uniform float norm_fh=1;
+uniform float picwidth;
+uniform float picheight;
+
+
+
+#include "./distortionfunc.h"
 vec3 Get_Distorted(vec3 pos){
     switch(DistInfo.dist_type){
     case 1:
@@ -39,45 +54,16 @@ vec3 Get_Distorted(vec3 pos){
     return pos;
 }
 
-
-
-const vec3 panel[4]=vec3[4]{
-    vec3(1,1,0),
-    vec3(-1,1,0),
-    vec3(-1,-1,0),
-    vec3(1,-1,0)
-};
-
-const int panelidx[6]=int[6]{0,1,2,2,3,0};
-
 void main(){
-    gl_Position = vec4(panel[panelidx[gl_VertexID]],1);
-}
-
-#FRAGMENT
-
-
-#version 430 core
-layout(binding = 0) uniform sampler2D dist_img;
-out vec4 FRAGMENT_COLOR;
-
-uniform vec4 diffuse_color=vec4(1,1,1,1);
-
-uniform float aspect_ratio=1;
-uniform float norm_fh=1;
-
-vec2 uv2norm(vec2 pos){
-    return vec2(pos.x*aspect_ratio,pos.y)/norm_fh;
-}
-vec2 norm2uv(vec2 pos){
-    pos*=norm_fh;
-    return vec2(pos.x/aspect_ratio,pos.y);
-}
-
-
-void main(){
-    gl_FragCoord.xy
-    FRAGMENT_COLOR=texture(diff_tex,fs_in.tex_coord)*diffuse_color;
+    vec3 pos = vec3(gl_FragCoord.x-picwidth/2,gl_FragCoord.y-picheight/2,float(picheight)*norm_fh);
+    vec3 dpos = Get_Distorted(pos);
+    
+    //cvt fragpos 2 uvpos
+    vec2 uv = vec2((dpos.x+picwidth/2)/picwidth,(dpos.y+picheight/2)/picheight);
+    if (uv.x>=1||uv.x<=0||uv.y>=1||uv.y<=0||isnan(uv.x)){
+        FRAGMENT_COLOR=vec4(0,0,0,0);
+    }
+    else FRAGMENT_COLOR=texture(dist_img,uv)*diffuse_color;
   
 }
 

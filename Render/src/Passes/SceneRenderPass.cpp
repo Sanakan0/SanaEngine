@@ -26,7 +26,7 @@ scenemanager_(SANASERVICE(SceneSys::SceneManager))
     shaderp_ = unlit_shaderp_.get();
 }
 void SceneRenderPass::Draw(){
-    shaderp_->Bind();
+    
     
     if (distortioninfo_&&distortioninfo_->dist_type!=LowRenderer::DistortionModel::NONE){
         shaderp_=distortion_shaderp_.get();
@@ -34,7 +34,9 @@ void SceneRenderPass::Draw(){
         shaderp_->SetUniInt("DistInfo.dist_type",(int)distortioninfo_->dist_type);
     }else{
         shaderp_=unlit_shaderp_.get();
+
     }
+    shaderp_->Bind();
 
     glm::mat4 tmpmodel = glm::mat4(1);
     for (auto& meshcomp:scenemanager_.GetScene()->GetBasicRenderComponent().meshcomps){

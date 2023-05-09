@@ -39,7 +39,7 @@ in VS_OUT{
 uniform vec4 diffuse_color=vec4(1,1,1,1);
 
 void calcimgprj(){
-    if (ubo_mask==0)return; 
+    if (ubo_ctl_mask==0)return; 
     vec4 tmppos = imgprj_PrjViewMat*vec4(fs_in.world_pos,1.0);
     vec3 ndccoordinimg = vec3(tmppos/tmppos.w);
     vec3 imgcoordinimg = (ndccoordinimg+1.0)*0.5;

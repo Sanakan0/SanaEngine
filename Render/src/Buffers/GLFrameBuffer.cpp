@@ -40,6 +40,7 @@ void GLFrameBuffer::Setup(int w,int h){
     Unbind();
 }
 
+
 void GLFrameBuffer::SetupDepthonly(int w,int h){
     glGenFramebuffers(1,&fbo_id_);
 
@@ -70,10 +71,10 @@ void GLFrameBuffer::DeleteBuf(){
     glDeleteRenderbuffers(1,&depth_stencil_buf_id_);
 }
 
-GLFrameBuffer::GLFrameBuffer(int w,int h,bool readable_depth):
-buf_size_(w,h),readable_depth_(readable_depth){
+GLFrameBuffer::GLFrameBuffer(int w,int h,bool depth_only):
+buf_size_(w,h),depth_only_(depth_only){
     buf_size_=std::make_pair(w,h);
-    if (readable_depth_) SetupDepthonly(w,h);
+    if (depth_only_) SetupDepthonly(w,h);
     else Setup(w, h);
 }
 
@@ -96,7 +97,7 @@ void GLFrameBuffer::Resize(int w,int h){
     }
     buf_size_=std::make_pair(w,h);
     DeleteBuf();
-    if (readable_depth_) SetupDepthonly(w, h);
+    if (depth_only_) SetupDepthonly(w, h);
     else Setup(w, h);
 }
 
