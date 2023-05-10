@@ -13,8 +13,8 @@ class UndistortPipeline{
 public:
     UndistortPipeline();
     ~UndistortPipeline() = default;
-    void Run(const SRender::Resources::STexture& distimg,float norm_fh,const SRender::LowRenderer::RadialDistortion& distortioninfo);
-    uint32_t GetUndistortTexID(){return fbo_.tex_buf_id_;}
+    void Run(const SRender::Resources::STexture& distimg,float norm_fh,float usensorscale,const SRender::LowRenderer::RadialDistortion& distortioninfo);
+    const SRender::Buffers::GLFrameBuffer& GetFbo(){return fbo_;}
 
 
 private:

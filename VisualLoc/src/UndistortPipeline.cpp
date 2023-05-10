@@ -40,21 +40,23 @@ UndistortPipeline::UndistortPipeline():renderer_(SANASERVICE(SRender::Core::Enti
    
 }
 
-void UndistortPipeline::Run(const SRender::Resources::STexture& distimg,float norm_fh,const SRender::LowRenderer::RadialDistortion& distortioninfo){
+void UndistortPipeline::Run(const SRender::Resources::STexture& distimg,float norm_fh,float usensorscale,const SRender::LowRenderer::RadialDistortion& distortioninfo){
     
-    
+    int uwidth = distimg.width*usensorscale;
+    int uheight = distimg.height*usensorscale;
 
     shaderp_->SetUniFloatV("DistInfo.dist_para",const_cast<float*>(distortioninfo.dist_para),3);
     shaderp_->SetUniInt("DistInfo.dist_type",(int)distortioninfo.dist_type);
-    shaderp_->SetUniFloat("picwidth", distimg.width);
-    shaderp_->SetUniFloat("picheight", distimg.height);
+    shaderp_->SetUniFloat("picwidth", uwidth);
+    shaderp_->SetUniFloat("picheight", uheight);
     shaderp_->SetUniFloat("norm_fh", norm_fh);
+    shaderp_->SetUniFloat("sensorscale", (float)uwidth/distimg.width);
 
     distimg.Bind(0);
-    fbo_.Resize(distimg.width, distimg.height);
+    fbo_.Resize(uwidth, uheight);
     fbo_.Bind();
 
-    renderer_.SetViewPort(0, 0, distimg.width, distimg.height);
+    renderer_.SetViewPort(0, 0, uwidth, uheight);
     renderer_.SetClearColor(0.0f, 0.0f, 0.0f);
     renderer_.ApplyGLstate(SRender::Core::Default_GLstate);
     glStencilMask(0xFF); // stencil mask also influence glclear()

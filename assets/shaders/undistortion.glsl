@@ -34,7 +34,7 @@ uniform vec4 diffuse_color=vec4(1,1,1,1);
 uniform float norm_fh=1;
 uniform float picwidth;
 uniform float picheight;
-
+uniform float sensorscale=1;//  undistsensor size/realsensor size
 
 
 #include "./distortionfunc.h"
@@ -55,15 +55,17 @@ vec3 Get_Distorted(vec3 pos){
 }
 
 void main(){
-    vec3 pos = vec3(gl_FragCoord.x-picwidth/2,gl_FragCoord.y-picheight/2,float(picheight)*norm_fh);
+    vec3 pos = vec3(gl_FragCoord.x-picwidth/2,gl_FragCoord.y-picheight/2,picheight/sensorscale*norm_fh);
     vec3 dpos = Get_Distorted(pos);
     
     //cvt fragpos 2 uvpos
-    vec2 uv = vec2((dpos.x+picwidth/2)/picwidth,(dpos.y+picheight/2)/picheight);
-    if (uv.x>=1||uv.x<=0||uv.y>=1||uv.y<=0||isnan(uv.x)){
+    float distpicwidth = picwidth/sensorscale;
+    float distpicheight = picheight/sensorscale;
+    vec2 uv_on_dist = vec2((dpos.x+distpicwidth/2)/distpicwidth,(dpos.y+distpicheight/2)/distpicheight);
+    if (uv_on_dist.x>=1||uv_on_dist.x<=0||uv_on_dist.y>=1||uv_on_dist.y<=0||isnan(uv_on_dist.x)){
         FRAGMENT_COLOR=vec4(0,0,0,0);
     }
-    else FRAGMENT_COLOR=texture(dist_img,uv)*diffuse_color;
+    else FRAGMENT_COLOR=texture(dist_img,uv_on_dist)*diffuse_color;
   
 }
 

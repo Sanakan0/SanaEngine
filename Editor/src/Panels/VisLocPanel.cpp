@@ -53,7 +53,7 @@ scenemanager_(SANASERVICE(SceneSys::SceneManager)){
 }
 
 void VisLocPanel::DrawContent(){
-    float scale = 5;
+    static float scale = 5;
     ImVec2 lupos(ImGui::GetCursorScreenPos());
 	ImVec2 lupos1(lupos);
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {0,0});
@@ -65,8 +65,11 @@ void VisLocPanel::DrawContent(){
     ImGui::PopStyleVar();
     static SRender::LowRenderer::RadialDistortion distortioninfo{{0,0,0},SRender::LowRenderer::DistortionModel::INDEX};
     static float norm_fh=1;
-    undistpipeline.Run(*imgp1, norm_fh, distortioninfo);
-    ImGui::Image((void*)(uint64_t)undistpipeline.GetUndistortTexID(), {(float)imgp1->width/scale,(float)imgp1->height/scale},ImVec2(0,1),ImVec2(1,0));
+    static float sensor_scale=1;
+    undistpipeline.Run(*imgp1, norm_fh,sensor_scale, distortioninfo);
+    auto uimgw=undistpipeline.GetFbo().buf_size_.first;
+    auto uimgh=undistpipeline.GetFbo().buf_size_.second;
+    ImGui::Image((void*)(uint64_t)undistpipeline.GetFbo().tex_buf_id_, {(float)uimgw/scale,(float)uimgh/scale},ImVec2(0,1),ImVec2(1,0));
     static VisualLoc::matchpairvec res ;
     
     lupos1.x+=(float)imgp1->width/scale;
@@ -80,6 +83,8 @@ void VisLocPanel::DrawContent(){
         draw_list->AddLine(p1, p2,IM_COL32(255,255,255,255));
     }
     ImGui::Spacing();
+    ImGui::DragFloat("img scale",&scale,0.01);
+    ImGui::DragFloat("sensor scale",&sensor_scale,0.01);
     if (ImGui::Button("打开文件")){
         auto filepth = Util::NfdDialog::OpenFileDlg();
         if (filepth!=""){
@@ -101,28 +106,28 @@ void VisLocPanel::DrawContent(){
     case 0:
         break;
     case 1:
-        ImGui::DragFloat("k",&distortioninfo.dist_para[0],0.01);
+        ImGui::DragFloat("k",&distortioninfo.dist_para[0],0.001);
         break;
     case 2:
-        ImGui::DragFloat("k",&distortioninfo.dist_para[0],0.01);
+        ImGui::DragFloat("k",&distortioninfo.dist_para[0],0.001);
         break;
     case 3:
-        ImGui::DragFloat("k1",&distortioninfo.dist_para[0],0.01);
+        ImGui::DragFloat("k1",&distortioninfo.dist_para[0],0.001);
         ImGui::SameLine();
-        ImGui::DragFloat("k2",&distortioninfo.dist_para[1],0.01);
+        ImGui::DragFloat("k2",&distortioninfo.dist_para[1],0.001);
         break;
     case 4:
-        ImGui::DragFloat("a",&distortioninfo.dist_para[0],0.01);
+        ImGui::DragFloat("a",&distortioninfo.dist_para[0],0.001);
         ImGui::SameLine();
-        ImGui::DragFloat("b",&distortioninfo.dist_para[1],0.01);
+        ImGui::DragFloat("b",&distortioninfo.dist_para[1],0.001);
         ImGui::SameLine();
-        ImGui::DragFloat("c",&distortioninfo.dist_para[2],0.01);
+        ImGui::DragFloat("c",&distortioninfo.dist_para[2],0.001);
         break;
     case 5:
-        ImGui::DragFloat("K",&distortioninfo.dist_para[0],0.01);
+        ImGui::DragFloat("K",&distortioninfo.dist_para[0],0.001);
         break;
     }
-    ImGui::DragFloat("norm_fh",&norm_fh,0.005);
+    ImGui::DragFloat("norm_fh",&norm_fh,0.001);
 
     ImGui::Separator();
     
