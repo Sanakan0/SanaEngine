@@ -18,4 +18,5 @@ private:
     inline static std::string engine_asset_path_="";
 };
 
+
 }

@@ -24,8 +24,8 @@ class AssimpParser{
 public:
     AssimpParser();
     ~AssimpParser();
-    bool LoadModel(glm::mat4& model_mat, std::string path,std::vector<SMesh*>& meshes,std::vector<TextureStack>& materials,ResourceManager::TextureManager* tex_manager=nullptr,bool is_cached=false,uint32_t assimp_flag=default_assimp_flag);
-    bool LoadModel(glm::mat4& model_mat, std::string path,std::vector<SMesh*>& meshes,std::vector<SJoint>& joints,std::vector<SAnimation>& sanimas,bool is_cached=false,uint32_t assimp_flag=default_assimp_flag);
+    bool LoadModel(glm::mat4& model_mat, std::string path,std::vector<SMesh*>& meshes,std::vector<TextureStack>& materials,ResourceManager::TextureManager* tex_manager=nullptr,bool is_cached=false,const ModelLoadSetting& loadsetting=ModelLoadSetting(),uint32_t assimp_flag=default_assimp_flag);
+    bool LoadModel(glm::mat4& model_mat, std::string path,std::vector<SMesh*>& meshes,std::vector<SJoint>& joints,std::vector<SAnimation>& sanimas,bool is_cached=false,const ModelLoadSetting& loadsetting=ModelLoadSetting(),uint32_t assimp_flag=default_assimp_flag);
 private:
     STexture* LoadTexture(const std::filesystem::path& full_pth,const aiScene* scene,ResourceManager::TextureManager* tex_manager);
     void BuildName2NodeMap(const aiNode* node);
@@ -42,6 +42,7 @@ private:
     void Clear();
     bool loadwithskeleton;
     bool is_cached_;
+    ModelLoadSetting loadsetting_;
     std::vector<int> aimeshofmesh_;
     std::unordered_map<std::string,uint32_t> name2jointidx_;
     std::unordered_map<std::string,const aiNode*> name2ainode_;

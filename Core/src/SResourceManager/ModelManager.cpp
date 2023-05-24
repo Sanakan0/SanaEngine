@@ -10,9 +10,9 @@
 #include <stdint.h>
 namespace ResourceManager {
 
-SRender::Resources::SModel* ModelManager::CreateResources(const std::string& pth,bool is_cached){
+SRender::Resources::SModel* ModelManager::CreateResources(const std::string& pth,bool is_cached,const SRender::Resources::ModelLoadSetting& setting){
     auto tmp=std::make_unique<SRender::Resources::SModel>();
-    if (SRender::Resources::SModelLoader::LoadSimpleModel(Util::GetFullPath(pth), *tmp,is_cached)){
+    if (SRender::Resources::SModelLoader::LoadSimpleModel(Util::GetFullPath(pth), *tmp,is_cached,setting)){
         auto rawp = tmp.release();
         repo_.Append(pth, rawp);
         return rawp;

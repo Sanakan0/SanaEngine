@@ -76,12 +76,17 @@ void MainMenubar::DrawImpl(float deltat){
         ImGui::SameLine();
         ImGui::Text(("pth: "+tilefolder).c_str());
         
-        
+        const char* internalformats[] = { "Default","DXT5"};
+        const SRender::Resources::TexInternalFormat formatvalues[]={SRender::Resources::TexInternalFormat::Default,SRender::Resources::TexInternalFormat::DXT5};
+        static int formatid=0;
+        static SRender::Resources::ModelLoadSetting loadsetting;
 
+        ImGui::Combo("TextureCompress", &formatid, internalformats, IM_ARRAYSIZE(internalformats));
+        loadsetting.texinfo.internal=formatvalues[formatid];
         if (ImGui::Button("OK", ImVec2(120, 0))) { 
             
             if (tilefolder!=""){
-                assetloader_.LoadTiles(tilefolder,st,cnt);
+                assetloader_.LoadTiles(tilefolder,st,cnt,loadsetting);
             }
             ImGui::CloseCurrentPopup(); 
         }

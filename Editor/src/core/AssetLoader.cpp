@@ -16,8 +16,9 @@ texturemanager_(SANASERVICE(ResourceManager::TextureManager))
 
 }
 
-void AssetLoader::LoadTiles(const std::string& filename,int st,int cnt){
+void AssetLoader::LoadTiles(const std::string& filename,int st,int cnt,const SRender::Resources::ModelLoadSetting& loadsetting){
      namespace fs = std::filesystem;
+    loadsetting_=loadsetting;
     //fs::path tile_pth(R"(D:\beihang reconstruction data\dxobj)");
     //fs::path tile_pth(R"(E:\user\cnt0\beihang reconstruction data\dxobj)");
     size_t srclen = filename.size();
@@ -65,7 +66,7 @@ void AssetLoader::LoadTiles(const std::string& filename,int st,int cnt){
 
 
 void AssetLoader::LoadAModelTask(std::string pth,int idx){
-    auto tmpmodel = modelmanager_.CreateResources(pth,true);
+    auto tmpmodel = modelmanager_.CreateResources(pth,true,loadsetting_);
     //renderpass.render_resources_[idx] = tmpmodel;
     if (tmpmodel == nullptr) return;
     auto& tmpa=scenemanager_.GetScene()->CreateActor("Tile_");

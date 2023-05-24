@@ -3,11 +3,11 @@
 #include <SRender/Resources/AssimpParser.h>
 #include <memory>
 namespace SRender::Resources{
-bool SModelLoader::LoadSimpleModel(std::string path, SModel &model,bool is_cached){
+bool SModelLoader::LoadSimpleModel(std::string path, SModel &model,bool is_cached,const ModelLoadSetting& loadsetting){
     AssimpParser parser;
     model.path_=path;
     std::vector<TextureStack> tmpmaterials;
-    if(parser.LoadModel(model.modelmat_,path,model.meshes_,tmpmaterials,texture_manager_,is_cached)){
+    if(parser.LoadModel(model.modelmat_,path,model.meshes_,tmpmaterials,texture_manager_,is_cached,loadsetting)){
        
         model.material_=std::make_unique<SMaterial>(tmpmaterials);
       

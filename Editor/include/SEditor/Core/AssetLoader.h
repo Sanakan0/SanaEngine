@@ -9,7 +9,7 @@ namespace SEditor::Core{
 class AssetLoader{
 public:
     AssetLoader();
-    void LoadTiles(const std::string& filename,int st=0,int cnt=60);
+    void LoadTiles(const std::string& filename,int st=0,int cnt=60,const SRender::Resources::ModelLoadSetting& loadsetting_=SRender::Resources::ModelLoadSetting());
 
 
 private:
@@ -18,6 +18,7 @@ private:
     SceneSys::SceneManager& scenemanager_;
     ResourceManager::ModelManager& modelmanager_;
     ResourceManager::TextureManager& texturemanager_;
+    SRender::Resources::ModelLoadSetting loadsetting_;
 };
 
 

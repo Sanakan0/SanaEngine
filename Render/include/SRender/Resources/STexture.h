@@ -4,12 +4,10 @@
 #include <stdint.h>
 #include <string>
 #include <any>
+#include "SRender/Resources/Settings.h"
 namespace SRender::Resources{
 
-enum class TexInternalFormat:GLint{
-    Default = GL_RGBA8,
-    DXT5 = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT
-};
+
 
 class STexture{
 friend class STextureLoader;

@@ -6,13 +6,13 @@
 #include <stdint.h>
 namespace ResourceManager {
 
-SRender::Resources::STexture* TextureManager::CreateResources(const std::string& pth,bool is_cached){
+SRender::Resources::STexture* TextureManager::CreateResources(const std::string& pth,bool is_cached,const SRender::Resources::TextureInfo& texinfo){
     if (auto i = repo_[pth]; i!=nullptr){
         spdlog::info("[TextureManager] Resource already created : "+pth);
         return i;
     } 
-    auto tmp = is_cached?SRender::Resources::STextureLoader::LoadFromFile_cached(Util::GetFullPath(pth)):
-        SRender::Resources::STextureLoader::LoadFromFile(Util::GetFullPath(pth));
+    auto tmp = is_cached?SRender::Resources::STextureLoader::LoadFromFile_cached(Util::GetFullPath(pth),texinfo):
+        SRender::Resources::STextureLoader::LoadFromFile(Util::GetFullPath(pth),texinfo);
     if (tmp!=nullptr) {
         repo_.Append(pth, tmp);
         return tmp;

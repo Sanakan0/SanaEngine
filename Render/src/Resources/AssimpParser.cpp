@@ -28,9 +28,10 @@ AssimpParser::AssimpParser(){}
 AssimpParser::~AssimpParser(){}
 
 //simple loader
-bool AssimpParser::LoadModel(glm::mat4& model_mat,std::string path, std::vector<SMesh*>& meshes,std::vector<TextureStack>& materials,ResourceManager::TextureManager* tex_manager,bool is_cached,uint32_t assimp_flag){
+bool AssimpParser::LoadModel(glm::mat4& model_mat,std::string path, std::vector<SMesh*>& meshes,std::vector<TextureStack>& materials,ResourceManager::TextureManager* tex_manager,bool is_cached,const ModelLoadSetting& loadsetting,uint32_t assimp_flag){
     loadwithskeleton=0;
     is_cached_=is_cached;
+    loadsetting_=loadsetting;
     Assimp::Importer imp;
     
     //imp.SetIOHandler(new Assimp::DefaultIOSystem());
@@ -97,9 +98,10 @@ void AssimpParser::ReArrangeMeshData(){
 
 
 //load with skeleton
-bool AssimpParser::LoadModel(glm::mat4& model_mat,std::string path, std::vector<SMesh*>& meshes,std::vector<SJoint>& joints,std::vector<SAnimation>& sanimas,bool is_cached,uint32_t assimp_flag){
+bool AssimpParser::LoadModel(glm::mat4& model_mat,std::string path, std::vector<SMesh*>& meshes,std::vector<SJoint>& joints,std::vector<SAnimation>& sanimas,bool is_cached,const ModelLoadSetting& loadsetting,uint32_t assimp_flag){
     loadwithskeleton=1;
     is_cached_=is_cached;
+    loadsetting_=loadsetting;
     Assimp::Importer imp;
 	const aiScene *scene = imp.ReadFile(path, aiProcess_Triangulate);
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
@@ -175,7 +177,7 @@ STexture* AssimpParser::LoadTexture(const std::filesystem::path& full_pth,const 
         //TODO load embeded
         return nullptr;
     }else{
-        return tex_manager->CreateResources(full_pth.generic_string(),is_cached_);
+        return tex_manager->CreateResources(full_pth.generic_string(),is_cached_,loadsetting_.texinfo);
     }
 }
 

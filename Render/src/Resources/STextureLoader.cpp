@@ -8,17 +8,17 @@
 #include <stdint.h>
 namespace SRender::Resources{
 
-STexture* STextureLoader::LoadFromFile_cached(const std::string &pth,GLenum minfilter,GLenum magfilter,bool mipmap){
+STexture* STextureLoader::LoadFromFile_cached(const std::string &pth,const TextureInfo& texinfo){
 	int width;
 	int height;
 	int bitsPerPixel;
     
-    STexture* res=new STexture(0,0,0,pth,minfilter,magfilter,mipmap,nullptr);
+    STexture* res=new STexture(0,0,0,pth,texinfo.minfilter,texinfo.magfilter,texinfo.mipmap_generate,nullptr,texinfo.internal);
     return res;
     return nullptr;
 }
 
-STexture* STextureLoader::LoadFromFile(const std::string &pth,GLenum minfilter,GLenum magfilter,bool mipmap){
+STexture* STextureLoader::LoadFromFile(const std::string &pth,const TextureInfo& texinfo){
 	int width;
 	int height;
 	int bitsPerPixel;
@@ -26,12 +26,12 @@ STexture* STextureLoader::LoadFromFile(const std::string &pth,GLenum minfilter,G
     unsigned char* rawdata = stbi_load(pth.c_str(),&width,&height,&bitsPerPixel,4);
     STexture* res=nullptr;
     if(rawdata!=nullptr){
-        res = LoadFromMemory(static_cast<void*>(rawdata),width, height,pth,minfilter, magfilter, mipmap);
+        res = LoadFromMemory(static_cast<void*>(rawdata),width, height,pth,texinfo);
     }
     return res;
 }
-STexture* STextureLoader::LoadFromMemory(void* data,uint32_t width,uint32_t height,const std::string& pth,GLenum minfilter,GLenum magfilter,bool mipmap){
-    auto tmpuniq = std::make_unique<STexture>(0,width,height,pth,minfilter,magfilter,mipmap,(unsigned char*)data);
+STexture* STextureLoader::LoadFromMemory(void* data,uint32_t width,uint32_t height,const std::string& pth,const TextureInfo& texinfo){
+    auto tmpuniq = std::make_unique<STexture>(0,width,height,pth,texinfo.minfilter,texinfo.magfilter,texinfo.mipmap_generate,(unsigned char*)data,texinfo.internal);
     tmpuniq->UploadTexture();
     return tmpuniq.release();
 }

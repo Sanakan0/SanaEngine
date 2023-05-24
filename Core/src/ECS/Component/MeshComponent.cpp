@@ -35,6 +35,15 @@ void MeshComponent::DrawInspector(){
             for (auto& texs:mat->texturelist_){
                 if (texs.DiffuseTex==nullptr) continue;
                 if (ImGui::CollapsingHeader(texs.DiffuseTex->path.c_str(),ImGuiTreeNodeFlags_DefaultOpen)){
+                    switch (texs.DiffuseTex->internalformat) {
+                        case SRender::Resources::TexInternalFormat::Default:
+                            ImGui::Text("internal: Default");
+                            break;
+                        case SRender::Resources::TexInternalFormat::DXT5:
+                            ImGui::Text("internal: DXT5");
+                            break;
+                    }
+                    
                     auto& io = ImGui::GetIO();
                     float my_tex_w = (float)texs.DiffuseTex->width/10;
                     float my_tex_h = (float)texs.DiffuseTex->height/10;
@@ -42,7 +51,7 @@ void MeshComponent::DrawInspector(){
                     // ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));
                     // ImGui::Image(reinterpret_cast<void*>((uint64_t)texs.DiffuseTex->id) , ImVec2((float)texs.DiffuseTex->width/10,(float)texs.DiffuseTex->height/10),ImVec2(0.f, 1.f), ImVec2(1.f, 0.f));
                     // ImGui::PopStyleVar();
-
+                    
 
                     {
                         
