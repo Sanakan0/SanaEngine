@@ -54,7 +54,7 @@ void CameraCtrl::HandleInputs(float delta_time){
 }
 
 void CameraCtrl::HandleOrbitCamCtl(float delta_time){
-    if (inputmanager_.mid_btn_){
+    if (inputmanager_.right_btn_){
         auto[dx,dy] = inputmanager_.GetCursorDelta();
         if (inputmanager_.GetGlfwKeyState(GLFW_KEY_LEFT_SHIFT)){
             auto[w,h] = view_.canvas_size_;
@@ -67,7 +67,7 @@ void CameraCtrl::HandleOrbitCamCtl(float delta_time){
 }
 
 void CameraCtrl::HandleFpsCamCtl(float delta_time){
-    if (inputmanager_.mid_btn_){
+    if (inputmanager_.right_btn_){
         auto step = move_speed_*delta_time;
         auto[dx,dy] = inputmanager_.GetCursorDelta();
         if (inputmanager_.GetGlfwKeyState(GLFW_KEY_W)){
