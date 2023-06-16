@@ -122,7 +122,10 @@ void SceneView::task1(std::string pth,int idx){
 }
 
 
-
+void SceneView::SetEngineUboControlMask(uint32_t mask){
+    static auto& editor_ubo = SANASERVICE(SRender::Buffers::GLUniformBuffer);
+    editor_ubo.BufferSubData(mask,sizeof(glm::mat4)*4+sizeof(glm::vec4));//set ubo ctl mask
+}
 
 
 void SceneView::LogicTick(float deltat){
@@ -155,9 +158,10 @@ void SceneView::RenderTick(float deltat){
     glStencilMask(0x00);
 
     if (rtcontext_.scene_manager_->enable_img_prj_){
-        auto& editor_ubo = SANASERVICE(SRender::Buffers::GLUniformBuffer);
-        editor_ubo.BufferSubData((int)1,sizeof(glm::mat4)*4+sizeof(glm::vec4));
-        
+        // auto& editor_ubo = SANASERVICE(SRender::Buffers::GLUniformBuffer);
+        // editor_ubo.BufferSubData((int)1,sizeof(glm::mat4)*4+sizeof(glm::vec4));//set ubo ctl flag
+        SetEngineUboControlMask(1);
+
         auto w =rtcontext_.scene_manager_->img_tex_->width;
         auto h =rtcontext_.scene_manager_->img_tex_->height;
         imgprj_depth_fbo_.Resize(w,h);
@@ -172,15 +176,16 @@ void SceneView::RenderTick(float deltat){
         rtcontext_.scene_manager_->img_tex_->Bind(6);
         fbo_.Bind();
         rtcontext_.core_renderer_->SetViewPort(0, 0,canvas_size_.first ,canvas_size_.second );
+    }else{
+        imgprj_depth_fbo_.Resize(0, 0); //release when dont use
     }
 
     if (enable_normal) scenerenderpass.EnableNormal();
     else scenerenderpass.DisableNormal();
     scenerenderpass.Draw();
 
-    auto& editor_ubo = SANASERVICE(SRender::Buffers::GLUniformBuffer);
-    editor_ubo.BufferSubData((int)0,sizeof(glm::mat4)*4+sizeof(glm::vec4));
-    // turn prj off before render id
+    SetEngineUboControlMask(0);
+    
     ActorPickerTick(deltat);
 
     fbo_.Bind();

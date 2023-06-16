@@ -21,6 +21,7 @@ public:
     void LogicTick(float deltat);
     void RenderTick(float deltat);
 private:   
+    void SetEngineUboControlMask(uint32_t mask);
     void ActorPickerTick(float deltat);
     void HandleGizmoPick(float deltat);
     ECS::ActorID selectedgizmoid_=0;
