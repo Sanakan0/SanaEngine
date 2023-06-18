@@ -8,6 +8,7 @@
 #include "glm/fwd.hpp"
 #include "glm/gtc/quaternion.hpp"
 #include "glm/matrix.hpp"
+#include "spdlog/spdlog.h"
 #include <opencv2/calib3d.hpp>
 #include <opencv2/core.hpp>
 #include <opencv2/core/base.hpp>
@@ -85,7 +86,10 @@ void RenderBasedLocEngine::LocPipeline(const cv::Mat& ref_img,ECS::Actor& initia
     double confidence=setting.pnp_confidence;
     
     auto[orien,trans,inliers] = RansacPnpPass(objpts,imgpts,inmat,distCoeffs,useExtrinsicGuess,iterationscount,reprojectionerror,confidence);
-    
+    if (inliers.size().width==0){ //failed
+        spdlog::warn("[VISLOC] Pipeline Failed");
+        return;
+    }
     acam_.SetExtrinsic(orien, trans);
 }
 
