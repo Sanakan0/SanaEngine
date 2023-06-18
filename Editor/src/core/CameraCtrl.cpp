@@ -44,6 +44,15 @@ void CameraCtrl::HandleInputs(float delta_time){
         }else {
             HandleOrbitCamCtl(delta_time);
         }
+        if (inputmanager_.right_btn_){
+            auto[x,y]=inputmanager_.GetCursorPos();
+            x=x-view_.canvas_pos_.first+view_.canvas_size_.first;
+            y=y-view_.canvas_pos_.second+view_.canvas_size_.second;
+            x=view_.canvas_pos_.first+x%view_.canvas_size_.first;
+            y=view_.canvas_pos_.second+y%view_.canvas_size_.second;
+            inputmanager_.SetCursorPos(x,y);
+        }
+        
     }else{
 
     }

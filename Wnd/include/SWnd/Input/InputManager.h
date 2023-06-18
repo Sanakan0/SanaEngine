@@ -13,6 +13,7 @@ public:
     MouseBtnState GetGlfwMouseState(AMouseBtn btn);
     std::pair<int,int> GetCursorPos();
     std::pair<int,int> GetCursorDelta();
+    void SetCursorPos(double x,double y);
     void Tick();
     void ResetMouseStates();
     GLFWwindow* wndp_;
