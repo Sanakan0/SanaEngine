@@ -4,6 +4,7 @@
 #include "SResourceManager/TextureManager.h"
 #include "SceneSys/SceneManager.h"
 #include "iconv/iconv.h"
+#include "spdlog/spdlog.h"
 #include <filesystem>
 #include <string>
 namespace SEditor::Core{
@@ -59,8 +60,11 @@ void AssetLoader::LoadTiles(const std::string& filename,int st,int cnt,const SRe
         for (auto& t:threadtest){
             t.join();
         }
+        spdlog::info("[ASSET Loader] assimp parser finished");
         modelmanager_.UploadAll();
+        spdlog::info("[ASSET Loader] mesh upload finished");
         texturemanager_.UploadAll();
+        spdlog::info("[ASSET Loader] texture upload finished");
     }
 }
 

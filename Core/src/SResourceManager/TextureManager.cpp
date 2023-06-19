@@ -4,6 +4,7 @@
 #include "SResourceManager/Util.h"
 #include "spdlog/spdlog.h"
 #include <stdint.h>
+#include <future>
 namespace ResourceManager {
 
 SRender::Resources::STexture* TextureManager::CreateResources(const std::string& pth,bool is_cached,const SRender::Resources::TextureInfo& texinfo){
@@ -37,12 +38,19 @@ void TextureManager::ClearAll(){
     repo_.ClearAllResources();
 }
 void TextureManager::UploadAll(){
+    std::vector<std::future<bool>> futs; 
+    futs.resize(repo_.resources_.size());
+    int cnt=0;
     for (auto& i:repo_.resources_){
-        i.second->LoadFromDisk();
+        futs[cnt++]=std::async([&i](){return i.second->LoadFromDisk();});
+        //i.second->LoadFromDisk();
     }
+    for (auto& i:futs) i.get();
+    spdlog::info("[TextureManager] texture load from disk finished");
     for (auto& i:repo_.resources_){
         i.second->UploadTexture();
     }
+    spdlog::info("[TextureManager] texture upload to gpu finished");
     for (auto& i:repo_.resources_){
         i.second->FreeRawData();
     }
