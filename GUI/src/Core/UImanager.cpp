@@ -50,7 +50,7 @@ void UImanager::SetupFont(){
     ImGuiIO& io = ImGui::GetIO();
     //io.Fonts->AddFontDefault();
     auto fullpth = ResourceManager::Util::GetFullPath(":fonts/SourceHanSansSC-Regular-2.otf");
-    textfont.small=io.Fonts->AddFontFromFileTTF( fullpth.c_str(), baseFontSize_,NULL,io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
+    textfont.small=io.Fonts->AddFontFromFileTTF( fullpth.c_str(), baseFontSize_,NULL,io.Fonts->GetGlyphRangesChineseFull());
     //textfont.medium=io.Fonts->AddFontFromFileTTF( fullpth.c_str(), baseFontSize_*1.5);
     //textfont.large=io.Fonts->AddFontFromFileTTF( fullpth.c_str(), baseFontSize_*2.25);
     //ImGui::PushFont(textfont.small);

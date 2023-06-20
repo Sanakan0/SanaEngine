@@ -1,5 +1,6 @@
 #include "SEditor/Core/Editor.h"
 #include "SEditor/Panels/CameraView.h"
+#include "SEditor/Panels/DistortionRectiferPanel.h"
 #include "SEditor/Panels/Hierarchy.h"
 #include "SEditor/Panels/InfoPanel.h"
 #include "SEditor/Panels/Inspector.h"
@@ -83,4 +84,5 @@ void Editor::SetUpUI(){
     rtcontext_.uimanager_->CreatePanel<Panels::Inspector>("Inspector");
     rtcontext_.uimanager_->CreatePanel<Panels::VisLocPanel>("VisLocPanel");
     rtcontext_.uimanager_->CreatePanel<Panels::InfoPanel>("InfoPanel");
+    rtcontext_.uimanager_->CreatePanel<Panels::DistrotionRectifierPanel>("DistrotionRectifierPanel");
 }

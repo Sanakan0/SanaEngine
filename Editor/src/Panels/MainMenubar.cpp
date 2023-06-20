@@ -2,6 +2,15 @@
 #include "SCore/Global/ServiceLocator.h"
 #include "SEditor/Core/AssetLoader.h"
 #include "SEditor/Util/NfdDialog.h"
+#include "SGUI/Core/UImanager.h"
+#include "SEditor/Panels/CameraView.h"
+#include "SEditor/Panels/DistortionRectiferPanel.h"
+#include "SEditor/Panels/Hierarchy.h"
+#include "SEditor/Panels/InfoPanel.h"
+#include "SEditor/Panels/Inspector.h"
+#include "SEditor/Panels/MainMenubar.h"
+#include "SEditor/Panels/TestView.h"
+#include "SEditor/Panels/VisLocPanel.h"
 #include "SceneSys/SceneManager.h"
 #include "imgui/imgui.h"
 #include <SEditor/Panels/MainMenubar.h>
@@ -9,13 +18,29 @@ namespace SEditor::Panels{
 
 MainMenubar::MainMenubar():
 assetloader_(SANASERVICE(Core::AssetLoader)),
-scenemanager_(SANASERVICE(SceneSys::SceneManager))
+scenemanager_(SANASERVICE(SceneSys::SceneManager)),
+uimanager_(SANASERVICE(SGUI::Core::UImanager))
 {
 
 }
 
+void MainMenubar::GetPanelsOpenFlag(){
+    show_scene_view_=  &uimanager_.GetPanel<SEditor::Panels::SceneView>("Scene View").opened_;
+    show_test_view_=&uimanager_.GetPanel<SEditor::Panels::TestView>("Test View").opened_;
+    show_camera_view_=&uimanager_.GetPanel<Panels::CameraView>("Camera View").opened_;
+    show_hierarchy_=&uimanager_.GetPanel<Panels::Hierarchy>("Hierarchy").opened_;
+    show_inspector_=&uimanager_.GetPanel<Panels::Inspector>("Inspector").opened_;
+    show_vislocpanel_=&uimanager_.GetPanel<Panels::VisLocPanel>("VisLocPanel").opened_;
+    show_distortionrecifierpanel_=&uimanager_.GetPanel<Panels::DistrotionRectifierPanel>("DistrotionRectifierPanel").opened_;
+}
+
 void MainMenubar::DrawImpl(float deltat){
-    
+    static bool first_init=true;
+    if (first_init){
+        GetPanelsOpenFlag();
+        first_init=false;
+    }
+
     int loadtileopen=0;
     if (ImGui::BeginMainMenuBar()){
         if (ImGui::BeginMenu("SanaEngine")){
@@ -36,7 +61,14 @@ void MainMenubar::DrawImpl(float deltat){
             }
             ImGui::EndMenu();
         }
-        if (ImGui::BeginMenu("Edit")){
+        if (ImGui::BeginMenu("Windows")){
+            ImGui::MenuItem("Scene View", NULL, show_scene_view_);
+            ImGui::MenuItem("Test View", NULL, show_test_view_);
+            ImGui::MenuItem("Camera View", NULL, show_camera_view_);
+            ImGui::MenuItem("Hierarchy", NULL, show_hierarchy_);
+            ImGui::MenuItem("Inspector", NULL, show_inspector_);
+            ImGui::MenuItem("VisLocPanel", NULL, show_vislocpanel_);
+            ImGui::MenuItem("DistrotionRectifierPanel", NULL, show_distortionrecifierpanel_);
             ImGui::EndMenu();
         }
 
