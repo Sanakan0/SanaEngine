@@ -13,7 +13,7 @@ public:
     DistrotionRectifierPanel();
     void DrawContent() override;  
 private:
-
+    
     VisualLoc::UndistortPipeline undistpipeline;
 
     std::shared_ptr<SRender::Resources::STexture> uimgp;
