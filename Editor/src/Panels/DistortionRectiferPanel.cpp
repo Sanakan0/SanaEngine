@@ -1,5 +1,6 @@
 #include "SEditor/Panels/DistortionRectiferPanel.h"
 #include "SEditor/Util/NfdDialog.h"
+#include "SGUI/IconsFontAwesome6.h"
 #include "SRender/Resources/STextureLoader.h"
 #include "imgui/imgui.h"
 #include <cstddef>
@@ -26,6 +27,8 @@ DistrotionRectifierPanel::DistrotionRectifierPanel(){
 
 void DistrotionRectifierPanel::DrawContent(){
     static float scale = 5;
+    static std::vector<std::vector<std::pair<double,double>>>lines;
+    static int selected = -1;
     ImVec2 lupos(ImGui::GetCursorScreenPos());
 	ImVec2 lupos1(lupos);
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {0,0});
@@ -76,18 +79,29 @@ void DistrotionRectifierPanel::DrawContent(){
 
         scale += io.MouseWheel*0.2;
         scale = std::max(scale,0.1f);
+        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)){
+            if (0<=selected&&selected<lines.size()){
+                float coord_u=cursor_onimg_x/my_tex_w;
+                float coord_v=cursor_onimg_y/my_tex_h;
+                if (coord_u<=1&&coord_u>=0&&coord_v<=1&&coord_v>=0){
+                    lines[selected].push_back({coord_u,coord_v});
+                }
+            }
+        }
+
     }
 
     //distortion img
 
     ImGui::PopStyleVar();
     static SRender::LowRenderer::RadialDistortion distortioninfo{{0,0,0},SRender::LowRenderer::DistortionModel::INDEX};
-    static float norm_fh=1;
+    static float norm_fh=0.5;
     static float sensor_scale=1;
     undistpipeline.Run(*uimgp, norm_fh,sensor_scale, distortioninfo);
     auto uimgw=undistpipeline.GetFbo().buf_size_.first;
     auto uimgh=undistpipeline.GetFbo().buf_size_.second;
-    //ImGui::Image((void*)(uint64_t)undistpipeline.GetFbo().tex_buf_id_, {(float)uimgw/scale,(float)uimgh/scale},ImVec2(0,1),ImVec2(1,0));
+    ImGui::SameLine();
+    ImGui::Image((void*)(uint64_t)undistpipeline.GetFbo().tex_buf_id_, {(float)uimgw/scale,(float)uimgh/scale},ImVec2(0,1),ImVec2(1,0));
 
     ImGui::Spacing();
 
@@ -107,21 +121,26 @@ void DistrotionRectifierPanel::DrawContent(){
     ImGui::Spacing();
     //add line
     ImGui::Text("LINES:");
-    static std::vector<std::vector<std::pair<float,float>>>lines;
-    static int selected = -1;
+
+   
     //ImGui::PushItemWidth(50);
     for (int n = 0; n < lines.size(); n++)
     {
         char buf[32];
         sprintf(buf, "Line %d", n);
-        if (ImGui::Selectable(buf, selected == n,0,{100,0})){
+        auto h=ImGui::GetFrameHeight();
+        if (ImGui::Selectable(buf, selected == n,0,{100,h})){
             selected = n;
             
             
         }
         if (selected==n){
             ImGui::SameLine();
-            if (ImGui::Button("delete")){
+            if (ImGui::Button(ICON_FA_ROTATE_LEFT)&&!lines[selected].empty()){
+                lines[selected].pop_back();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button(ICON_FA_XMARK)){
                 lines.erase(lines.begin()+selected);
             }
         }
@@ -131,38 +150,55 @@ void DistrotionRectifierPanel::DrawContent(){
     //ImGui::PopItemWidth();
     if (ImGui::Button("add line")){
         lines.push_back({});
+        selected=lines.size()-1;
     }
-    if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)){
-        if (0<=selected&&selected<lines.size()){
-            float coord_u=cursor_onimg_x/my_tex_w;
-            float coord_v=cursor_onimg_y/my_tex_h;
-            if (coord_u<=1&&coord_u>=0&&coord_v<=1&&coord_v>=0){
-                lines[selected].push_back({coord_u,coord_v});
-            }
-        }
+    if (ImGui::Button("Rectify")){
+
+        rectifier_.RectifyWithLines(lines, my_tex_w/my_tex_h, distortioninfo);
     }
+   
+    
+
+
 
     //renderline
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
     auto linecol = IM_COL32(0,0,255,255);
     auto ptcol = IM_COL32(255,0,0,255);
     float ptsz=2;
-    if (0<=selected&&selected<lines.size()
-                &&lines[selected].size()!=0){
-        auto x = lines[selected][0].first*my_tex_w;
-        auto y = lines[selected][0].second*my_tex_h;
+    for (int k=0;k<lines.size();++k){
+        auto& line=lines[k];
+        if (line.size()<=0) continue;
+        auto x = line[0].first*my_tex_w;
+        auto y = line[0].second*my_tex_h;
         ImVec2 p0(lupos.x+x,lupos.y+y);
         draw_list->AddCircleFilled(p0, ptsz, ptcol);
-        for (int i=1;i<lines[selected].size();++i){
-            auto x = lines[selected][i].first*my_tex_w;
-            auto y = lines[selected][i].second*my_tex_h;
+        for (int i=1;i<line.size();++i){
+            auto x = line[i].first*my_tex_w;
+            auto y = line[i].second*my_tex_h;
             ImVec2 p1(lupos.x+x,lupos.y+y);
             //ImVec2 p2(lupos1.x+i.pt2.pt.x/scale,lupos1.y+i.pt2.pt.y/scale);
             draw_list->AddCircleFilled(p1, ptsz, ptcol);
-            draw_list->AddLine(p0, p1,linecol);
+            draw_list->AddLine(p0, p1, selected==k?ptcol:linecol);
             p0=p1;
         }
     }
+    // if (0<=selected&&selected<lines.size()
+    //             &&lines[selected].size()!=0){
+    //     auto x = lines[selected][0].first*my_tex_w;
+    //     auto y = lines[selected][0].second*my_tex_h;
+    //     ImVec2 p0(lupos.x+x,lupos.y+y);
+    //     draw_list->AddCircleFilled(p0, ptsz, ptcol);
+    //     for (int i=1;i<lines[selected].size();++i){
+    //         auto x = lines[selected][i].first*my_tex_w;
+    //         auto y = lines[selected][i].second*my_tex_h;
+    //         ImVec2 p1(lupos.x+x,lupos.y+y);
+    //         //ImVec2 p2(lupos1.x+i.pt2.pt.x/scale,lupos1.y+i.pt2.pt.y/scale);
+    //         draw_list->AddCircleFilled(p1, ptsz, ptcol);
+    //         draw_list->AddLine(p0, p1,linecol);
+    //         p0=p1;
+    //     }
+    // }
     
 
 
@@ -181,6 +217,35 @@ void DistrotionRectifierPanel::DrawContent(){
             
         }
     }
+     const char* models[] = { "NONE","INDEX","POLY3","POLY5","PTLENS" ,"DIVISION"};
+    ImGui::Combo("Distortion Model", &distortioninfo.dist_type, models, IM_ARRAYSIZE(models));
+    ImGui::PushItemWidth(80);
+    switch (distortioninfo.dist_type) {
+    case 0:
+        break;
+    case 1:
+        ImGui::DragFloat("k",&distortioninfo.dist_para[0],0.001);
+        break;
+    case 2:
+        ImGui::DragFloat("k",&distortioninfo.dist_para[0],0.001);
+        break;
+    case 3:
+        ImGui::DragFloat("k1",&distortioninfo.dist_para[0],0.001);
+        ImGui::SameLine();
+        ImGui::DragFloat("k2",&distortioninfo.dist_para[1],0.001);
+        break;
+    case 4:
+        ImGui::DragFloat("a",&distortioninfo.dist_para[0],0.001);
+        ImGui::SameLine();
+        ImGui::DragFloat("b",&distortioninfo.dist_para[1],0.001);
+        ImGui::SameLine();
+        ImGui::DragFloat("c",&distortioninfo.dist_para[2],0.001);
+        break;
+    case 5:
+        ImGui::DragFloat("K",&distortioninfo.dist_para[0],0.001);
+        break;
+    }
+    ImGui::DragFloat("norm_fh",&norm_fh,0.001);
 }
 
 
