@@ -2,6 +2,7 @@
 #include <cmath>
 #include <functional>
 #include <opencv2/core.hpp>
+#include <opencv2/core/mat.hpp>
 #include <opencv2/core/matx.hpp>
 #include <opencv2/core/types.hpp>
 #include <opencv2/imgproc.hpp>
@@ -16,6 +17,8 @@ class DistortionRectifier{
 public:
 
     DistFuncT index_undistfunc;
+    DistFuncT division_undistfunc;
+    DistFuncT poly5_undistfunc;
 
     DistortionRectifier(){
         index_undistfunc = [](std::pair<double, double> dpts,float* params)->std::pair<double, double>{
@@ -24,46 +27,113 @@ public:
             auto alpha = 1.0/sqrt(1.0-k*rd2);
             return {dpts.first*alpha,dpts.second*alpha};
         };
+        division_undistfunc = [](std::pair<double, double> dpts,float* params)->std::pair<double, double>{
+            auto rd2 = dpts.first*dpts.first+dpts.second*dpts.second;
+            auto k = params[0];
+            auto alpha = 1.0/(1.0+k*rd2);
+            return {dpts.first*alpha,dpts.second*alpha};
+        };
+        poly5_undistfunc = [](std::pair<double, double> dpts,float* params)->std::pair<double, double>{
+            auto rd = sqrt( dpts.first*dpts.first+dpts.second*dpts.second);
+            auto k1 = params[0];
+            auto k2 = params[1];
+            std::vector<double> coeff{-rd,1,0,k1,0,k2};
+            cv::Mat output;
+            auto rev=cv::solvePoly(coeff,output);
+            // std::cout<<output<<std::endl;
+            // std::cout<<rev<<std::endl;
+            double ru=1e5;
+            for (int i=0;i<output.rows;++i){
+                auto tmp = output.at<std::complex<double>>(i,0);
+                if (tmp.imag()==0&&tmp.real()!=0){
+                    ru=std::min(ru,tmp.real());
+                }
+            }
+
+            
+            auto alpha = ru/rd;
+            return {dpts.first*alpha,dpts.second*alpha};
+        };
     }
 
 
-    void RectifyWithLines(LinesT& lines,float aspect_ratio,SRender::LowRenderer::RadialDistortion& dist_param){
-        
-        LinesT lines_halfH_norm;
-        lines_halfH_norm.resize(lines.size());
+    double RectifyWithLines(LinesT& lines,float aspect_ratio,SRender::LowRenderer::RadialDistortion& dist_param){
+        poly5_undistfunc({0,3},dist_param.dist_para);
+        LinesT lines_halfW_norm;
+        lines_halfW_norm.resize(lines.size());
         for (int k=0;k<lines.size();++k){
             for (auto& i:lines[k]){
-                lines_halfH_norm[k].push_back({(i.first-0.5f)*aspect_ratio*2,(i.second-0.5)*2});
+                //lines_halfW_norm[k].push_back({(i.first-0.5f)*aspect_ratio*2,(i.second-0.5)*2});
+                lines_halfW_norm[k].push_back({(i.first-0.5f)*2,(i.second-0.5)/aspect_ratio*2});
             }
         }
         
         //gradiant
-        double momentum = 0;
+        double momentum[3] = {0,0,0};
 
         double beta = 0.9;
         double learning_rate = 1;
-        
-        auto lossf = std::bind(&DistortionRectifier::LossFunc,this, lines_halfH_norm,index_undistfunc,std::placeholders::_1);
-        
-        for (int it = 0; it < 5000; it++)
-        {
-            double deriv =GetLossDeriv(dist_param.dist_para,1, 0, lossf);
-            momentum = beta * momentum + (1 - beta) * deriv;
-            if (fabs(momentum) > 0.01) momentum = 0.01 * momentum / fabs(momentum);
-            dist_param.dist_para[0] -= learning_rate * momentum;
-            // current_mse = getEstimationMse(X_sub, Y_sub, coeff,
-            // 	&FocalIndexDistortion_tan::radialDistortionFunction);
-            // update result
-            // if (current_mse < min_mse)
-            // {
-            // 	min_mse = current_mse;
-            // 	best_k = coeff[1];
-            // }
-            // if (current_mse < 1e-10)
-            // {
-            // 	break;
-            // }
+        int parN=1;
+        DistFuncT undist_func=index_undistfunc;
+        switch (dist_param.dist_type) {
+            case SRender::LowRenderer::DistortionModel::INDEX:
+                undist_func=index_undistfunc;
+                break;
+            case SRender::LowRenderer::DistortionModel::DIVISION:
+                undist_func=division_undistfunc;
+                break;
+            case SRender::LowRenderer::DistortionModel::POLY5:
+                undist_func=poly5_undistfunc;
+                parN=2;
+                break;
         }
+
+
+
+        auto lossf = std::bind(&DistortionRectifier::LossFunc,this, lines_halfW_norm,undist_func,std::placeholders::_1);
+        for (int i=0;i<parN;++i){
+            for (int it = 0; it < 5000; it++)
+            {
+            
+                double deriv =GetLossDeriv(dist_param.dist_para,3, i, lossf);
+                momentum[i] = beta * momentum[i] + (1 - beta) * deriv;
+                if (fabs(momentum[i]) > 0.01) momentum[i] = 0.01 * momentum[i] / fabs(momentum[i]);
+                
+          
+                dist_param.dist_para[i] -= learning_rate * momentum[i];
+
+            }
+        }
+        
+        if (parN>1){
+            for (int it = 0; it < 1000; it++)
+            {
+                for (int i=0;i<parN;++i){
+                    double deriv =GetLossDeriv(dist_param.dist_para,3, i, lossf);
+                    momentum[i] = beta * momentum[i] + (1 - beta) * deriv;
+                    if (fabs(momentum[i]) > 0.01) momentum[i] = 0.01 * momentum[i] / fabs(momentum[i]);
+                    
+                }
+                for (int i=0;i<parN;++i){
+                    dist_param.dist_para[i] -= learning_rate * momentum[i];
+                }
+                
+                // current_mse = getEstimationMse(X_sub, Y_sub, coeff,
+                // 	&FocalIndexDistortion_tan::radialDistortionFunction);
+                // update result
+                // if (current_mse < min_mse)
+                // {
+                // 	min_mse = current_mse;
+                // 	best_k = coeff[1];
+                // }
+                // if (current_mse < 1e-10)
+                // {
+                // 	break;
+                // }
+            }
+        }
+        
+        return lossf(dist_param.dist_para);
     }
 
     double GetLossDeriv(float* params,int paraN,int target_idx,std::function<double(float*)> loss){

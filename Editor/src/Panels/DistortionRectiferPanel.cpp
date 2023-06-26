@@ -19,7 +19,7 @@ DistrotionRectifierPanel::DistrotionRectifierPanel(){
         uimgp.reset(tmptex);
         uimgp->FreeRawData();
     }
-    std::string filepth=R"(C:\Users\cnt0\BUAA\DATA\ExperimentsData\Photos\中文测试\DJI_0314.JPG)";
+    std::string filepth=R"(C:\Users\cnt0\BUAA\DATA\去畸变监控图像\test1.png)";
     auto tmptex = SRender::Resources::STextureLoader::LoadFromFile(filepth);
     if (tmptex!=nullptr)
         uimgp.reset(tmptex);
@@ -95,7 +95,8 @@ void DistrotionRectifierPanel::DrawContent(){
 
     ImGui::PopStyleVar();
     static SRender::LowRenderer::RadialDistortion distortioninfo{{0,0,0},SRender::LowRenderer::DistortionModel::INDEX};
-    static float norm_fh=0.5;
+    static float norm_fh=my_tex_w/(my_tex_h*2);
+    //static float norm_fh=0.5;
     static float sensor_scale=1;
     undistpipeline.Run(*uimgp, norm_fh,sensor_scale, distortioninfo);
     auto uimgw=undistpipeline.GetFbo().buf_size_.first;
@@ -152,11 +153,13 @@ void DistrotionRectifierPanel::DrawContent(){
         lines.push_back({});
         selected=lines.size()-1;
     }
+    static double lossv=0;
     if (ImGui::Button("Rectify")){
 
-        rectifier_.RectifyWithLines(lines, my_tex_w/my_tex_h, distortioninfo);
+        lossv= rectifier_.RectifyWithLines(lines, my_tex_w/my_tex_h, distortioninfo);
     }
-   
+    ImGui::Text("error: %.8f",lossv);
+    
     
 
 
