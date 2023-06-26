@@ -49,7 +49,7 @@ vec3 Get_Distorted(vec3 pos){
     case 4:
         return Distortion_Ptlens(pos,DistInfo.dist_para[0],DistInfo.dist_para[1],DistInfo.dist_para[2]);
     case 5:
-        return Distortion_Division(pos,DistInfo.dist_para[0]);    
+        return Distortion_Division_inv(pos,DistInfo.dist_para[0]);    
     }
     return pos;
 }

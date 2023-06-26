@@ -39,3 +39,11 @@ vec3 Distortion_Division(vec3 pos,float k){ // change
     return pos;
 }
 
+vec3 Distortion_Division_inv(vec3 pos,float k){ // change
+    vec2 normpos=pos.xy/pos.z;
+    float ru2 = normpos.x*normpos.x + normpos.y*normpos.y;
+    float a = k==0?1:(1.0-sqrt(1.0-4*k*ru2))/(2*k*ru2);
+    pos.xy*=a;
+    return pos;
+}
+
