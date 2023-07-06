@@ -57,6 +57,37 @@ public:
     }
 
 
+    double CalcDistMse(LinesT& lines,DistFuncT undistf,float* dist_params){
+        std::vector<std::vector<cv::Point2d>> distlines;
+        distlines.resize(lines.size());
+        double res=0;
+        int cntN=0;
+         for (int k=0;k<lines.size();++k){
+            for (auto& i:lines[k]){
+                auto upts=undistf(i,dist_params);
+                distlines[k].push_back(cv::Point2d(upts.first,upts.second ));
+            }
+            cv::Vec4d linep;
+            cv::fitLine(distlines[k], linep, cv::DIST_L2,1,1e-8,1e-8);
+            cv::Point2d pt0(linep[2],linep[3]);
+            cv::Point2d vec0(linep[0],linep[1]);
+
+            auto st=distlines[k][0]-pt0;
+            auto ed=distlines[k][distlines[k].size()-1]-pt0;
+            //auto scale = std::abs(st.dot(vec0)-ed.dot(vec0));
+
+            for (auto& i:distlines[k]){
+                auto vec = i-pt0;
+                auto d0 = vec.dot(vec0);
+                auto d1 = cv::norm(vec);
+                auto dist = sqrt(d1*d1-d0*d0);
+                res+=dist;
+                cntN++;
+            }
+        }
+        return res/cntN;
+    }
+
     double RectifyWithLines(LinesT& lines,float aspect_ratio,SRender::LowRenderer::RadialDistortion& dist_param){
         poly5_undistfunc({0,3},dist_param.dist_para);
         LinesT lines_halfW_norm;
@@ -91,6 +122,7 @@ public:
 
 
         auto lossf = std::bind(&DistortionRectifier::LossFunc,this, lines_halfW_norm,undist_func,std::placeholders::_1);
+        auto distlossf =  std::bind(&DistortionRectifier::DistmseLossFunc,this, lines_halfW_norm,undist_func,std::placeholders::_1);
         for (int i=0;i<parN;++i){
             for (int it = 0; it < 5000; it++)
             {
@@ -104,6 +136,22 @@ public:
 
             }
         }
+
+        // for (int i=0;i<parN;++i){
+        //     for (int it = 0; it < 5000; it++)
+        //     {
+            
+        //         double deriv =GetLossDeriv(dist_param.dist_para,3, i, distlossf);
+        //         momentum[i] = beta * momentum[i] + (1 - beta) * deriv;
+        //         if (fabs(momentum[i]) > 0.01) momentum[i] = 0.01 * momentum[i] / fabs(momentum[i]);
+                
+          
+        //         dist_param.dist_para[i] -= learning_rate * momentum[i];
+
+        //     }
+        // }
+
+
         
         if (parN>1){
             for (int it = 0; it < 1000; it++)
@@ -132,8 +180,8 @@ public:
                 // }
             }
         }
-        
-        return lossf(dist_param.dist_para);
+        return distlossf(dist_param.dist_para);
+        //return lossf(dist_param.dist_para);
     }
 
     double GetLossDeriv(float* params,int paraN,int target_idx,std::function<double(float*)> loss){
@@ -190,6 +238,38 @@ public:
         }
         
         return res;
+    }
+
+    double DistmseLossFunc(LinesT& lines,DistFuncT undistf,float* dist_params){
+        //LinesT distlines;
+        std::vector<std::vector<cv::Point2d>> distlines;
+        distlines.resize(lines.size());
+        double res=0;
+        int cntN=0;
+         for (int k=0;k<lines.size();++k){
+            for (auto& i:lines[k]){
+                auto upts=undistf(i,dist_params);
+                distlines[k].push_back(cv::Point2d(upts.first,upts.second ));
+            }
+            cv::Vec4d linep;
+            cv::fitLine(distlines[k], linep, cv::DIST_L2,1,1e-8,1e-8);
+            cv::Point2d pt0(linep[2],linep[3]);
+            cv::Point2d vec0(linep[0],linep[1]);
+
+            auto st=distlines[k][0]-pt0;
+            auto ed=distlines[k][distlines[k].size()-1]-pt0;
+            auto scale = std::abs(st.dot(vec0)-ed.dot(vec0));
+
+            for (auto& i:distlines[k]){
+                auto vec = i-pt0;
+                auto d0 = vec.dot(vec0);
+                auto d1 = cv::norm(vec);
+                auto dist = sqrt(d1*d1-d0*d0)/scale;
+                res+=dist;
+                cntN++;
+            }
+        }
+        return res/cntN;
     }
 
 

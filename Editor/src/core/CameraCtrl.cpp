@@ -46,10 +46,16 @@ void CameraCtrl::HandleInputs(float delta_time){
         }
         if (inputmanager_.right_btn_){
             auto[x,y]=inputmanager_.GetCursorPos();
-            x=x-view_.canvas_pos_.first+view_.canvas_size_.first;
-            y=y-view_.canvas_pos_.second+view_.canvas_size_.second;
-            x=view_.canvas_pos_.first+x%view_.canvas_size_.first;
-            y=view_.canvas_pos_.second+y%view_.canvas_size_.second;
+            int bias=10;
+            std::pair<int,int> biaspos {  view_.canvas_pos_.first+bias,view_.canvas_pos_.second+bias};
+            std::pair<int,int> biassize {  
+                std::max(view_.canvas_size_.first-2*bias,0),
+                std::max(view_.canvas_size_.second-2*bias,0)};
+            
+            x=x-biaspos.first+biassize.first;
+            y=y-biaspos.second+biassize.second;
+            x=biaspos.first+x%biassize.first;
+            y=biaspos.second+y%biassize.second;
             inputmanager_.SetCursorPos(x,y);
         }
         
