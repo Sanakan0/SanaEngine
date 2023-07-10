@@ -15,7 +15,8 @@ public:
 
 private:
     void GetPanelsOpenFlag();
-    
+    void OpenScene(const std::string& pth);
+    void SaveCurrentScene(const std::string& pth);
     Core::AssetLoader& assetloader_;
     SceneSys::SceneManager& scenemanager_;
     SGUI::Core::UImanager& uimanager_;

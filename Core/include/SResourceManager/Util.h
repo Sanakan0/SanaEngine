@@ -9,6 +9,8 @@ public:
     std::string static GetFullPath(const std::string& pth){
         if (pth[0]==':'){
             return engine_asset_path_+std::string(pth.data()+1,pth.data()+pth.size());
+        }else if(pth[0]=='@'){
+            return prj_asset_path_+std::string(pth.data()+1,pth.data()+pth.size());
         }else{
             return pth;
         }

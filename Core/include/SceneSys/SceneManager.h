@@ -3,6 +3,7 @@
 #include "ECS/Actor.h"
 #include "SRender/LowRenderer/Camera.h"
 #include "SRender/Resources/STexture.h"
+#include "SRender/Resources/Settings.h"
 #include "SceneSys/Scene.h"
 #include <cstddef>
 #include <memory>
@@ -14,9 +15,12 @@ public:
     SceneManager();
     ~SceneManager();
     void CreateScene();
-    void LoadScene();
+    void DestroyScene();
+    void LoadScene(std::string pth);
     void LoadTiles();
     Scene* GetScene(){return scenep_.get();}
+
+    SRender::Resources::ModelLoadSetting& GetSceneLoadSetting(){return SceneLoadSetting_;}
     //0 when no selected actor
     void SetSelectedActor(ECS::ActorID id){
         selected_actor_id_=id;
@@ -32,7 +36,7 @@ public:
     bool enable_img_prj_=0;
     std::shared_ptr<SRender::Resources::STexture> img_tex_;
 private:
-    
+    SRender::Resources::ModelLoadSetting SceneLoadSetting_;
     std::unique_ptr<Scene> scenep_;
     ECS::ActorID selected_actor_id_=0;
     ECS::Actor* selected_actor_p_=nullptr;

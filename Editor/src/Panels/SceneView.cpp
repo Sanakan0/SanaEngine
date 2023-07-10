@@ -114,7 +114,7 @@ void SceneView::task1(std::string pth,int idx){
     auto& scenemanager = SANASERVICE(SceneSys::SceneManager);
     auto& tmpa=scenemanager.GetScene()->CreateActor();
     
-    tmpa.AddComponent<ECS::Components::MeshComponent>(tmpmodel);
+    tmpa.AddComponent<ECS::Components::MeshComponent>().SetModel(tmpmodel);
     if (tmpmodel->GetMaterial()){
         //add matcomp
     }

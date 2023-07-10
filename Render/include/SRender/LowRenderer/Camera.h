@@ -4,7 +4,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <string>
 #include <tuple>
+#include <vector>
 namespace SRender::LowRenderer{
 
 enum DistortionModel:int{
@@ -15,7 +17,7 @@ enum DistortionModel:int{
 	PTLENS = 4,
 	DIVISION = 5
 };
-
+const std::vector<std::string>  MODEL_NAMES{"NONE","INDEX","POLY3","POLY5","PTLENS" ,"DIVISION"};
 struct RadialDistortion{
 	float dist_para[3];
 	int dist_type=DistortionModel::NONE;

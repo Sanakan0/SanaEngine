@@ -11,8 +11,8 @@
 #include <utility>
 #include <vector>
 namespace ECS {
-using ActorID=uint64_t;
-class Actor{
+using ActorID=int64_t;
+class Actor:public SCore::ISerializable{
 public:
     Actor(ActorID id,const std::string& name);
     ~Actor();
@@ -20,19 +20,26 @@ public:
     void Tick(float delta_t);
 
     template<class T,typename ... ArgsType>
-    void AddComponent(ArgsType&&... args){
+    inline T& AddComponent(ArgsType&&... args){
         static_assert(std::is_base_of<Components::Component, T>::value, "T should derive from Component");
         //std::make_pair(typeid(T).name(), std::make_shared<T>(*this,std::forward<ArgsType>(args)...)) 
         std::string tmpname=typeid(T).name();
         auto n = tmpname.rfind("::");
+        auto componentType = tmpname.substr(n+2);
+        if (auto found = GetComponent(componentType);found!=nullptr){
+            T& instance = *dynamic_cast<T*>(found);
+            return instance;
+        }
         components_.push_back(
-            std::make_pair(tmpname.substr(n+2), std::make_shared<T>(*this,std::forward<ArgsType>(args)...)) 
+            std::make_pair(componentType, std::make_shared<T>(*this,std::forward<ArgsType>(args)...)) 
         );
         if (components_[components_.size()-1].first=="TransformComponent"){
             transform_=static_cast<Components::TransformComponent*>(
                 components_[components_.size()-1].second.get());
         }
         AddComponentEvent.Invoke(*components_[components_.size()-1].second);
+        T& instance = *dynamic_cast<T*>(  components_.back().second.get());
+        return instance;
     }
 
 
@@ -54,6 +61,10 @@ public:
     Components::TransformComponent* GetTransformComponent(){return transform_;}
 
     SCore::Event<Components::Component&> AddComponentEvent;
+
+    virtual void Serialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_node) override;
+
+    virtual void Deserialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_node) override;
 
     
 private:

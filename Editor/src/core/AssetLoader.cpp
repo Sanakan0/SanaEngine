@@ -20,6 +20,7 @@ texturemanager_(SANASERVICE(ResourceManager::TextureManager))
 void AssetLoader::LoadTiles(const std::string& filename,int st,int cnt,const SRender::Resources::ModelLoadSetting& loadsetting){
      namespace fs = std::filesystem;
     loadsetting_=loadsetting;
+    scenemanager_.GetSceneLoadSetting()=loadsetting;
     //fs::path tile_pth(R"(D:\beihang reconstruction data\dxobj)");
     //fs::path tile_pth(R"(E:\user\cnt0\beihang reconstruction data\dxobj)");
     size_t srclen = filename.size();
@@ -52,7 +53,12 @@ void AssetLoader::LoadTiles(const std::string& filename,int st,int cnt,const SRe
                     // renderpass.render_resources_.push_back(
                     //     modelmanager.CreateResources(objpth.generic_string()));
                     ///task1(objpth.generic_string(),cur-st);
-                    threadtest.emplace_back(&SEditor::Core::AssetLoader::LoadAModelTask,this,objpth.generic_u8string(),cur-st);
+                    //threadtest.emplace_back(&SEditor::Core::AssetLoader::LoadAModelTask,this,objpth.generic_u8string(),cur-st);
+                    auto& tmpa=scenemanager_.GetScene()->CreateActor("Tile_");
+                    auto tmpmodel = modelmanager_.CreateEmptyResources(objpth.generic_u8string());
+                    tmpa.AddComponent<ECS::Components::MeshComponent>().SetModel(tmpmodel);
+                    
+                    //threadtest.emplace_back(&SEditor::Core::AssetLoader::LoadAModelTask,this,objpth.generic_u8string(),cur-st);
                 }
             }
             if (cur==ed) break;
@@ -60,9 +66,17 @@ void AssetLoader::LoadTiles(const std::string& filename,int st,int cnt,const SRe
         for (auto& t:threadtest){
             t.join();
         }
-        spdlog::info("[ASSET Loader] assimp parser finished");
-        modelmanager_.UploadAll();
-        spdlog::info("[ASSET Loader] mesh upload finished");
+        // spdlog::info("[ASSET Loader] assimp parser finished");
+        // modelmanager_.UploadAll();
+        // spdlog::info("[ASSET Loader] mesh upload finished");
+        modelmanager_.LoadResourcesMultiThread();
+        
+        for (auto&[_ ,actor]:scenemanager_.GetScene()->GetActors()){
+            if (actor->GetTransformComponent()==nullptr){
+                actor->AddComponent<ECS::Components::TransformComponent>();
+            }
+        }
+
         texturemanager_.UploadAll();
         spdlog::info("[ASSET Loader] texture upload finished");
     }
@@ -75,7 +89,7 @@ void AssetLoader::LoadAModelTask(std::string pth,int idx){
     if (tmpmodel == nullptr) return;
     auto& tmpa=scenemanager_.GetScene()->CreateActor("Tile_");
     
-    tmpa.AddComponent<ECS::Components::MeshComponent>(tmpmodel);
+    tmpa.AddComponent<ECS::Components::MeshComponent>().SetModel(tmpmodel);
     if (tmpmodel->GetMaterial()){
         //add matcomp
     }

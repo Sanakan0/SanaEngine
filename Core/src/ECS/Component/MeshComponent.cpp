@@ -1,12 +1,16 @@
 #include "ECS/Component/Component.h"
+#include "SCore/Global/ServiceLocator.h"
+#include "SResourceManager/ModelManager.h"
+#include "SceneSys/SceneManager.h"
+#include "Serialize/Serializer.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_internal.h"
 #include <ECS/Component/MeshComponent.h>
 #include <stdint.h>
+#include <string>
 namespace ECS::Components {
-MeshComponent::MeshComponent(Actor& parentactor,SRender::Resources::SModel* model):
-Component(parentactor),
-model_(model)
+MeshComponent::MeshComponent(Actor& parentactor):
+Component(parentactor)
 {
 
 }
@@ -15,10 +19,13 @@ void MeshComponent::Tick(float delta_t){
     
 }
 
-DrawCmd MeshComponent::GetInspectorDrawCmd(){
-    return std::bind(&MeshComponent::DrawInspector,this);
-}
 
+void MeshComponent::SetModel(SRender::Resources::SModel* model){
+    model_=model;
+    // if (auto Ctrans=parentactor_.GetTransformComponent();Ctrans!=nullptr){
+    //     Ctrans->GetTransFromBounds();
+    // }
+}
 
 
 void MeshComponent::DrawInspector(){
@@ -91,5 +98,21 @@ void MeshComponent::DrawInspector(){
     
 }
 
+
+void MeshComponent::Serialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_node) {
+    SCore::Serializer::SerializeString(p_doc, p_node, "Model_Path", model_->path_);
+}
+
+void MeshComponent::Deserialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_node) {
+    std::string model_path;
+    SCore::Serializer::DeserializeString(p_doc, p_node, "Model_Path", model_path);
+    auto& modelmanager = SANASERVICE(ResourceManager::ModelManager);
+    auto tmpmodel = modelmanager.CreateEmptyResources(model_path);// real Load will Happen Later
+    //renderpass.render_resources_[idx] = tmpmodel;
+    if (tmpmodel != nullptr) {
+        SetModel(tmpmodel);
+    }
+
+}
 
 }

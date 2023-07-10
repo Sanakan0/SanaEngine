@@ -1,8 +1,10 @@
+#include "ECS/Actor.h"
 #include "ECS/Component/CameraComponent.h"
 #include "ECS/Component/Component.h"
 #include "ECS/Component/MeshComponent.h"
 #include "spdlog/spdlog.h"
 #include <SceneSys/Scene.h>
+#include <algorithm>
 #include <functional>
 #include <memory>
 #include <string>
@@ -39,6 +41,52 @@ ECS::Actor* Scene::GetActorbyID(ECS::ActorID id){
     }
     return nullptr;
 }
+
+
+void Scene::Serialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_root) {
+    tinyxml2::XMLNode* sceneNode = p_doc.NewElement("scene");
+	p_root->InsertEndChild(sceneNode);
+
+	tinyxml2::XMLNode* actorsNode = p_doc.NewElement("actors");
+	sceneNode->InsertEndChild(actorsNode);
+
+	for (auto&[_ , actor] : actors_)
+	{
+		actor->Serialize(p_doc, actorsNode);
+	}
+}
+
+void Scene::Deserialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_root) {
+    tinyxml2::XMLNode* actorsRoot = p_root->FirstChildElement("actors");
+
+	if (actorsRoot)
+	{
+		tinyxml2::XMLElement* currentActor = actorsRoot->FirstChildElement("actor");
+
+		ECS::ActorID maxID = 1;
+
+		while (currentActor)
+		{
+			auto& actor = CreateActor();
+			actor.Deserialize(p_doc, currentActor);
+			maxID = std::max(actor.GetID() + 1, maxID);
+			currentActor = currentActor->NextSiblingElement("actor");
+		}
+
+		actor_id_cnt_ = maxID;
+
+		// /* We recreate the hierarchy of the scene by attaching children to their parents */
+		// for (auto&[_ , actor] : actors_)
+		// {
+		// 	if (actor->GetParentID() > 0)
+		// 	{
+		// 		if (auto found = FindActorByID(actor->GetParentID()); found)
+		// 			actor->SetParent(*found);
+		// 	}
+		// }
+	}
+}
+
 
 }
 

@@ -21,7 +21,7 @@ struct BasicRenderComponents{
     std::vector<ECS::Components::CameraComponent*> camcomps;
 };
 
-class Scene{
+class Scene: public SCore::ISerializable{
 public:
     Scene();
     ~Scene();
@@ -31,6 +31,10 @@ public:
     const BasicRenderComponents& GetBasicRenderComponent(){return basicrendercomponents_;}
     void OnAddComponent(ECS::Components::Component& component);
     
+    virtual void Serialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_root) override;
+
+    virtual void Deserialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_root) override;
+
 
 private:
     std::unordered_map<ECS::ActorID , std::unique_ptr<ECS::Actor>> actors_;

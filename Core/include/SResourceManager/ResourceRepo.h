@@ -20,6 +20,7 @@ public:
             resources_[name]=value;
         }else{
             delete value;
+            value=nullptr;
         }
     };
     void Remove(const std::string& name){

@@ -6,6 +6,7 @@ class NfdDialog{
 public:
 static std::string OpenFileDlg();
 static std::string OpenFolderDlg();
+static std::string SaveDlg();
 
 };
 

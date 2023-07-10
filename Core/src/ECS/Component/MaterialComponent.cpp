@@ -14,9 +14,6 @@ void MaterialComponent::Tick(float delta_t){
     
 }
 
-DrawCmd MaterialComponent::GetInspectorDrawCmd(){
-    return std::bind(&MaterialComponent::DrawInspector,this);
-}
 
 
 
@@ -26,6 +23,15 @@ void MaterialComponent::DrawInspector(){
     }
     
 }
+
+void MaterialComponent::Serialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_node) {
+    
+}
+
+void MaterialComponent::Deserialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_node) {
+    
+}
+
 
 
 }

@@ -24,6 +24,18 @@ uimanager_(SANASERVICE(SGUI::Core::UImanager))
 
 }
 
+void MainMenubar::OpenScene(const std::string& pth){
+    scenemanager_.LoadScene(pth);
+}
+
+void MainMenubar::SaveCurrentScene(const std::string& pth){
+    tinyxml2::XMLDocument doc;
+	tinyxml2::XMLNode* node = doc.NewElement("root");
+    doc.InsertFirstChild(node);
+    scenemanager_.GetScene()->Serialize(doc, node);
+    doc.SaveFile(pth.c_str());
+}
+
 void MainMenubar::GetPanelsOpenFlag(){
     show_scene_view_=  &uimanager_.GetPanel<SEditor::Panels::SceneView>("Scene View").opened_;
     show_test_view_=&uimanager_.GetPanel<SEditor::Panels::TestView>("Test View").opened_;
@@ -43,6 +55,20 @@ void MainMenubar::DrawImpl(float deltat){
 
     int loadtileopen=0;
     if (ImGui::BeginMainMenuBar()){
+        if (ImGui::BeginMenu("File")){
+            if (ImGui::MenuItem("open","O")){
+                
+                auto filepth = Util::NfdDialog::OpenFileDlg();
+                OpenScene(filepth);
+
+            }
+            if (ImGui::MenuItem("Save As","CTRL + SHIFT + S")){
+                
+                auto filepth = Util::NfdDialog::SaveDlg();
+                SaveCurrentScene(filepth);
+            }
+            ImGui::EndMenu();
+        }
         if (ImGui::BeginMenu("SanaEngine")){
             if (ImGui::MenuItem("Load tile")){
                 loadtileopen=1;
