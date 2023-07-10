@@ -1,4 +1,6 @@
 #include "SMath/Quaternion.h"
+#include "iostream"
+#include <cmath>
 namespace sm{
 glm::vec3 Quat2Eul(glm::quat qua){
 
@@ -6,16 +8,19 @@ glm::vec3 Quat2Eul(glm::quat qua){
 
 	// pitch (y-axis rotation)
 	float pitch = 0.f;
-	const float sinp = +2.0f * (qua.w * qua.y - qua.z * qua.x);
-	if (fabs(sinp) >= 1)
+	float sinp = +2.0f * (qua.w * qua.y - qua.z * qua.x);
+	if (fabs(sinp) >= 1) {
 		pitch = static_cast<float>(copysign(SM_PI / 2.0f, sinp)); // use 90 degrees if out of range
+		sinp = copysign(1.0f,sinp);
+	}
+
 	else
 		pitch = asin(sinp);
 	
 	//singularities process
 	if (SM_feps(sinp-1)){
 		return glm::degrees(glm::vec3(
-			copysign(atan2(qua.x,qua.w),sinp),
+			2*atan2(qua.x,qua.w)*copysign(1,sinp),
 			pitch,
 			0));
 	}
