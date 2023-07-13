@@ -42,7 +42,6 @@ protected:
     float dist2center;
     glm::vec3 camcenter;
 	glm::vec3 worldup{0, 0, 1};
-	glm::vec3 euler_xyz_deg_;
 
 
 
