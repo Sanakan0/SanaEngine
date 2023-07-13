@@ -3,6 +3,7 @@
 #include "SRender/Resources/STextureLoader.h"
 #include "SResourceManager/Util.h"
 #include "spdlog/spdlog.h"
+#include <memory>
 #include <stdint.h>
 #include <future>
 namespace ResourceManager {
@@ -12,26 +13,25 @@ SRender::Resources::STexture* TextureManager::CreateResources(const std::string&
         spdlog::info("[TextureManager] Resource already created : "+pth);
         return i;
     } 
-    auto tmp = is_cached?SRender::Resources::STextureLoader::LoadFromFile_cached(Util::GetFullPath(pth),texinfo):
+    auto tmprawp = is_cached?SRender::Resources::STextureLoader::LoadFromFile_cached(Util::GetFullPath(pth),texinfo):
         SRender::Resources::STextureLoader::LoadFromFile(Util::GetFullPath(pth),texinfo);
+    auto tmp = std::unique_ptr<SRender::Resources::STexture>(tmprawp);
     if (tmp!=nullptr) {
         repo_.Append(pth, tmp);
-        return tmp;
+        return repo_[pth];
     }
     spdlog::error("[TextureManager] Resource create failed : "+pth);
     return nullptr;
 }
 SRender::Resources::STexture* TextureManager::CreateResources(const std::string& name,uint32_t width,uint32_t height,void* data,bool is_cached){
-    auto tmp = SRender::Resources::STextureLoader::LoadFromMemory(data,width,height,name);
+    auto tmprawp = SRender::Resources::STextureLoader::LoadFromMemory(data,width,height,name);
+    auto tmp = std::unique_ptr<SRender::Resources::STexture>(tmprawp);
     repo_.Append(name, tmp);
-    return tmp;
+    return repo_[name];
 }
 
 void TextureManager::KillResource(const std::string &pth){
-    if (auto tmp = repo_[pth];tmp!=nullptr){
-        delete tmp;
-        repo_.Remove(pth);
-    }
+    repo_.Remove(pth);
 }
 
 void TextureManager::ClearAll(){

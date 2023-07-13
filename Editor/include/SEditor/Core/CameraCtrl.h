@@ -24,8 +24,8 @@ public:
     void InitFromActor(ECS::Actor& actor);
     void SetCamInExParam(SRender::LowRenderer::Camera& intrinsic,sm::Transform& extrinsic);
     void UpdateExtraParam();
-    const glm::vec3& GetPos() const{return extrinsic_->world_pos_;}
-    const glm::quat& GetOrien() const{return extrinsic_->world_orien_;} 
+    const glm::vec3& GetPos() const{return extrinsic_->GetPosW();}
+    const glm::quat& GetOrien() const{return extrinsic_->GetOrienW();} 
     const glm::vec3& GetCamcenter(){return camcenter;}
     
     void translate(glm::vec3 trans);

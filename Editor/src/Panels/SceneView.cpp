@@ -193,7 +193,7 @@ void SceneView::RenderTick(float deltat){
     
     if (auto actor = rtcontext_.scene_manager_->GetSelectedActor();actor!=nullptr){
         renderer.DrawActorOutline(*actor);
-        shape_drawer.DrawTransGizmo(actor->GetTransformComponent()->trans_.world_pos_,camctrl_.cam_->GetViewMat());
+        shape_drawer.DrawTransGizmo(actor->GetTransformComponent()->trans_.GetPosW(),camctrl_.cam_->GetViewMat());
     }
    
 
@@ -216,8 +216,8 @@ void SceneView::HandleGizmoPick(float deltat){
         tmpid = selectedgizmoid_-SceneSys::Actor_ID_Max-1;
         auto gizvec = glm::vec3(0);
         gizvec[tmpid] =1;
-        campos = camctrl_.extrinsic_->world_pos_;
-        auto gizpos = rtcontext_.scene_manager_->GetSelectedActor()->GetTransformComponent()->trans_.world_pos_;
+        campos = camctrl_.extrinsic_->GetPosW();
+        auto gizpos = rtcontext_.scene_manager_->GetSelectedActor()->GetTransformComponent()->trans_.GetPosW();
         prjpoint = gizpos + gizvec * glm::dot(campos-gizpos, gizvec);
         disvec = prjpoint-campos;
         dist = glm::length(disvec);
@@ -255,7 +255,10 @@ void SceneView::HandleGizmoPick(float deltat){
 
     float res = prjpoint[tmpid]+delta;
 
-    rtcontext_.scene_manager_->GetSelectedActor()->GetTransformComponent()->trans_.world_pos_[tmpid]=res;
+    auto& actortrans = rtcontext_.scene_manager_->GetSelectedActor()->GetTransformComponent()->trans_;
+    auto tmppos = actortrans.GetPosW();
+    tmppos[tmpid]=res;
+    actortrans.SetPosW(tmppos);
 
 }
 
@@ -293,7 +296,7 @@ void SceneView::ActorPickerTick(float deltat){
         if (ImGui::IsKeyPressed(ImGuiKey_F)){
             if (auto actor = rtcontext_.scene_manager_->GetSelectedActor()){
                 auto meshcomp = (ECS::Components::MeshComponent*)actor->GetComponent("MeshComponent");
-                camctrl_.Move2Target(actor->GetTransformComponent()->trans_.world_pos_, meshcomp->GetModel()->GetBoundingSphere()->radius); 
+                camctrl_.Move2Target(actor->GetTransformComponent()->trans_.GetPosW(), meshcomp->GetModel()->GetBoundingSphere()->radius); 
             }
         }
     }

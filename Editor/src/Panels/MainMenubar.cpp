@@ -79,7 +79,7 @@ void MainMenubar::DrawImpl(float deltat){
                     auto& tmpa=scenemanager_.GetScene()->CreateActor("Camera");
                     tmpa.AddComponent<ECS::Components::CameraComponent>();
                     tmpa.AddComponent<ECS::Components::TransformComponent>();
-                    tmpa.GetTransformComponent()->trans_.world_pos_=scenemanager_.cursor_pos_;
+                    tmpa.GetTransformComponent()->trans_.SetPosW(scenemanager_.cursor_pos_);
                     scenemanager_.SetActiveCamera(tmpa.GetID());
                     scenemanager_.SetSelectedActor(tmpa.GetID());
                 }

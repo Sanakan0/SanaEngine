@@ -45,7 +45,7 @@ void ActorPickerMaskRenderPass::Draw(){
     }
     //render Gizmo pick id
     if (auto actor = scenemanager_.GetSelectedActor();actor!=nullptr){
-        renderer_.GetShapeDrawer()->DrawTransGizmo(actor->GetTransformComponent()->trans_.world_pos_,viewcamctl_.cam_->GetViewMat(),true);
+        renderer_.GetShapeDrawer()->DrawTransGizmo(actor->GetTransformComponent()->trans_.GetPosW(),viewcamctl_.cam_->GetViewMat(),true);
     }
     shaderp_->Unbind();
 }

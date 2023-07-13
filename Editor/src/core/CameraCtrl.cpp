@@ -14,9 +14,10 @@ ACamera::ACamera(SRender::LowRenderer::Camera& cam,sm::Transform& extrinsic)
 
 CameraCtrl::CameraCtrl(SGUI::Panels::WndPanel& view,SWnd::Context& wndcontext,SRender::LowRenderer::Camera& cam,sm::Transform& extrinsic)
 :ACamera(cam,extrinsic), wndcontext_(wndcontext),view_(view),inputmanager_(SANASERVICE(SWnd::Input::InputManager)){
-    extrinsic_->world_pos_ = glm::vec3(5, 5, 5);
+
+    extrinsic_->SetPosW(glm::vec3(5, 5, 5));
 	camcenter = glm::vec3(0, 0, 0);
-    dist2center = glm::length(camcenter-extrinsic_->world_pos_);
+    dist2center = glm::length(camcenter-extrinsic_->GetPosW());
     CalcLookAt();
 }
 
@@ -111,9 +112,11 @@ void CameraCtrl::HandleZoom(){
 }
 
 void CameraCtrl::reset() {
-	extrinsic_->world_pos_ = glm::vec3(5, 5, 5);
+
+    extrinsic_->SetPosW(glm::vec3(5, 5, 5));
 	camcenter = glm::vec3(0, 0, 0);
-    dist2center = glm::length(camcenter-extrinsic_->world_pos_);
+    dist2center = glm::length(camcenter-extrinsic_->GetPosW());
+
 	worldup = glm::vec3(0, 0, 1);
 }
 
@@ -126,35 +129,46 @@ void CameraCtrl::resetworldup() {
 }
 
 void ACamera::translate(glm::vec3 trans) {
-	auto& pos_=extrinsic_->world_pos_;
-    auto& orien_=extrinsic_->world_orien_;
+	auto pos_=extrinsic_->GetPosW();
+    auto orien_=extrinsic_->GetOrienW();
     trans=orien_*trans;
 	pos_ = trans+pos_;
 	camcenter = trans + camcenter;
+
+    extrinsic_->SetPosW(pos_);
+    extrinsic_->SetOrienW(orien_);
 }
 
 void ACamera::zoom(float ratio) {
-    auto& pos_=extrinsic_->world_pos_;
+    auto pos_=extrinsic_->GetPosW();
 
 	glm::vec3 dir = pos_ - camcenter;
 	pos_ = camcenter + dir*(ratio + 1);
     dist2center = glm::length(camcenter-pos_);
+
+    extrinsic_->SetPosW(pos_);
 }
 
 void ACamera::Orbit(float hori_deg,float verti_deg) {
-    auto& pos_=extrinsic_->world_pos_;
-    auto& orien_=extrinsic_->world_orien_;
+    auto pos_=extrinsic_->GetPosW();
+    auto orien_=extrinsic_->GetOrienW();
 	euler_xyz_deg_.z+=hori_deg;
 	euler_xyz_deg_.x+=verti_deg;
 	orien_ = sm::Eul2Quat(euler_xyz_deg_);
     pos_ =camcenter - (orien_*sm::OglCamPrimForward)*glm::length(camcenter-pos_);
+
+    extrinsic_->SetPosW(pos_);
+    extrinsic_->SetOrienW(orien_);
 }
 
 void ACamera::CalcLookAt(){
-    auto& pos_=extrinsic_->world_pos_;
-    auto& orien_=extrinsic_->world_orien_;
+    auto pos_=extrinsic_->GetPosW();
+    auto orien_=extrinsic_->GetOrienW();
     orien_ = sm::LookAt(worldup,camcenter-pos_);
     euler_xyz_deg_ = sm::Quat2Eul(orien_);
+
+    extrinsic_->SetPosW(pos_);
+    extrinsic_->SetOrienW(orien_);
 }
 
 void CameraCtrl::Move2Target(glm::vec3 targetpos,float dis){
@@ -168,8 +182,8 @@ void CameraCtrl::Move2Target(glm::vec3 targetpos,float dis){
 }
 
 void CameraCtrl::TickCamMove(float deltat){
-    auto& pos_=extrinsic_->world_pos_;
-    auto& orien_=extrinsic_->world_orien_;
+    auto pos_=extrinsic_->GetPosW();
+    auto orien_=extrinsic_->GetOrienW();
     if (!anima_activate_) return;
     anima_process_normalized_+=deltat*anima_time_inv_;
     if (anima_process_normalized_>1){
@@ -183,11 +197,16 @@ void CameraCtrl::TickCamMove(float deltat){
     orien_ = glm::slerp(orien_,mv2orien_,anima_process_normalized_);
     pos_ = glm::mix(pos_,mv2pos_,anima_process_normalized_);
     euler_xyz_deg_ = sm::Quat2Eul(orien_);
+
+    extrinsic_->SetPosW(pos_);
+    extrinsic_->SetOrienW(orien_);
 }
 
 float CameraCtrl::CalcDisPerPix(int w,int h){
-    auto& pos_=extrinsic_->world_pos_;
+    auto pos_=extrinsic_->GetPosW();
 	return dist2center*tan(cam_->Getfovy() / 2 * SM_PI / 180)*2/h;
+
+    extrinsic_->SetPosW(pos_);
 }
 
 void ACamera::FpsRotate(float hori_deg,float verti_deg){
@@ -199,25 +218,28 @@ void ACamera::FpsRotate(float hori_deg,float verti_deg){
     // orien_*=glm::quat(cos(glm::radians(verti_deg)*0.5f),sinv*curright);
 	// euler_xyz_deg_ = sm::Quat2Eul(orien_);
 	// camcenter = pos_ + glm::length(camcenter-pos_)*(orien_*sm::OglCamPrimForward);
-	auto& pos_=extrinsic_->world_pos_;
-    auto& orien_=extrinsic_->world_orien_;
+	auto pos_=extrinsic_->GetPosW();
+    auto orien_=extrinsic_->GetOrienW();
 	euler_xyz_deg_.z+=hori_deg;
 	euler_xyz_deg_.x=std::clamp(euler_xyz_deg_.x+verti_deg,0.0f,180.0f);
 	orien_ = sm::Eul2Quat(euler_xyz_deg_);
 	camcenter = pos_ + dist2center*(orien_*sm::OglCamPrimForward);
     
+    extrinsic_->SetPosW(pos_);
+    extrinsic_->SetOrienW(orien_);
 }
 void ACamera::UpdateExtraParam(){
-    auto& pos_=extrinsic_->world_pos_;
-    auto& orien_=extrinsic_->world_orien_;
+    auto pos_=extrinsic_->GetPosW();
+    auto orien_=extrinsic_->GetOrienW();
     camcenter=pos_ + dist2center*(orien_*sm::OglCamPrimForward);
     euler_xyz_deg_=sm::Quat2Eul(orien_);
+
 }
 
 
 void ACamera::SetExtrinsic(const glm::quat& orien,const glm::vec3& pos){
-    extrinsic_->world_orien_=orien;
-    extrinsic_->world_pos_=pos;
+    extrinsic_->SetPosW(pos);
+    extrinsic_->SetOrienW(orien);
     UpdateExtraParam();
 }
 

@@ -20,9 +20,9 @@ SRender::Resources::SModel* ModelManager::CreateResources(const std::string& pth
     
     auto tmp=std::make_unique<SRender::Resources::SModel>();
     if (SRender::Resources::SModelLoader::LoadSimpleModel(Util::GetFullPath(pth), *tmp,is_cached,setting)){
-        auto rawp = tmp.release();
-        repo_.Append(pth, rawp);
-        return rawp;
+        
+        repo_.Append(pth, tmp);
+        return repo_[pth];
     }
     spdlog::error("[ModelManager] Resource create failed : "+pth);
     return nullptr;
@@ -33,10 +33,10 @@ SRender::Resources::SModel* ModelManager::CreateEmptyResources(const std::string
         spdlog::info("[ModelManager] Resource already created : "+pth);
         return m;
     }
-    auto tmp=new SRender::Resources::SModel();
+    auto tmp=std::make_unique<SRender::Resources::SModel>();
     tmp->path_=pth;
     repo_.Append(pth, tmp);
-    return tmp;
+    return repo_[pth];
 }
 
 void ModelManager::LoadResourcesMultiThread(){
@@ -56,10 +56,7 @@ void ModelManager::LoadResourcesMultiThread(){
 }
 
 void ModelManager::KillResource(const std::string &pth){
-    if (auto tmp = repo_[pth];tmp!=nullptr){
-        delete tmp;
-        repo_.Remove(pth);
-    }
+    repo_.Remove(pth);
 }
 
 void ModelManager::ClearAll(){
