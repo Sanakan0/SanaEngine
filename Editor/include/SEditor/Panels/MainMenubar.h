@@ -21,6 +21,8 @@ private:
     SceneSys::SceneManager& scenemanager_;
     SGUI::Core::UImanager& uimanager_;
 
+    bool show_project_wnd_=true;
+
     bool* show_scene_view_;
     bool* show_test_view_;
     bool* show_camera_view_;

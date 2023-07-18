@@ -9,7 +9,7 @@ ImgPrjDepthMapRenderPass::ImgPrjDepthMapRenderPass():
 renderer_(SANASERVICE(Core::EntityRenderer)),
 scenemanager_(SANASERVICE(SceneSys::SceneManager))
 {
-    std::string pth = ResourceManager::Util::GetFullPath(":shaders\\img_prj_depthmap.glsl");
+    std::string pth = ResourceManager::PathManager::GetFullPath(":shaders\\img_prj_depthmap.glsl");
     shaderp_ = std::unique_ptr<Resources::GLShader> (Resources::GLShaderLoader::LoadFromFile(pth));
 }
 void ImgPrjDepthMapRenderPass::Draw(){

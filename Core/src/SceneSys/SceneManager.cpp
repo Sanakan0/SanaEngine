@@ -4,8 +4,10 @@
 #include "SResourceManager/TextureManager.h"
 #include "SceneSys/Scene.h"
 #include<SceneSys/SceneManager.h>
+#include <fstream>
 #include <memory>
 #include <filesystem>
+#include <sstream>
 namespace SceneSys{
 
 SceneManager::SceneManager(){
@@ -34,8 +36,13 @@ void SceneManager::LoadScene(std::string pth){
     DestroyScene();
     CreateScene();
     tinyxml2::XMLDocument doc;
-	doc.LoadFile(pth.c_str());
+	std::ifstream in(std::filesystem::u8path(pth));
+	std::stringstream ss ;
+	ss << in.rdbuf();
 
+	doc.Parse(ss.str().c_str()); //use ifstream to support utf8 path
+//	doc.LoadFile(pth.c_str());
+	
 	if (!doc.Error())
 	{
 		tinyxml2::XMLNode* root = doc.FirstChild();

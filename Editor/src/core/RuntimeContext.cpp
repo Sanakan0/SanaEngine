@@ -11,13 +11,16 @@
 #include "SWnd/Input/InputManager.h"
 #include "SceneSys/SceneManager.h"
 #include <SCore/Global/ServiceLocator.h>
+#include <filesystem>
 #include <memory>
 namespace SEditor::Core{
 using namespace SCore::Global;
 RuntimeContext::RuntimeContext(){
     SWnd::contextSETTING wndset{800,800,true};
     //set engine assetpath
-    ResourceManager::Util::SetEngineAssetPath(".\\assets\\");
+    engine_asset_pth_ = std::filesystem::canonical("assets").string()+"\\";
+    ResourceManager::PathManager::SetEngineAssetPath(engine_asset_pth_);
+
     wndcontext_ = std::make_unique<SWnd::Context>(wndset);
     wndcontext_->setup_GLAD();
 
@@ -67,7 +70,7 @@ RuntimeContext::RuntimeContext(){
     ServiceLocator::Provide<ResourceManager::ModelManager>(*model_manager_);
     ServiceLocator::Provide<SceneSys::SceneManager>(*scene_manager_);
     ServiceLocator::Provide<SWnd::Input::InputManager>(*input_manager_);
-
+    ServiceLocator::Provide<SEditor::Core::RuntimeContext>(*this);
     
     asset_loader_ = std::make_unique<AssetLoader>();
     ServiceLocator::Provide<AssetLoader>(*asset_loader_);

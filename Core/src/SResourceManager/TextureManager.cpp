@@ -13,8 +13,8 @@ SRender::Resources::STexture* TextureManager::CreateResources(const std::string&
         spdlog::info("[TextureManager] Resource already created : "+pth);
         return i;
     } 
-    auto tmprawp = is_cached?SRender::Resources::STextureLoader::LoadFromFile_cached(Util::GetFullPath(pth),texinfo):
-        SRender::Resources::STextureLoader::LoadFromFile(Util::GetFullPath(pth),texinfo);
+    auto tmprawp = is_cached?SRender::Resources::STextureLoader::LoadFromFile_cached(pth,texinfo):
+        SRender::Resources::STextureLoader::LoadFromFile(pth,texinfo);
     auto tmp = std::unique_ptr<SRender::Resources::STexture>(tmprawp);
     if (tmp!=nullptr) {
         repo_.Append(pth, tmp);

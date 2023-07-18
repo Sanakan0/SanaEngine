@@ -19,7 +19,7 @@ SRender::Resources::SModel* ModelManager::CreateResources(const std::string& pth
     }
     
     auto tmp=std::make_unique<SRender::Resources::SModel>();
-    if (SRender::Resources::SModelLoader::LoadSimpleModel(Util::GetFullPath(pth), *tmp,is_cached,setting)){
+    if (SRender::Resources::SModelLoader::LoadSimpleModel(pth, *tmp,is_cached,setting)){
         
         repo_.Append(pth, tmp);
         return repo_[pth];

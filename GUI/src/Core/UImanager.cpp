@@ -40,7 +40,7 @@ void UImanager::SetupIconFont(){
     icons_config.MergeMode = true; 
     icons_config.PixelSnapH = true; 
     icons_config.GlyphMinAdvanceX = iconFontSize;
-    auto fullpth = ResourceManager::Util::GetFullPath(":fonts/"+std::string(FONT_ICON_FILE_NAME_FAS));
+    auto fullpth = ResourceManager::PathManager::GetFullPath(":fonts/"+std::string(FONT_ICON_FILE_NAME_FAS));
     iconfont.small = io.Fonts->AddFontFromFileTTF( fullpth.c_str(), iconFontSize, &icons_config, icons_ranges );
     iconfont.medium = io.Fonts->AddFontFromFileTTF( fullpth.c_str(), iconFontSize*2);
     //use FONT_ICON_FILE_NAME_FAR if you want regular instead of solid
@@ -49,7 +49,7 @@ void UImanager::SetupIconFont(){
 void UImanager::SetupFont(){
     ImGuiIO& io = ImGui::GetIO();
     //io.Fonts->AddFontDefault();
-    auto fullpth = ResourceManager::Util::GetFullPath(":fonts/SourceHanSansSC-Regular-2.otf");
+    auto fullpth = ResourceManager::PathManager::GetFullPath(":fonts/SourceHanSansSC-Regular-2.otf");
     textfont.small=io.Fonts->AddFontFromFileTTF( fullpth.c_str(), baseFontSize_,NULL,io.Fonts->GetGlyphRangesChineseFull());
     //textfont.medium=io.Fonts->AddFontFromFileTTF( fullpth.c_str(), baseFontSize_*1.5);
     //textfont.large=io.Fonts->AddFontFromFileTTF( fullpth.c_str(), baseFontSize_*2.25);

@@ -8,7 +8,7 @@ namespace ResourceManager {
 
 SRender::Resources::GLShader* ShaderManager::CreateResources(const std::string& pth){
     auto tmp = std::unique_ptr<SRender::Resources::GLShader>(
-         SRender::Resources::GLShaderLoader::LoadFromFile(Util::GetFullPath(pth)));
+         SRender::Resources::GLShaderLoader::LoadFromFile(pth));
     
     if (tmp!=nullptr) {
         repo_.Append(pth, tmp);

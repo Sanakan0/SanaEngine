@@ -18,7 +18,7 @@ renderer_(SANASERVICE(Core::EntityRenderer)),
 scenemanager_(SANASERVICE(SceneSys::SceneManager)),
 viewcamctl_(viewcamctl)
 {
-    std::string pth = ResourceManager::Util::GetFullPath(":shaders\\unlit.glsl");
+    std::string pth = ResourceManager::PathManager::GetFullPath(":shaders\\unlit.glsl");
     shaderp_ = std::unique_ptr<Resources::GLShader> (Resources::GLShaderLoader::LoadFromFile(pth));
 }
 void ActorPickerMaskRenderPass::Draw(){

@@ -24,7 +24,7 @@ namespace SRender::Core{
 EntityRenderer::EntityRenderer():
 emptytexture_(Resources::STextureLoader::CreateColor((255<<24)|(255<<16)|(255<<8)|255)),
 outline_colored_texture_(Resources::STextureLoader::CreateColor((255<<24)|(128<<16)|(57<<8)|237)),
-unlitshader_(Resources::GLShaderLoader::LoadFromFile(ResourceManager::Util::GetFullPath(":shaders\\unlit.glsl"))){
+unlitshader_(Resources::GLShaderLoader::LoadFromFile(ResourceManager::PathManager::GetFullPath(":shaders\\unlit.glsl"))){
     shapedrawer_ = std::make_unique<GLShapeDrawer>(*this);
     glEnable(GL_STENCIL_TEST);
     glStencilOp(GL_KEEP,GL_KEEP,GL_REPLACE);

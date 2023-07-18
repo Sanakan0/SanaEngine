@@ -1,5 +1,6 @@
 #include "SRender/Resources/GLShaderLoader.h"
 #include "SRender/Resources/GLShader.h"
+#include "SResourceManager/Util.h"
 #include "spdlog/spdlog.h"
 #include <filesystem>
 #include <fstream>
@@ -13,7 +14,7 @@ std::string GLShaderLoader::file_path_;
 
 void GLShaderLoader::RecompileShader(GLShader &shader, const std::string &pth){
     file_path_=pth;
-    auto[vshader,fshader] = ParseShader(pth);
+    auto[vshader,fshader] = ParseShader(ResourceManager::PathManager::GetFullPath(pth));
     uint32_t newprogramid = CreateProgram(vshader,fshader);
     if (newprogramid){
         glDeleteProgram(shader.id_);
@@ -37,7 +38,7 @@ GLShader* GLShaderLoader::LoadFromStr(const std::string &vshader, const std::str
 
 GLShader* GLShaderLoader::LoadFromFile(const std::string& pth){
     file_path_=pth;
-    auto[vshader,fshader] = ParseShader(pth);
+    auto[vshader,fshader] = ParseShader(ResourceManager::PathManager::GetFullPath(pth));
     uint32_t programid = CreateProgram(vshader,fshader);
     
     return programid?new GLShader(pth,programid):nullptr;
@@ -100,7 +101,7 @@ uint32_t GLShaderLoader::CompileShader(GLenum type,const std::string& src){
 
 std::pair<std::string,std::string> GLShaderLoader::ParseShader(const std::string& pth){
     namespace fs = std::filesystem;
-    std::ifstream input(pth);
+    std::ifstream input(std::filesystem::u8path( pth));
     enum class shaderT{VERT=0,FRAG=1,NONE=-1};
     shaderT type;
     std::string tmpline;
@@ -116,7 +117,7 @@ std::pair<std::string,std::string> GLShaderLoader::ParseShader(const std::string
 	        size_t idx2 = tmpline.find_last_of(R"(")");
 	        std::string include_pth(&tmpline[idx+1],&tmpline[idx2]);
             fs::path include_full_pth = path.parent_path()/include_pth;
-            std::ifstream tmpi(include_full_pth);
+            std::ifstream tmpi(std::filesystem::u8path(include_full_pth.generic_string()));
             std::stringstream tmpbuf;
             tmpbuf << tmpi.rdbuf();
             ss[static_cast <int> (type)] << tmpbuf.str();

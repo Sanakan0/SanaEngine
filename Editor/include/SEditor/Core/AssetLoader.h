@@ -10,7 +10,7 @@ class AssetLoader{
 public:
     AssetLoader();
     void LoadTiles(const std::string& filename,int st=0,int cnt=60,const SRender::Resources::ModelLoadSetting& loadsetting_=SRender::Resources::ModelLoadSetting());
-
+    void LoadTilesAbs(const std::string& filename,int st=0,int cnt=60,const SRender::Resources::ModelLoadSetting& loadsetting_=SRender::Resources::ModelLoadSetting());
 
 private:
     void LoadAModelTask(std::string pth,int idx);

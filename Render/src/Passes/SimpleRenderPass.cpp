@@ -8,7 +8,7 @@ namespace SRender::Passes{
 
 SimpleRenderPass::SimpleRenderPass(SEditor::Core::RuntimeContext& rtcontext):
 renderer_(SANASERVICE(Core::EntityRenderer)),rtcontext_(rtcontext){
-    std::string pth = ResourceManager::Util::GetFullPath(":shaders\\standard.glsl");
+    std::string pth = ResourceManager::PathManager::GetFullPath(":shaders\\standard.glsl");
     shaderp_ = std::unique_ptr<Resources::GLShader> (Resources::GLShaderLoader::LoadFromFile(pth));
 }
 

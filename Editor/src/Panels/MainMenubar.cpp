@@ -11,9 +11,15 @@
 #include "SEditor/Panels/MainMenubar.h"
 #include "SEditor/Panels/TestView.h"
 #include "SEditor/Panels/VisLocPanel.h"
+#include "SResourceManager/Util.h"
 #include "SceneSys/SceneManager.h"
 #include "imgui/imgui.h"
+#include "spdlog/spdlog.h"
+#include "tinyxml2.h"
 #include <SEditor/Panels/MainMenubar.h>
+#include <filesystem>
+#include <fstream>
+#include <vector>
 namespace SEditor::Panels{
 
 MainMenubar::MainMenubar():
@@ -34,6 +40,10 @@ void MainMenubar::SaveCurrentScene(const std::string& pth){
     doc.InsertFirstChild(node);
     scenemanager_.GetScene()->Serialize(doc, node);
     doc.SaveFile(pth.c_str());
+    std::ofstream out(std::filesystem::u8path(pth));
+    tinyxml2::XMLPrinter printer;
+    doc.Print(&printer);
+    out << std::string(printer.CStr());
 }
 
 void MainMenubar::GetPanelsOpenFlag(){
@@ -56,15 +66,16 @@ void MainMenubar::DrawImpl(float deltat){
     int loadtileopen=0;
     if (ImGui::BeginMainMenuBar()){
         if (ImGui::BeginMenu("File")){
+            static std::vector<nfdfilteritem_t> filters{{"scene","sanascene"}};
             if (ImGui::MenuItem("open","O")){
                 
-                auto filepth = Util::NfdDialog::OpenFileDlg();
+                auto filepth = Util::NfdDialog::OpenFileDlg(filters,ResourceManager::PathManager::GetProjectPath());
                 OpenScene(filepth);
 
             }
             if (ImGui::MenuItem("Save As","CTRL + SHIFT + S")){
                 
-                auto filepth = Util::NfdDialog::SaveDlg();
+                auto filepth = Util::NfdDialog::SaveDlg(filters,"New Scene",ResourceManager::PathManager::GetProjectPath());
                 SaveCurrentScene(filepth);
             }
             ImGui::EndMenu();
@@ -100,6 +111,16 @@ void MainMenubar::DrawImpl(float deltat){
 
         ImGui::EndMainMenuBar();
     }
+
+
+    if (ResourceManager::PathManager::GetProjectPath()==""){
+        ImGui::OpenPopup("ProjectSelection");
+        show_project_wnd_=true;
+    }else{
+        show_project_wnd_=false;
+    }
+        
+
 
     if (loadtileopen)
         ImGui::OpenPopup("Loadtile?");
@@ -151,6 +172,47 @@ void MainMenubar::DrawImpl(float deltat){
         ImGui::SetItemDefaultFocus();
         ImGui::SameLine();
         if (ImGui::Button("Cancel", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+        ImGui::EndPopup();
+    }
+
+    if (ImGui::BeginPopupModal("ProjectSelection", &show_project_wnd_, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        ImGui::Text("Project Selection\n\n");
+        
+        if (ImGui::Button("Open Project")){
+            static std::vector<nfdfilteritem_t> filters{{"Project","sanaprj"}};
+            auto pth = Util::NfdDialog::OpenFileDlg(filters);
+            auto path = std::filesystem::path(pth);
+            auto papth = path.parent_path();
+            ResourceManager::PathManager::SetProjectPath(papth.generic_string()+"/");
+            std::ifstream in(std::filesystem::u8path(pth));
+            std::string tmp;
+            in>>tmp;
+            std::cout << tmp << std::endl;
+        }
+        if (ImGui::Button("New Project")){
+            static std::vector<nfdfilteritem_t> filters{{"Project folder",""}};
+            auto pth = Util::NfdDialog::SaveDlg(filters,"");
+            std::cout << pth << std::endl;
+            if (pth=="" ||std::filesystem::exists(pth)){
+                spdlog::error("[Filesystem] failed");
+            }else{
+                auto succ = std::filesystem::create_directory(std::filesystem::u8path(pth));
+                if(succ){
+                    // auto path = std::filesystem::u8path(pth);
+                    // auto prjname = path.filename().generic_u8string();
+
+                    auto path = std::filesystem::path(pth);
+                    auto prjname = path.filename().generic_string();
+                    //std::ofstream fo(pth+"\\"+prjname+".sanaprj");
+                    std::ofstream fo(std::filesystem::u8path(pth+"\\"+prjname+".sanaprj"));
+                    fo << "hello";
+                }
+            }
+            ResourceManager::PathManager::SetProjectPath(pth+"\\");
+            
+        }
+        
         ImGui::EndPopup();
     }
 

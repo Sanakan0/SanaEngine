@@ -12,6 +12,7 @@
 #include <SGUI/Core/UImanager.h>
 #include <SRender/Buffers/GLUniformBuffer.h>
 #include <SRender/Core/GLRenderer.h>
+#include <string>
 namespace SEditor::Core{
 
 class RuntimeContext{
@@ -19,6 +20,10 @@ public:
     RuntimeContext();
     ~RuntimeContext();
 
+
+
+    std::string engine_asset_pth_;
+    std::string project_pth_;
 
     std::unique_ptr<SWnd::Context> wndcontext_;
     std::unique_ptr<SGUI::Core::UImanager> uimanager_;

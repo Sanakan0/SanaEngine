@@ -1,5 +1,6 @@
 #include "SRender/Resources/STextureLoader.h"
 #include "SRender/Resources/STexture.h"
+#include "SResourceManager/Util.h"
 #include <memory>
 #include <stb_image/stb_image.h>
 #include <fstream>
@@ -23,7 +24,7 @@ STexture* STextureLoader::LoadFromFile(const std::string &pth,const TextureInfo&
 	int height;
 	int bitsPerPixel;
     stbi_set_flip_vertically_on_load(true);
-    unsigned char* rawdata = stbi_load(pth.c_str(),&width,&height,&bitsPerPixel,4);
+    unsigned char* rawdata = stbi_load(ResourceManager::PathManager::GetFullPath(pth).c_str(),&width,&height,&bitsPerPixel,4);
     STexture* res=nullptr;
     if(rawdata!=nullptr){
         res = LoadFromMemory(static_cast<void*>(rawdata),width, height,pth,texinfo);

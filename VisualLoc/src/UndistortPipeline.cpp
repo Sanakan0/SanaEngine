@@ -34,7 +34,7 @@ UndistortPipeline::UndistortPipeline():renderer_(SANASERVICE(SRender::Core::Enti
     });
     std::vector<uint32_t> idx{0,1,2,2,3,0};
     panelmeshp_ = std::make_unique<SRender::Resources::SMesh>(tmpv,idx);
-    auto pth = ResourceManager::Util::GetFullPath(":shaders\\undistortion.glsl");
+    auto pth = ResourceManager::PathManager::GetFullPath(":shaders\\undistortion.glsl");
     shaderp_ = std::unique_ptr<SRender::Resources::GLShader> (SRender::Resources::GLShaderLoader::LoadFromFile(pth));
     assert(arrowshader_!=nullptr&&"UNDISTORTION create failed!");
    

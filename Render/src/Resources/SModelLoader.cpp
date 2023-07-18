@@ -1,3 +1,4 @@
+#include "SResourceManager/Util.h"
 #include "spdlog/spdlog.h"
 #include <SRender/Resources/SModelLoader.h>
 #include <SRender/Resources/AssimpParser.h>
@@ -7,7 +8,7 @@ bool SModelLoader::LoadSimpleModel(std::string path, SModel &model,bool is_cache
     AssimpParser parser;
     model.path_=path;
     std::vector<TextureStack> tmpmaterials;
-    if(parser.LoadModel(model.modelmat_,path,model.meshes_,tmpmaterials,texture_manager_,is_cached,loadsetting)){
+    if(parser.LoadModel(model.modelmat_,ResourceManager::PathManager::GetFullPath(path),model.meshes_,tmpmaterials,texture_manager_,is_cached,loadsetting)){
        
         model.material_=std::make_unique<SMaterial>(tmpmaterials);
       

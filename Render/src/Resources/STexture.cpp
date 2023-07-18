@@ -1,4 +1,5 @@
 #include"SRender/Resources/STexture.h"
+#include "SResourceManager/Util.h"
 #include"stb_image/stb_image.h"
 #include"stb_image/stb_image_resize.h"
 #include <stdint.h>
@@ -28,7 +29,7 @@ bool STexture::LoadFromDisk(){
     FreeRawData();
     stbi_set_flip_vertically_on_load(true);
     int filechannel;
-    rawdata = stbi_load(path.c_str(),&width,&height,&filechannel,4);
+    rawdata = stbi_load(ResourceManager::PathManager::GetFullPath(path).c_str(),&width,&height,&filechannel,4);
     if (rawdata == nullptr) return false;
     if (height>2048){
         int clampedheight = 2048;
