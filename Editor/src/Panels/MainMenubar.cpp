@@ -1,4 +1,5 @@
 #include "ECS/Component/CameraComponent.h"
+#include "ECS/Component/RecitfyComponent.h"
 #include "SCore/Global/ServiceLocator.h"
 #include "SEditor/Core/AssetLoader.h"
 #include "SEditor/Util/NfdDialog.h"
@@ -92,6 +93,13 @@ void MainMenubar::DrawImpl(float deltat){
                     tmpa.AddComponent<ECS::Components::TransformComponent>();
                     tmpa.GetTransformComponent()->trans_.SetPosW(scenemanager_.cursor_pos_);
                     scenemanager_.SetActiveCamera(tmpa.GetID());
+                    scenemanager_.SetSelectedActor(tmpa.GetID());
+                }
+                if (ImGui::MenuItem("Add Rectifier")){
+                    auto& tmpa=scenemanager_.GetScene()->CreateActor("Distortion Rectifier");
+                    tmpa.AddComponent<ECS::Components::RecifyComponent>();
+                    tmpa.AddComponent<ECS::Components::TransformComponent>();
+                    //tmpa.GetTransformComponent()->trans_.SetPosW(scenemanager_.cursor_pos_);
                     scenemanager_.SetSelectedActor(tmpa.GetID());
                 }
                 ImGui::EndMenu();

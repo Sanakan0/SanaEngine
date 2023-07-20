@@ -72,6 +72,20 @@ void Serializer::SerializeVec2(tinyxml2::XMLDocument & p_doc, tinyxml2::XMLNode 
 	element->InsertEndChild(y);
 }
 
+void Serializer::SerializeVec2d(tinyxml2::XMLDocument & p_doc, tinyxml2::XMLNode * p_node, const std::string & p_name, const glm::dvec2 & p_value)
+{
+	tinyxml2::XMLNode* element = p_doc.NewElement(p_name.c_str());
+	p_node->InsertEndChild(element);
+
+	tinyxml2::XMLElement* x = p_doc.NewElement("x");
+	x->SetText(p_value.x);
+	element->InsertEndChild(x);
+
+	tinyxml2::XMLElement* y = p_doc.NewElement("y");
+	y->SetText(p_value.y);
+	element->InsertEndChild(y);
+}
+
 void Serializer::SerializeVec3(tinyxml2::XMLDocument & p_doc, tinyxml2::XMLNode * p_node, const std::string & p_name, const glm::vec3 & p_value)
 {
 	tinyxml2::XMLNode* element = p_doc.NewElement(p_name.c_str());
@@ -214,6 +228,18 @@ void Serializer::DeserializeVec2(tinyxml2::XMLDocument & p_doc, tinyxml2::XMLNod
 
 		if (auto element = node->FirstChildElement("y"); element)
 			element->QueryFloatText(&p_out.y);
+	}
+}
+
+void Serializer::DeserializeVec2d(tinyxml2::XMLDocument & p_doc, tinyxml2::XMLNode * p_node, const std::string & p_name, glm::dvec2 & p_out)
+{
+	if (auto node = p_node->FirstChildElement(p_name.c_str()); node)
+	{
+		if (auto element = node->FirstChildElement("x"); element)
+			element->QueryDoubleText(&p_out.x);
+
+		if (auto element = node->FirstChildElement("y"); element)
+			element->QueryDoubleText(&p_out.y);
 	}
 }
 
