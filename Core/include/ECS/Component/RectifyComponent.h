@@ -4,10 +4,10 @@
 #include <memory>
 namespace ECS::Components {
 
-class RecifyComponent:public Component{
+class RectifyComponent:public Component{
 
 public:
-    RecifyComponent(Actor& parentactor);
+    RectifyComponent(Actor& parentactor);
     virtual void Tick(float delta_t) override;
 
     virtual void DrawInspector() override;
@@ -19,6 +19,7 @@ public:
     std::vector<std::vector<std::pair<double,double>>>lines;
     std::unique_ptr<SRender::Resources::STexture> uimgp;
     std::string img_pth_="";
+    double lossval_=-1.0;
 };
 
 

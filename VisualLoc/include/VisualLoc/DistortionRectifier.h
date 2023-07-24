@@ -264,7 +264,7 @@ public:
                 auto vec = i-pt0;
                 auto d0 = vec.dot(vec0);
                 auto d1 = cv::norm(vec);
-                auto dist = sqrt(d1*d1-d0*d0)/scale;
+                auto dist = sqrt(std::max( d1*d1-d0*d0,0.0))/scale;
                 res+=dist;
                 cntN++;
             }

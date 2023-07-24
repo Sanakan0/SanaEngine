@@ -1,9 +1,10 @@
 #include "SEditor/Panels/DistortionRectiferPanel.h"
 #include "ECS/Component/CameraComponent.h"
-#include "ECS/Component/RecitfyComponent.h"
+#include "ECS/Component/RectifyComponent.h"
 #include "SCore/Global/ServiceLocator.h"
 #include "SEditor/Util/NfdDialog.h"
 #include "SGUI/IconsFontAwesome6.h"
+#include "SRender/Resources/STexture.h"
 #include "SRender/Resources/STextureLoader.h"
 #include "SResourceManager/Util.h"
 #include "SceneSys/SceneManager.h"
@@ -37,8 +38,8 @@ void DistrotionRectifierPanel::DrawContent(){
     auto curactorp = sceneManager_.GetSelectedActor();
     if (actor_!=curactorp) actor_=curactorp;
     if (actor_==nullptr) return;
-    auto Rectifycomp = static_cast<ECS::Components::RecifyComponent*>(
-         actor_->GetComponent("RecifyComponent"));
+    auto Rectifycomp = static_cast<ECS::Components::RectifyComponent*>(
+         actor_->GetComponent("RectifyComponent"));
     auto Camcomp = static_cast<ECS::Components::CameraComponent*>(
          actor_->GetComponent("CameraComponent"));
     if (Rectifycomp==nullptr||Camcomp==nullptr){
@@ -47,7 +48,14 @@ void DistrotionRectifierPanel::DrawContent(){
 
 
     if (Rectifycomp->img_pth_!=uimgp->path){
-        auto tmptex = SRender::Resources::STextureLoader::LoadFromFile(Rectifycomp->img_pth_);
+        SRender::Resources::STexture* tmptex;
+        if (Rectifycomp->img_pth_==""){
+            tmptex = SRender::Resources::STextureLoader::CreateColor(0);
+            tmptex->path="";
+        }else{
+            tmptex = SRender::Resources::STextureLoader::LoadFromFile(Rectifycomp->img_pth_);
+        }
+        
         if (tmptex!=nullptr){
             uimgp.reset(tmptex);
         }
@@ -182,12 +190,12 @@ void DistrotionRectifierPanel::DrawContent(){
         lines.push_back({});
         selected=lines.size()-1;
     }
-    static double lossv=0;
+    
     if (ImGui::Button("Rectify")){
 
-        lossv= rectifier_.RectifyWithLines(lines, my_tex_w/my_tex_h, distortioninfo);
+        Rectifycomp->lossval_= rectifier_.RectifyWithLines(lines, my_tex_w/my_tex_h, distortioninfo);
     }
-    ImGui::Text("error: %.8f",lossv);
+    ImGui::Text("error: %.8f",Rectifycomp->lossval_);
     
     
 
@@ -248,9 +256,10 @@ void DistrotionRectifierPanel::DrawContent(){
             if (savepth!=""){
                 std::filesystem::copy_file(std::filesystem::u8path(filepth),std::filesystem::u8path(savepth),std::filesystem::copy_options::overwrite_existing );
             }
-            auto relative = std::filesystem::relative(savepth,ResourceManager::PathManager::GetProjectPath());
-            std::cout <<"fk" << relative.generic_string()<<std::endl;
-            Rectifycomp->img_pth_="@"+relative.generic_string();
+            auto relative = std::filesystem::relative(std::filesystem::u8path(savepth),
+            std::filesystem::u8path(ResourceManager::PathManager::GetProjectPath()));
+            std::cout <<"fk" << relative.generic_u8string()<<std::endl;
+            Rectifycomp->img_pth_="@"+relative.generic_u8string();
             
         }
     }

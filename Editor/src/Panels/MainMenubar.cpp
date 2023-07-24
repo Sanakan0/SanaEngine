@@ -1,5 +1,5 @@
 #include "ECS/Component/CameraComponent.h"
-#include "ECS/Component/RecitfyComponent.h"
+#include "ECS/Component/RectifyComponent.h"
 #include "SCore/Global/ServiceLocator.h"
 #include "SEditor/Core/AssetLoader.h"
 #include "SEditor/Util/NfdDialog.h"
@@ -97,7 +97,7 @@ void MainMenubar::DrawImpl(float deltat){
                 }
                 if (ImGui::MenuItem("Add Rectifier")){
                     auto& tmpa=scenemanager_.GetScene()->CreateActor("Distortion Rectifier");
-                    tmpa.AddComponent<ECS::Components::RecifyComponent>();
+                    tmpa.AddComponent<ECS::Components::RectifyComponent>();
                     tmpa.AddComponent<ECS::Components::CameraComponent>();
                     tmpa.AddComponent<ECS::Components::TransformComponent>();
                     //tmpa.GetTransformComponent()->trans_.SetPosW(scenemanager_.cursor_pos_);
@@ -121,13 +121,18 @@ void MainMenubar::DrawImpl(float deltat){
         ImGui::EndMainMenuBar();
     }
 
-
-    if (ResourceManager::PathManager::GetProjectPath()==""){
-        ImGui::OpenPopup("ProjectSelection");
-        show_project_wnd_=true;
+    static int firstfrm=1;
+    if (firstfrm){
+        firstfrm=0;
     }else{
-        show_project_wnd_=false;
+        if (ResourceManager::PathManager::GetProjectPath()==""){
+            ImGui::OpenPopup("ProjectSelection");
+            show_project_wnd_=true;
+        }else{
+            show_project_wnd_=false;
+        }
     }
+    
         
 
 
@@ -191,13 +196,16 @@ void MainMenubar::DrawImpl(float deltat){
         if (ImGui::Button("Open Project")){
             static std::vector<nfdfilteritem_t> filters{{"Project","sanaprj"}};
             auto pth = Util::NfdDialog::OpenFileDlg(filters);
-            auto path = std::filesystem::path(pth);
-            auto papth = path.parent_path();
-            ResourceManager::PathManager::SetProjectPath(papth.generic_string()+"/");
-            std::ifstream in(std::filesystem::u8path(pth));
-            std::string tmp;
-            in>>tmp;
-            std::cout << tmp << std::endl;
+            if (pth!=""){
+                auto path = std::filesystem::path(pth);
+                auto papth = path.parent_path();
+                ResourceManager::PathManager::SetProjectPath(papth.generic_string()+"/");
+                std::ifstream in(std::filesystem::u8path(pth));
+                std::string tmp;
+                in>>tmp;
+                std::cout << tmp << std::endl;
+            }
+            
         }
         if (ImGui::Button("New Project")){
             static std::vector<nfdfilteritem_t> filters{{"Project folder",""}};

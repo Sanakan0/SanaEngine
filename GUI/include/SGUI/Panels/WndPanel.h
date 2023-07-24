@@ -37,8 +37,8 @@ public:
 
 
     bool opened_=true;
-    bool hovered_=true;
-    bool focused_=true;
+    bool hovered_=false;
+    bool focused_=false;
 
     
 };

@@ -1,4 +1,4 @@
-#include "ECS/Component/RecitfyComponent.h"
+#include "ECS/Component/RectifyComponent.h"
 #include "SCore/Global/ServiceLocator.h"
 #include "SceneSys/SceneManager.h"
 #include "imgui/imgui.h"
@@ -45,7 +45,7 @@ void Hierarchy::DrawContent(){
         }
         if (ImGui::TreeNode("img rectifier")){
             for  (auto& [_,actor]:scenemanager_.GetScene()->GetActors()){
-                if (actor->GetComponent("RecifyComponent")){
+                if (actor->GetComponent("RectifyComponent")){
                     if (ImGui::Selectable((actor->GetName() + std::to_string(actor->GetID())).c_str())){
                         scenemanager_.SetSelectedActor(actor->GetID());
                     }

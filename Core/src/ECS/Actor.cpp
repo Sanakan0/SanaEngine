@@ -1,6 +1,6 @@
 #include "ECS/Component/CameraComponent.h"
 #include "ECS/Component/MeshComponent.h"
-#include "ECS/Component/RecitfyComponent.h"
+#include "ECS/Component/RectifyComponent.h"
 #include "ECS/Component/TransformComponent.h"
 #include "Serialize/Serializer.h"
 #include <ECS/Actor.h>
@@ -72,7 +72,7 @@ void Actor::Deserialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_actor
 				if (componentType == typeid(Components::TransformComponent).name())			component = &AddComponent<Components::TransformComponent>();
 				else if (componentType == typeid(Components::MeshComponent).name())			component = &AddComponent<Components::MeshComponent>();
 				else if (componentType == typeid(Components::CameraComponent).name())			component = &AddComponent<Components::CameraComponent>();
-				else if (componentType == typeid(Components::RecifyComponent).name())			component = &AddComponent<Components::RecifyComponent>();
+				else if (componentType == typeid(Components::RectifyComponent).name())			component = &AddComponent<Components::RectifyComponent>();
 				if (component)
 					component->Deserialize(p_doc, currentComponent->FirstChildElement("data"));
 

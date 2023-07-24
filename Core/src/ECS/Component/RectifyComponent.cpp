@@ -1,25 +1,29 @@
 
-#include "ECS/Component/RecitfyComponent.h"
+#include "ECS/Component/RectifyComponent.h"
 #include "Serialize/Serializer.h"
 #include "glm/fwd.hpp"
+#include "imgui/imgui.h"
 
 namespace ECS::Components {
 
-RecifyComponent::RecifyComponent(Actor& parentactor):
+RectifyComponent::RectifyComponent(Actor& parentactor):
 Component(parentactor){
 
 }
 
-void RecifyComponent::Tick(float delta_t){
+void RectifyComponent::Tick(float delta_t){
 
 }
 
-void RecifyComponent::DrawInspector() {
-
+void RectifyComponent::DrawInspector() {
+    if(ImGui::CollapsingHeader("Recify")){
+        
+    }
 }
 
-void RecifyComponent::Serialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_node){
+void RectifyComponent::Serialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_node){
     SCore::Serializer::SerializeString(p_doc, p_node, "img_pth", img_pth_);
+    SCore::Serializer::SerializeDouble(p_doc, p_node, "loss_value", lossval_);
     tinyxml2::XMLNode* linesnode = p_doc.NewElement("Lines");
 	p_node->InsertEndChild(linesnode);
     for (auto& v:lines){
@@ -33,8 +37,9 @@ void RecifyComponent::Serialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode*
     }
 }
 
-void RecifyComponent::Deserialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_node){
+void RectifyComponent::Deserialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_node){
     SCore::Serializer::DeserializeString(p_doc, p_node, "img_pth", img_pth_);
+    SCore::Serializer::DeserializeDouble(p_doc, p_node, "loss_value", lossval_);
     tinyxml2::XMLNode* linesnode = p_node->FirstChildElement("Lines");
     if (linesnode){
         tinyxml2::XMLElement* currentLine = linesnode->FirstChildElement("Line");

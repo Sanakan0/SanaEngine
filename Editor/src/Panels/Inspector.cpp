@@ -12,7 +12,8 @@ namespace SEditor::Panels{
 const std::string Inspector::componentlist[]{
     "TransformComponent",
     "MeshComponent",
-    "CameraComponent"
+    "CameraComponent",
+    "RectifyComponent"
 };
 
 Inspector::Inspector():
