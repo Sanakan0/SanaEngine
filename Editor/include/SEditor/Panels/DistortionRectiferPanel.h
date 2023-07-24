@@ -1,4 +1,5 @@
 #pragma once
+#include "ECS/Actor.h"
 #include "SGUI/Panels/WndPanel.h"
 #include "SRender/Resources/STexture.h"
 #include "SceneSys/SceneManager.h"
@@ -16,9 +17,9 @@ public:
 private:
     VisualLoc::DistortionRectifier rectifier_;
     VisualLoc::UndistortPipeline undistpipeline;
-
+    SceneSys::SceneManager& sceneManager_;
     std::shared_ptr<SRender::Resources::STexture> uimgp;
-
+    ECS::Actor* actor_;
 };
 
 }

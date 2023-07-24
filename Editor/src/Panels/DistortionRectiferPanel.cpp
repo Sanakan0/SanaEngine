@@ -1,14 +1,21 @@
 #include "SEditor/Panels/DistortionRectiferPanel.h"
+#include "ECS/Component/CameraComponent.h"
+#include "ECS/Component/RecitfyComponent.h"
+#include "SCore/Global/ServiceLocator.h"
 #include "SEditor/Util/NfdDialog.h"
 #include "SGUI/IconsFontAwesome6.h"
 #include "SRender/Resources/STextureLoader.h"
+#include "SResourceManager/Util.h"
+#include "SceneSys/SceneManager.h"
 #include "imgui/imgui.h"
 #include <cstddef>
+#include <filesystem>
 #include <vector>
 
 namespace SEditor::Panels{
 
-DistrotionRectifierPanel::DistrotionRectifierPanel(){
+DistrotionRectifierPanel::DistrotionRectifierPanel():
+sceneManager_(SANASERVICE(SceneSys::SceneManager)){
     window_padding_={0,0};
     name_ = "畸变矫正面板";
     hori_scrollable_=true;
@@ -26,8 +33,30 @@ DistrotionRectifierPanel::DistrotionRectifierPanel(){
 }
 
 void DistrotionRectifierPanel::DrawContent(){
+    
+    auto curactorp = sceneManager_.GetSelectedActor();
+    if (actor_!=curactorp) actor_=curactorp;
+    if (actor_==nullptr) return;
+    auto Rectifycomp = static_cast<ECS::Components::RecifyComponent*>(
+         actor_->GetComponent("RecifyComponent"));
+    auto Camcomp = static_cast<ECS::Components::CameraComponent*>(
+         actor_->GetComponent("CameraComponent"));
+    if (Rectifycomp==nullptr||Camcomp==nullptr){
+        return;
+    }
+
+
+    if (Rectifycomp->img_pth_!=uimgp->path){
+        auto tmptex = SRender::Resources::STextureLoader::LoadFromFile(Rectifycomp->img_pth_);
+        if (tmptex!=nullptr){
+            uimgp.reset(tmptex);
+        }
+        
+    }
+
+    
     static float scale = 5;
-    static std::vector<std::vector<std::pair<double,double>>>lines;
+    std::vector<std::vector<std::pair<double,double>>>& lines = Rectifycomp->lines;
     static int selected = -1;
     ImVec2 lupos(ImGui::GetCursorScreenPos());
 	ImVec2 lupos1(lupos);
@@ -94,7 +123,7 @@ void DistrotionRectifierPanel::DrawContent(){
     //distortion img
 
     ImGui::PopStyleVar();
-    static SRender::LowRenderer::RadialDistortion distortioninfo{{0,0,0},SRender::LowRenderer::DistortionModel::INDEX};
+    auto &distortioninfo = Camcomp->cam_.distortion_;
     static float norm_fh=my_tex_w/(my_tex_h*2);
     //static float norm_fh=0.5;
     static float sensor_scale=1;
@@ -210,13 +239,18 @@ void DistrotionRectifierPanel::DrawContent(){
     ImGui::DragFloat("img scale",&scale,0.01);
     ImGui::DragFloat("sensor scale",&sensor_scale,0.01);
     if (ImGui::Button("打开文件")){
-        
-        auto filepth = Util::NfdDialog::OpenFileDlg();
+        static std::vector<nfdfilteritem_t> filters={{"Image","png,jpg,jpeg"}};
+        auto filepth = Util::NfdDialog::OpenFileDlg(filters,ResourceManager::PathManager::GetProjectPath());
         if (filepth!=""){
-            auto tmptex = SRender::Resources::STextureLoader::LoadFromFile(filepth);
-            if (tmptex!=nullptr){
-                uimgp.reset(tmptex);
+            auto path = std::filesystem::u8path(filepth);
+            auto filename = path.filename().u8string();
+            auto savepth = Util::NfdDialog::SaveDlg(filters,filename,ResourceManager::PathManager::GetProjectPath());
+            if (savepth!=""){
+                std::filesystem::copy_file(std::filesystem::u8path(filepth),std::filesystem::u8path(savepth),std::filesystem::copy_options::overwrite_existing );
             }
+            auto relative = std::filesystem::relative(savepth,ResourceManager::PathManager::GetProjectPath());
+            std::cout <<"fk" << relative.generic_string()<<std::endl;
+            Rectifycomp->img_pth_="@"+relative.generic_string();
             
         }
     }

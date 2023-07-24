@@ -98,6 +98,7 @@ void MainMenubar::DrawImpl(float deltat){
                 if (ImGui::MenuItem("Add Rectifier")){
                     auto& tmpa=scenemanager_.GetScene()->CreateActor("Distortion Rectifier");
                     tmpa.AddComponent<ECS::Components::RecifyComponent>();
+                    tmpa.AddComponent<ECS::Components::CameraComponent>();
                     tmpa.AddComponent<ECS::Components::TransformComponent>();
                     //tmpa.GetTransformComponent()->trans_.SetPosW(scenemanager_.cursor_pos_);
                     scenemanager_.SetSelectedActor(tmpa.GetID());
