@@ -190,13 +190,19 @@ void DistrotionRectifierPanel::DrawContent(){
         lines.push_back({});
         selected=lines.size()-1;
     }
-    
+    double aspect_ratio = (double)uimgp->width/uimgp->height;
     if (ImGui::Button("Rectify")){
 
-        Rectifycomp->lossval_= rectifier_.RectifyWithLines(lines, my_tex_w/my_tex_h, distortioninfo);
+        Rectifycomp->lossval_= rectifier_.RectifyWithLines(lines, aspect_ratio, distortioninfo);
+    }
+    if (ImGui::Button("Rectify using Distance loss")){
+
+        Rectifycomp->lossval_= rectifier_.RectifyWithLines(lines, aspect_ratio, distortioninfo,true);
     }
     ImGui::Text("error: %.8f",Rectifycomp->lossval_);
-    
+    auto [dloss,aloss,dderiv,aderiv] = rectifier_.GetCurLoss(lines, aspect_ratio, distortioninfo);
+    ImGui::Text("Angle Loss: %.8f Dist Loss: %.8f", aloss,dloss);
+    ImGui::Text("Angle deriv: %.8f Dist deriv: %.8f", aderiv,dderiv);
     
 
 
@@ -270,15 +276,15 @@ void DistrotionRectifierPanel::DrawContent(){
     case 0:
         break;
     case 1:
-        ImGui::DragFloat("k",&distortioninfo.dist_para[0],0.001);
+        ImGui::DragFloat("k",&distortioninfo.dist_para[0],0.0001,-100,100,"%.5f");
         break;
     case 2:
-        ImGui::DragFloat("k",&distortioninfo.dist_para[0],0.001);
+        ImGui::DragFloat("k",&distortioninfo.dist_para[0],0.0001,-100,100,"%.5f");
         break;
     case 3:
-        ImGui::DragFloat("k1",&distortioninfo.dist_para[0],0.001);
+        ImGui::DragFloat("k1",&distortioninfo.dist_para[0],0.0001,-100,100,"%.5f");
         ImGui::SameLine();
-        ImGui::DragFloat("k2",&distortioninfo.dist_para[1],0.001);
+        ImGui::DragFloat("k2",&distortioninfo.dist_para[1],0.0001,-100,100,"%.5f");
         break;
     case 4:
         ImGui::DragFloat("a",&distortioninfo.dist_para[0],0.001);
@@ -288,7 +294,7 @@ void DistrotionRectifierPanel::DrawContent(){
         ImGui::DragFloat("c",&distortioninfo.dist_para[2],0.001);
         break;
     case 5:
-        ImGui::DragFloat("K",&distortioninfo.dist_para[0],0.001);
+        ImGui::DragFloat("K",&distortioninfo.dist_para[0],0.0001,-100,100,"%.5f");
         break;
     }
     ImGui::DragFloat("norm_fh",&norm_fh,0.001);

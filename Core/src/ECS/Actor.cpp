@@ -54,7 +54,7 @@ void Actor::Serialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_node) {
 
 void Actor::Deserialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_actorsRoot) {
     SCore::Serializer::DeserializeString(p_doc, p_actorsRoot, "name", name_);
-	SCore::Serializer::DeserializeInt64(p_doc, p_actorsRoot, "id", id_);
+	//SCore::Serializer::DeserializeInt64(p_doc, p_actorsRoot, "id", id_);
 
 	{
 		tinyxml2::XMLNode* componentsRoot = p_actorsRoot->FirstChildElement("components");

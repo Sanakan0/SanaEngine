@@ -69,11 +69,11 @@ void Scene::Deserialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_root)
 		{
 			auto& actor = CreateActor();
 			actor.Deserialize(p_doc, currentActor);
-			maxID = std::max(actor.GetID() + 1, maxID);
+			//maxID = std::max(actor.GetID() + 1, maxID);
 			currentActor = currentActor->NextSiblingElement("actor");
 		}
 
-		actor_id_cnt_ = maxID;
+		//actor_id_cnt_ = maxID;
 
 		// /* We recreate the hierarchy of the scene by attaching children to their parents */
 		// for (auto&[_ , actor] : actors_)
