@@ -27,12 +27,12 @@ void InputManager::Tick(){
     }
     if(right_btn_){
         //glfwSetInputMode(wndp_,GLFW_CURSOR,GLFW_CURSOR_DISABLED);
-        ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
+        //ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
         
     }
     if(!right_btn_){
         //glfwSetInputMode(wndp_,GLFW_CURSOR,GLFW_CURSOR_NORMAL);
-        ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
+        //ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
     }
     
 }

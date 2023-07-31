@@ -1,3 +1,4 @@
+#include "ECS/Actor.h"
 #include "ECS/Component/CameraComponent.h"
 #include "ECS/Component/MeshComponent.h"
 #include "SRender/Core/GLRenderer.h"
@@ -14,7 +15,9 @@
 #include "glm/geometric.hpp"
 #include "glm/gtc/quaternion.hpp"
 #include "glm/matrix.hpp"
+#include "imgui/imgui.h"
 #include <SRender/Core/EntityRenderer.h>
+#include <cstddef>
 #include <memory>
 #include <stdint.h>
 
@@ -29,6 +32,8 @@ unlitshader_(Resources::GLShaderLoader::LoadFromFile(ResourceManager::PathManage
     glEnable(GL_STENCIL_TEST);
     glStencilOp(GL_KEEP,GL_KEEP,GL_REPLACE);
     glStencilFunc(GL_ALWAYS,1,0xFF);
+
+    InitAtmosphereDrawer();
 };
 
 EntityRenderer::~EntityRenderer(){}
@@ -121,6 +126,73 @@ void EntityRenderer::DrawActorOutline(ECS::Actor& actor,float linewidth){
     
 }
 
+
+float earthR = 6371000;
+float atmosD = 8000;
+float aerosolD = 1000;
+float atmosR = earthR + atmosD;
+float aerosolR = earthR + aerosolD;
+float betaR[] = {
+	5.8045429962610875e-06,
+	1.3562911419845631e-05,
+	3.31125767086075e-05
+};
+float betaM[] = {
+	3.2518262207319404e-05,
+	4.891366975006311e-05,
+	7.507490794050062e-05
+};
+
+
+void EntityRenderer::DrawAtmosphere(ECS::Actor* sunLight) {
+    if (sunLight==nullptr) return;
+    ApplyGLstate(Atmosphere_GLstate);
+    atmosphere_shader_->Bind();
+
+	// glm::mat4 invmvp = glm::inverse(ModelViewProjectionMatrix);
+	// glUniformMatrix4fv(glGetUniformLocation(skylightShader, "invmvp"), 1, GL_FALSE, &invmvp[0][0]);
+	atmosphere_shader_->SetUniFloat("earthR", earthR);
+    atmosphere_shader_->SetUniFloat("atmosR", atmosR);
+    atmosphere_shader_->SetUniFloat("aerosolR", aerosolR);
+    atmosphere_shader_->SetUniFloatV("betaR", betaR, 3);
+    atmosphere_shader_->SetUniFloatV("betaM", betaM, 3);
+
+    auto lightTrans = sunLight->GetTransformComponent();
+	glm::vec3 sundir = -(lightTrans->trans_.GetOrienW()*sm::OglCamPrimForward);
+
+    atmosphere_shader_->SetUniVec3("sunDir", sundir);
+    //atmosphere_shader_->SetUniFloatV("sunDir",  &sundir[0], 3);
+    //atmosphere_shader_->GetUniforms();
+    Draw(*canvas_, Setting::SPrimitive::TRIANGLES);
+
+    atmosphere_shader_->Unbind();
+    ApplyPreviousGLstate();
+
+}
+
+void EntityRenderer::InitAtmosphereDrawer(){
+    std::vector<Resources::Vertex> tmpv;
+     tmpv.push_back({
+        {-1,-1,0},
+        {0,0},
+        {0,0,0}
+    });
+    tmpv.push_back({
+        {3,-1,0},
+        {0,0},
+        {0,0,0}
+    });
+    tmpv.push_back({
+        {-1,3,0},
+        {0,0},
+        {0,0,0}
+    });
+   
+    std::vector<uint32_t> idx{0,1,2};
+    canvas_ = std::make_unique<Resources::SMesh>(tmpv,idx);
+    atmosphere_shader_=std::unique_ptr<Resources::GLShader> (Resources::GLShaderLoader::LoadFromFile(":shaders\\Atmosphere.glsl"));
+    //assert(arrowshader_!=nullptr&&"Atmosphere.glsl create failed!");
+}
 
 
 }
@@ -637,5 +709,8 @@ void main(){
    
 
 }
+
+
+
 
 }

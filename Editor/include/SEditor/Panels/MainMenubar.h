@@ -30,6 +30,7 @@ private:
     bool* show_inspector_;
     bool* show_vislocpanel_;
     bool* show_distortionrecifierpanel_;
+    bool* show_infopanel_;
 };
 
 }

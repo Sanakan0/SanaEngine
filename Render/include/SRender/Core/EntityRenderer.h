@@ -1,6 +1,7 @@
 #pragma once
 #include <SRender/Core/GLRenderer.h>
 #include "ECS/Component/Component.h"
+#include "ECS/Component/LightComponent.h"
 #include "ECS/Actor.h"
 #include "SRender/Resources/GLShader.h"
 #include "SRender/Resources/SBaseRenderResources.h"
@@ -27,8 +28,14 @@ public:
     void DrawModel(Resources::SModel& model);
     GLShapeDrawer* GetShapeDrawer(){return shapedrawer_.get();}
 
+    void DrawAtmosphere(ECS::Actor* sunLight);
     
 private:
+    void InitAtmosphereDrawer();
+
+    std::unique_ptr<Resources::SMesh> canvas_=nullptr;
+    std::unique_ptr<Resources::GLShader> atmosphere_shader_=nullptr;
+
     std::unique_ptr<GLShapeDrawer> shapedrawer_;
     std::unique_ptr<Resources::STexture> emptytexture_;
     std::unique_ptr<Resources::STexture> outline_colored_texture_;

@@ -32,6 +32,8 @@ void EditorSceneRenderPass::DisableNormal(){
 }
 
 void EditorSceneRenderPass::Draw(){
+    renderer_.DrawAtmosphere(scenemanager_.GetMainLight());
+
     shaderp_->Bind();
     shaderp_->SetUniFloat("k", k);
     glm::mat4 tmpmodel = glm::mat4(1);
@@ -45,7 +47,9 @@ void EditorSceneRenderPass::Draw(){
         }
         renderer_.DrawModel(*meshcomp->GetModel());
     }
+
     renderer_.GetShapeDrawer()->DrawGrid();
+    
     for (auto& camcomp:scenemanager_.GetScene()->GetBasicRenderComponent().camcomps){
         auto transcomp =camcomp->parentactor_.GetTransformComponent();
         bool is_active = (&camcomp->parentactor_ == scenemanager_.GetActiveCamera()) ? true:false;

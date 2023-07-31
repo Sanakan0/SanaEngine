@@ -55,6 +55,7 @@ void MainMenubar::GetPanelsOpenFlag(){
     show_inspector_=&uimanager_.GetPanel<Panels::Inspector>("Inspector").opened_;
     show_vislocpanel_=&uimanager_.GetPanel<Panels::VisLocPanel>("VisLocPanel").opened_;
     show_distortionrecifierpanel_=&uimanager_.GetPanel<Panels::DistrotionRectifierPanel>("DistrotionRectifierPanel").opened_;
+    show_infopanel_ = &uimanager_.GetPanel<Panels::InfoPanel>("InfoPanel").open_;
 }
 
 void MainMenubar::DrawImpl(float deltat){
@@ -103,6 +104,13 @@ void MainMenubar::DrawImpl(float deltat){
                     //tmpa.GetTransformComponent()->trans_.SetPosW(scenemanager_.cursor_pos_);
                     scenemanager_.SetSelectedActor(tmpa.GetID());
                 }
+                if (ImGui::MenuItem("Light")){
+                    auto& tmpa=scenemanager_.GetScene()->CreateActor("Light");
+                    tmpa.AddComponent<ECS::Components::LightComponent>();
+                    tmpa.AddComponent<ECS::Components::TransformComponent>();
+                    //tmpa.GetTransformComponent()->trans_.SetPosW(scenemanager_.cursor_pos_);
+                    scenemanager_.SetSelectedActor(tmpa.GetID());
+                }
                 ImGui::EndMenu();
             }
             ImGui::EndMenu();
@@ -115,6 +123,7 @@ void MainMenubar::DrawImpl(float deltat){
             ImGui::MenuItem("Inspector", NULL, show_inspector_);
             ImGui::MenuItem("VisLocPanel", NULL, show_vislocpanel_);
             ImGui::MenuItem("DistrotionRectifierPanel", NULL, show_distortionrecifierpanel_);
+            ImGui::MenuItem("InfoPanel", NULL, show_infopanel_);
             ImGui::EndMenu();
         }
 

@@ -54,6 +54,17 @@ void Hierarchy::DrawContent(){
             }
             ImGui::TreePop();
         }
+        if (ImGui::TreeNode("light")){
+            for  (auto& [_,actor]:scenemanager_.GetScene()->GetActors()){
+                if (actor->GetComponent("LightComponent")){
+                    if (ImGui::Selectable((actor->GetName() + std::to_string(actor->GetID())).c_str())){
+                        scenemanager_.SetSelectedActor(actor->GetID());
+                    }
+                }
+                
+            }
+            ImGui::TreePop();
+        }
 
 
 

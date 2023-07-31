@@ -1,7 +1,10 @@
 #include "ECS/Actor.h"
 #include "ECS/Component/CameraComponent.h"
 #include "ECS/Component/Component.h"
+#include "ECS/Component/LightComponent.h"
 #include "ECS/Component/MeshComponent.h"
+#include "SCore/Global/ServiceLocator.h"
+#include "SceneSys/SceneManager.h"
 #include "spdlog/spdlog.h"
 #include <SceneSys/Scene.h>
 #include <algorithm>
@@ -22,7 +25,9 @@ ECS::Actor& Scene::CreateActor(const std::string& name){
     // auto meshcmp = res.GetComponent<ECS::Components::MeshComponent>();
     // if(meshcmp) basicrendercomponents_.meshcomps.push_back(meshcmp);
     res.AddComponentEvent.AddListener(std::bind(&Scene::OnAddComponent,this,std::placeholders::_1));
-    spdlog::info("[SCENE] Actor created! id = "+std::to_string(res.GetID()));
+    auto& scenemanager= SANASERVICE(SceneManager);
+	res.AddComponentEvent.AddListener(std::bind(&SceneManager::OnAddComponent,&scenemanager,std::placeholders::_1));
+	spdlog::info("[SCENE] Actor created! id = "+std::to_string(res.GetID()));
     return res;
 }
 

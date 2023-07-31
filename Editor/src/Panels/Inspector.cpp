@@ -13,7 +13,8 @@ const std::string Inspector::componentlist[]{
     "TransformComponent",
     "MeshComponent",
     "CameraComponent",
-    "RectifyComponent"
+    "RectifyComponent",
+    "LightComponent"
 };
 
 Inspector::Inspector():

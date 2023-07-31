@@ -36,6 +36,9 @@ inline constexpr uint8_t Grid_GLstate_=
 inline constexpr uint8_t LineMesh_GLstate = 
         SGLState::EMPTY|SGLState::COLOR_WRITING|SGLState::DEPTH_WRITING;
 
+inline constexpr uint8_t Atmosphere_GLstate = 
+        SGLState::EMPTY|SGLState::COLOR_WRITING;
+
 class GLRenderer{
 public:
     GLRenderer();
