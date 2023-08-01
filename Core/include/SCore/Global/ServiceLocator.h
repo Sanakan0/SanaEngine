@@ -1,8 +1,8 @@
 #pragma once
 #include <any>
 #include <unordered_map> 
-#include <assert.h>
 #include <iostream>
+#include "Debug/Assertion.h"
 #define SANASERVICE(type) SCore::Global::ServiceLocator::Get<type>()
 namespace SCore::Global{
 
@@ -16,7 +16,7 @@ public:
     template<typename T>
     static inline T& Get(){
         auto tmpitr = services_.find(typeid(T).hash_code());
-        assert(tmpitr!=services_.end()&&"SANASERVICE NOT FOUND");
+        SANA_ASSERT(tmpitr!=services_.end()&&"SANASERVICE NOT FOUND");
         return *std::any_cast<T*>(tmpitr->second);
     }
 

@@ -1,3 +1,4 @@
+#include "Debug/Assertion.h"
 #include "ECS/Actor.h"
 #include "ECS/Component/CameraComponent.h"
 #include "ECS/Component/MeshComponent.h"
@@ -82,7 +83,7 @@ void EntityRenderer::DrawActorOutline(ECS::Actor& actor,float linewidth){
             actor.GetComponent("CameraComponent"));
         if (camcomp){
             auto transcomp = actor.GetTransformComponent();
-            assert(transcomp!=nullptr&&"camera actor must have a transform component");
+            SANA_ASSERT(transcomp!=nullptr&&"camera actor must have a transform component");
             shapedrawer_->DrawCamFrame(transcomp->GetMat(), camcomp->cam_.Getfocal_length()/camcomp->cam_.Getsensor_size_h(), camcomp->cam_.Getaspect_ratio(), {1,0.2,0,1},false,3.0f,false);
         }
     }else{
@@ -191,7 +192,7 @@ void EntityRenderer::InitAtmosphereDrawer(){
     std::vector<uint32_t> idx{0,1,2};
     canvas_ = std::make_unique<Resources::SMesh>(tmpv,idx);
     atmosphere_shader_=std::unique_ptr<Resources::GLShader> (Resources::GLShaderLoader::LoadFromFile(":shaders\\Atmosphere.glsl"));
-    //assert(arrowshader_!=nullptr&&"Atmosphere.glsl create failed!");
+    //SANA_ASSERT(arrowshader_!=nullptr&&"Atmosphere.glsl create failed!");
 }
 
 
@@ -468,7 +469,7 @@ void GLShapeDrawer::InitGizmoDrawer(){
     gizmoarrowmeshp_headbase_ = std::make_unique<Resources::SMesh>(headv0,idx);
 
     gizmoshader_=std::unique_ptr<Resources::GLShader> (Resources::GLShaderLoader::LoadFromFile("../assets/shaders/gizmo.glsl"));
-    assert(gizmoshader_!=nullptr&&"ShapeDrawer.gizmoshader_ create failed!");
+    SANA_ASSERT(gizmoshader_!=nullptr&&"ShapeDrawer.gizmoshader_ create failed!");
 
     auto cos45 = cos(SM_PI/4);
     auto sin45 = sin(SM_PI/4);
@@ -539,7 +540,7 @@ void GLShapeDrawer::InitArrowDrawer(){
     arrowmeshp_ = std::make_unique<Resources::SMesh>(tmpv,idx);
 
     arrowshader_=std::unique_ptr<Resources::GLShader> (Resources::GLShaderLoader::LoadFromFile("../assets/shaders/test.glsl"));
-    assert(arrowshader_!=nullptr&&"ShapeDrawer.arrowshader create failed!");
+    SANA_ASSERT(arrowshader_!=nullptr&&"ShapeDrawer.arrowshader create failed!");
    
 }
 
@@ -580,7 +581,7 @@ void main(){
 
 )";
     lineshader_=std::unique_ptr<Resources::GLShader> (Resources::GLShaderLoader::LoadFromStr(vshader, fshader));
-    assert(lineshader_!=nullptr&&"ShapeDrawer.lineshader_ create failed!");
+    SANA_ASSERT(lineshader_!=nullptr&&"ShapeDrawer.lineshader_ create failed!");
 
 }
 
@@ -705,7 +706,7 @@ void main(){
 
 )";
     gridshader_=std::unique_ptr<Resources::GLShader> (Resources::GLShaderLoader::LoadFromStr(vshader, fshader));
-    assert(gridshader_!=nullptr&&"ShapeDrawer.gridshader_ create failed!");
+    SANA_ASSERT(gridshader_!=nullptr&&"ShapeDrawer.gridshader_ create failed!");
    
 
 }

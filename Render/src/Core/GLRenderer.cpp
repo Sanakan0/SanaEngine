@@ -5,7 +5,6 @@
 #include "glm/fwd.hpp"
 #include<SRender/Resources/GLShaderLoader.h>
 #include <memory>
-#include <assert.h>
 #include <stdint.h>
 #include <vector>
 namespace SRender::Core{

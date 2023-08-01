@@ -10,6 +10,7 @@
 #include <opencv2/cudaarithm.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/core/cuda.hpp>
+#include "Debug/Assertion.h"
 int main(void){
     //cuda test
     int num_devices = cv::cuda::getCudaEnabledDeviceCount();
@@ -39,7 +40,6 @@ int main(void){
     // cv::namedWindow("tmp");
     // cv::imshow("tmp",tmp);
     // cv::waitKey();
-    
 
     SEditor::Core::Application app;
     app.Run();

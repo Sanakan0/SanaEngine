@@ -54,7 +54,9 @@ void UImanager::SetupFont(){
     //textfont.medium=io.Fonts->AddFontFromFileTTF( fullpth.c_str(), baseFontSize_*1.5);
     //textfont.large=io.Fonts->AddFontFromFileTTF( fullpth.c_str(), baseFontSize_*2.25);
     //ImGui::PushFont(textfont.small);
-    
+    if (textfont.small==nullptr) {
+        textfont.small=io.Fonts->AddFontDefault();
+    }
     io.FontDefault=textfont.small;
 }
 

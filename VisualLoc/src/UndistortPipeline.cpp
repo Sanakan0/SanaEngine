@@ -5,7 +5,7 @@
 #include "SRender/Resources/GLShaderLoader.h"
 #include "SResourceManager/Util.h"
 #include "VisualLoc/UndistortPipeline.h"
-
+#include "Debug/Assertion.h"
 namespace VisualLoc{
 
 
@@ -36,7 +36,7 @@ UndistortPipeline::UndistortPipeline():renderer_(SANASERVICE(SRender::Core::Enti
     panelmeshp_ = std::make_unique<SRender::Resources::SMesh>(tmpv,idx);
     auto pth = ResourceManager::PathManager::GetFullPath(":shaders\\undistortion.glsl");
     shaderp_ = std::unique_ptr<SRender::Resources::GLShader> (SRender::Resources::GLShaderLoader::LoadFromFile(pth));
-    assert(arrowshader_!=nullptr&&"UNDISTORTION create failed!");
+    SANA_ASSERT(shaderp_!=nullptr&&"UNDISTORTION create failed!");
    
 }
 
