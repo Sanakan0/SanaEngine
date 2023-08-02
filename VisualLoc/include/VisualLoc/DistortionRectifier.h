@@ -238,7 +238,7 @@ public:
         //return lossf(dist_param.dist_para);
     }
 
-    std::tuple<double,double,double,double> GetCurLoss(LinesT& lines,float aspect_ratio,SRender::LowRenderer::RadialDistortion& dist_param){
+    std::tuple<double,double,double,double> GetCurLoss(LinesT& lines,float aspect_ratio,SRender::LowRenderer::RadialDistortion& dist_param,LinesT* distlines=nullptr){
         if (lines.empty()) return{-1,-1,-1,-1};
         LinesT lines_halfW_norm;
         lines_halfW_norm.resize(lines.size());
@@ -269,7 +269,17 @@ public:
                 break;
         }
 
-
+        if (distlines!=nullptr){
+            distlines->clear();
+            for (int k=0;k<lines_halfW_norm.size();++k){
+                distlines->push_back({});
+                for (int i=0;i<lines_halfW_norm[k].size();++i){
+                    auto upts=undist_func(lines_halfW_norm[k][i],dist_param.dist_para);
+                    (*distlines)[k].push_back(upts);
+                }
+                
+            }
+        }
 
         auto lossf = std::bind(&DistortionRectifier::LossFunc,this, lines_halfW_norm,undist_func,std::placeholders::_1);
         auto distlossf =  std::bind(&DistortionRectifier::DistmseLossFunc,this, lines_halfW_norm,undist_func,std::placeholders::_1);

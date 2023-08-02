@@ -67,7 +67,6 @@ void DistrotionRectifierPanel::DrawContent(){
     std::vector<std::vector<std::pair<double,double>>>& lines = Rectifycomp->lines;
     static int selected = -1;
     ImVec2 lupos(ImGui::GetCursorScreenPos());
-	ImVec2 lupos1(lupos);
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {0,0});
     //ImGui::Image((void*)(uint64_t)uimgp->id, {(float)uimgp->width/scale,(float)uimgp->height/scale},ImVec2(0,1),ImVec2(1,0));
 
@@ -132,13 +131,14 @@ void DistrotionRectifierPanel::DrawContent(){
 
     ImGui::PopStyleVar();
     auto &distortioninfo = Camcomp->cam_.distortion_;
-    static float norm_fh=my_tex_w/(my_tex_h*2);
+    float norm_fh=my_tex_w/(my_tex_h*2);
     //static float norm_fh=0.5;
     static float sensor_scale=1;
     undistpipeline.Run(*uimgp, norm_fh,sensor_scale, distortioninfo);
     auto uimgw=undistpipeline.GetFbo().buf_size_.first;
     auto uimgh=undistpipeline.GetFbo().buf_size_.second;
     ImGui::SameLine();
+    ImVec2 uimg_lupos(ImGui::GetCursorScreenPos());
     ImGui::Image((void*)(uint64_t)undistpipeline.GetFbo().tex_buf_id_, {(float)uimgw/scale,(float)uimgh/scale},ImVec2(0,1),ImVec2(1,0));
 
     ImGui::Spacing();
@@ -200,7 +200,8 @@ void DistrotionRectifierPanel::DrawContent(){
         Rectifycomp->lossval_= rectifier_.RectifyWithLines(lines, aspect_ratio, distortioninfo,true);
     }
     ImGui::Text("error: %.8f",Rectifycomp->lossval_);
-    auto [dloss,aloss,dderiv,aderiv] = rectifier_.GetCurLoss(lines, aspect_ratio, distortioninfo);
+    VisualLoc::LinesT distlines;
+    auto [dloss,aloss,dderiv,aderiv] = rectifier_.GetCurLoss(lines, aspect_ratio, distortioninfo,&distlines);
     ImGui::Text("Angle Loss: %.8f Dist Loss: %.8f", aloss,dloss);
     ImGui::Text("Angle deriv: %.8f Dist deriv: %.8f", aderiv,dderiv);
     
@@ -223,6 +224,31 @@ void DistrotionRectifierPanel::DrawContent(){
             auto x = line[i].first*my_tex_w;
             auto y = line[i].second*my_tex_h;
             ImVec2 p1(lupos.x+x,lupos.y+y);
+            //ImVec2 p2(lupos1.x+i.pt2.pt.x/scale,lupos1.y+i.pt2.pt.y/scale);
+            draw_list->AddCircleFilled(p1, ptsz, ptcol);
+            draw_list->AddLine(p0, p1, selected==k?ptcol:linecol);
+            p0=p1;
+        }
+    }
+    for (int k=0;k<distlines.size();++k){
+        auto& line=distlines[k];
+        if (line.size()<=0) continue;
+        auto x = line[0].first/2;
+        auto y = line[0].second/2*aspect_ratio;
+        x+=0.5*sensor_scale;
+        y+=0.5*sensor_scale;
+        x*=(float)my_tex_w;
+        y*=(float)my_tex_h;
+        ImVec2 p0(uimg_lupos.x+x,uimg_lupos.y+y);
+        draw_list->AddCircleFilled(p0, ptsz, ptcol);
+        for (int i=1;i<line.size();++i){
+            auto x = line[i].first/2;
+            auto y = line[i].second/2*aspect_ratio;
+            x+=0.5*sensor_scale;
+            y+=0.5*sensor_scale;
+            x*=(float)my_tex_w;
+            y*=(float)my_tex_h;
+            ImVec2 p1(uimg_lupos.x+x,uimg_lupos.y+y);
             //ImVec2 p2(lupos1.x+i.pt2.pt.x/scale,lupos1.y+i.pt2.pt.y/scale);
             draw_list->AddCircleFilled(p1, ptsz, ptcol);
             draw_list->AddLine(p0, p1, selected==k?ptcol:linecol);
