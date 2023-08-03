@@ -61,13 +61,13 @@ public:
         };
 
         poly5_undistfunc = [&](std::pair<double, double> dpts,float* params)->std::pair<double, double>{
-             auto rd = sqrt( dpts.first*dpts.first+dpts.second*dpts.second);
+            auto rd = sqrt( dpts.first*dpts.first+dpts.second*dpts.second);
             auto k1 = params[0];
             auto k2 = params[1];
             auto b24ac = 9.0*k1*k1-20.0*k2;
              double maxRu=1e8;
             if (b24ac>=0){
-                if (k2>0){
+                if (k2!=0){
                      auto leftx = (-3.0*k1-std::sqrt( b24ac))/(10.0*k2);
                      auto rightx = (-3.0*k1+std::sqrt( b24ac))/(10.0*k2);
                     if (leftx>0) maxRu=std::min(maxRu,leftx);
@@ -79,7 +79,7 @@ public:
                 }
             }
 
-             auto maxRd = std::min(poly5_distfunc(maxRu, k1, k2),1e5);
+            auto maxRd = std::min(poly5_distfunc(maxRu, k1, k2),1e5);
             double ru=1e5;
             if (rd<=maxRd){
                 double ll=0,rr=maxRu;
@@ -97,10 +97,11 @@ public:
 
 
             
-            
 
             
             auto alpha = ru/rd;
+            
+
             return {dpts.first*alpha,dpts.second*alpha};
         };
     }
