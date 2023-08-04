@@ -202,7 +202,7 @@ void DistrotionRectifierPanel::DrawContent(){
     ImGui::Text("error: %.8f",Rectifycomp->lossval_);
     VisualLoc::LinesT distlines;
     auto [dloss,aloss,dderiv,aderiv] = rectifier_.GetCurLoss(lines, aspect_ratio, distortioninfo,&distlines);
-    ImGui::Text("Angle Loss: %.8f Dist Loss: %.8f", aloss,dloss);
+    ImGui::Text("Angle Loss: %.8f Dist Loss: %.8f Dist Loss pixel wise: %.8f", aloss,dloss,dloss*uimgp->width/2.0);
     ImGui::Text("Angle deriv: %.8f Dist deriv: %.8f", aderiv,dderiv);
     
 

@@ -23,12 +23,12 @@ void Hierarchy::RightClickMenu(){
 }
 
 void Hierarchy::DrawContent(){
-
+    ECS::ActorID selectedActorId=scenemanager_.GetSelectedActorID();
     if (ImGui::TreeNode("root")){
         if (ImGui::TreeNode("model")){
             for  (auto &meshcomp:scenemanager_.GetScene()->GetBasicRenderComponent().meshcomps){
                 auto& actor = meshcomp->parentactor_;
-                if (ImGui::Selectable((actor.GetName() + std::to_string(actor.GetID())).c_str())){
+                if (ImGui::Selectable((actor.GetName() + std::to_string(actor.GetID())).c_str(),actor.GetID()==selectedActorId)){
                     scenemanager_.SetSelectedActor(actor.GetID());
                 }
             }
@@ -37,7 +37,7 @@ void Hierarchy::DrawContent(){
         if (ImGui::TreeNode("camera")){
             for  (auto &meshcomp:scenemanager_.GetScene()->GetBasicRenderComponent().camcomps){
                 auto& actor = meshcomp->parentactor_;
-                if (ImGui::Selectable((actor.GetName() + std::to_string(actor.GetID())).c_str())){
+                if (ImGui::Selectable((actor.GetName() + std::to_string(actor.GetID())).c_str(),actor.GetID()==selectedActorId)){
                     scenemanager_.SetSelectedActor(actor.GetID());
                 }
             }
@@ -46,9 +46,12 @@ void Hierarchy::DrawContent(){
         if (ImGui::TreeNode("img rectifier")){
             for  (auto& [_,actor]:scenemanager_.GetScene()->GetActors()){
                 if (actor->GetComponent("RectifyComponent")){
-                    if (ImGui::Selectable((actor->GetName() + std::to_string(actor->GetID())).c_str())){
+                    //ImGui::PushID(("img rectifier"+std::to_string(actor->GetID())).c_str());
+                    if (ImGui::Selectable((actor->GetName() + std::to_string(actor->GetID())).c_str(),actor->GetID()==selectedActorId)){
                         scenemanager_.SetSelectedActor(actor->GetID());
                     }
+                    //ImGui::PopID();
+                
                 }
                 
             }
@@ -57,7 +60,7 @@ void Hierarchy::DrawContent(){
         if (ImGui::TreeNode("light")){
             for  (auto& [_,actor]:scenemanager_.GetScene()->GetActors()){
                 if (actor->GetComponent("LightComponent")){
-                    if (ImGui::Selectable((actor->GetName() + std::to_string(actor->GetID())).c_str())){
+                    if (ImGui::Selectable((actor->GetName() + std::to_string(actor->GetID())).c_str(),actor->GetID()==selectedActorId)){
                         scenemanager_.SetSelectedActor(actor->GetID());
                     }
                 }

@@ -16,7 +16,7 @@ using DistFuncT = std::function<std::pair<double, double>(std::pair<double, doub
 class DistortionRectifier{
 public:
 
-    DistFuncT index_undistfunc;
+    DistFuncT index_undistfunc,index_distfunc;
     DistFuncT division_undistfunc;
     DistFuncT poly5_undistfunc;
     DistFuncT poly5_undistfunc_bi;
@@ -27,6 +27,12 @@ public:
             auto k = params[0];
             auto alpha = 1.0/sqrt(1.0-k*rd2);
             return {dpts.first*alpha,dpts.second*alpha};
+        };
+        index_distfunc = [](std::pair<double, double> udpts,float* params)->std::pair<double, double>{
+            auto ru2 = udpts.first*udpts.first+udpts.second*udpts.second;
+            auto k = params[0];
+            auto alpha = 1.0/sqrt(1.0+k*ru2);
+            return {udpts.first*alpha,udpts.second*alpha};
         };
         division_undistfunc = [](std::pair<double, double> dpts,float* params)->std::pair<double, double>{
             auto rd2 = dpts.first*dpts.first+dpts.second*dpts.second;

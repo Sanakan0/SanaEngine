@@ -27,6 +27,7 @@ public:
         selected_actor_id_=id;
         selected_actor_p_=scenep_->GetActorbyID(id);
     }
+    ECS::ActorID GetSelectedActorID(){return selected_actor_id_;}
     ECS::Actor* GetSelectedActor(){return selected_actor_p_;}
     void SetActiveCamera(ECS::ActorID id){
         active_camera_id_=id;
