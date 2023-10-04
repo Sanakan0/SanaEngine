@@ -1,3 +1,4 @@
+#include "ECS/Actor.h"
 #include "ECS/Component/RectifyComponent.h"
 #include "SCore/Global/ServiceLocator.h"
 #include "SceneSys/SceneManager.h"
@@ -25,10 +26,15 @@ void Hierarchy::RightClickMenu(){
 void Hierarchy::DrawContent(){
     ECS::ActorID selectedActorId=scenemanager_.GetSelectedActorID();
     if (ImGui::TreeNode("root")){
+       
+        static auto ActorSelectable = [&](ECS::Actor& actor){
+            return ImGui::Selectable((actor.GetName() + "_" + std::to_string(actor.GetID())).c_str(),actor.GetID()==selectedActorId);
+        };
+
         if (ImGui::TreeNode("model")){
             for  (auto &meshcomp:scenemanager_.GetScene()->GetBasicRenderComponent().meshcomps){
                 auto& actor = meshcomp->parentactor_;
-                if (ImGui::Selectable((actor.GetName() + std::to_string(actor.GetID())).c_str(),actor.GetID()==selectedActorId)){
+                if (ActorSelectable(actor)){
                     scenemanager_.SetSelectedActor(actor.GetID());
                 }
             }
@@ -37,7 +43,7 @@ void Hierarchy::DrawContent(){
         if (ImGui::TreeNode("camera")){
             for  (auto &meshcomp:scenemanager_.GetScene()->GetBasicRenderComponent().camcomps){
                 auto& actor = meshcomp->parentactor_;
-                if (ImGui::Selectable((actor.GetName() + std::to_string(actor.GetID())).c_str(),actor.GetID()==selectedActorId)){
+                if (ActorSelectable(actor)){
                     scenemanager_.SetSelectedActor(actor.GetID());
                 }
             }
@@ -47,7 +53,7 @@ void Hierarchy::DrawContent(){
             for  (auto& [_,actor]:scenemanager_.GetScene()->GetActors()){
                 if (actor->GetComponent("RectifyComponent")){
                     //ImGui::PushID(("img rectifier"+std::to_string(actor->GetID())).c_str());
-                    if (ImGui::Selectable((actor->GetName() + std::to_string(actor->GetID())).c_str(),actor->GetID()==selectedActorId)){
+                    if (ActorSelectable(*actor)){
                         scenemanager_.SetSelectedActor(actor->GetID());
                     }
                     //ImGui::PopID();
@@ -60,7 +66,7 @@ void Hierarchy::DrawContent(){
         if (ImGui::TreeNode("light")){
             for  (auto& [_,actor]:scenemanager_.GetScene()->GetActors()){
                 if (actor->GetComponent("LightComponent")){
-                    if (ImGui::Selectable((actor->GetName() + std::to_string(actor->GetID())).c_str(),actor->GetID()==selectedActorId)){
+                    if (ActorSelectable(*actor)){
                         scenemanager_.SetSelectedActor(actor->GetID());
                     }
                 }

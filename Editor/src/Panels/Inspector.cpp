@@ -4,6 +4,7 @@
 #include "SceneSys/SceneManager.h"
 #include "imgui/imgui.h"
 #include <SEditor/Panels/Inspector.h>
+#include <cstring>
 #include <functional>
 #include <sstream>
 #include <string>
@@ -65,7 +66,12 @@ void Inspector::DrawContent(){
         }
 
         std::stringstream ss;
-        ss <<selected_actor_->GetName()<<"_"<<selected_actor_->GetID();
+        auto tmp = selected_actor_->GetName();
+        static char cbuf[50];
+        strcpy_s(cbuf,tmp.c_str());
+        ImGui::InputText("name", cbuf,IM_ARRAYSIZE(cbuf));
+        selected_actor_->SetName(cbuf);
+        ss <<"id_"<<selected_actor_->GetID();
         ImGui::Text(ss.str().c_str());
         component_drawlist_.Invoke();    
     }
