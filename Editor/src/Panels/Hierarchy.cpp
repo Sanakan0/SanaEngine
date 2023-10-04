@@ -25,11 +25,30 @@ void Hierarchy::RightClickMenu(){
 
 void Hierarchy::DrawContent(){
     ECS::ActorID selectedActorId=scenemanager_.GetSelectedActorID();
+    
+
+    static auto RightClick = [&](ECS::Actor& actor){
+        if (ImGui::BeginPopupContextItem()) // <-- use last item id as popup id
+        {
+            
+            ImGui::Text("actor %s",actor.GetName().c_str());
+            if (ImGui::Button("delete")){
+                scenemanager_.GetScene()->DeleteActor(actor.GetID());
+            }
+            if (ImGui::Button("Close"))
+                ImGui::CloseCurrentPopup();
+            ImGui::EndPopup();
+        }
+    };
+
+    static auto ActorSelectable = [&](ECS::Actor& actor){
+        bool res = ImGui::Selectable((actor.GetName() + "_" + std::to_string(actor.GetID())).c_str(),actor.GetID()==selectedActorId);
+        RightClick(actor);
+        return res;
+    };
     if (ImGui::TreeNode("root")){
        
-        static auto ActorSelectable = [&](ECS::Actor& actor){
-            return ImGui::Selectable((actor.GetName() + "_" + std::to_string(actor.GetID())).c_str(),actor.GetID()==selectedActorId);
-        };
+        
 
         if (ImGui::TreeNode("model")){
             for  (auto &meshcomp:scenemanager_.GetScene()->GetBasicRenderComponent().meshcomps){

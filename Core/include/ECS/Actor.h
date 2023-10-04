@@ -48,7 +48,7 @@ public:
     ActorID GetID() const {return id_;}
     void SetID(ActorID id) {id_=id;}
 
-    
+
     Components::Component* GetComponent(const std::string& component_type_name ){
         for (auto& i:components_){
             if (component_type_name==i.first){
@@ -57,6 +57,11 @@ public:
         }       
         return nullptr;
     }
+
+    auto& GetComponents(){
+        return components_;
+    }
+
     //Draw IMGUI for interact
     Components::TransformComponent* GetTransformComponent(){return transform_;}
 

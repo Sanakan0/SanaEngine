@@ -26,6 +26,7 @@ public:
     Scene();
     ~Scene();
     ECS::Actor& CreateActor(const std::string& name="Default");
+    void DeleteActor(const ECS::ActorID id);
     auto& GetActors(){return actors_;}
     ECS::Actor* GetActorbyID(ECS::ActorID id);
     const BasicRenderComponents& GetBasicRenderComponent(){return basicrendercomponents_;}

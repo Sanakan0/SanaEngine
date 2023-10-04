@@ -31,6 +31,22 @@ ECS::Actor& Scene::CreateActor(const std::string& name){
     return res;
 }
 
+void Scene::DeleteActor(const ECS::ActorID id){
+	const std::lock_guard<std::mutex> lock(mutex_);
+	for (auto&[n,c] :actors_[id]->GetComponents()){
+		if (auto tmp = dynamic_cast<ECS::Components::MeshComponent*>(c.get())){
+			auto& vec= basicrendercomponents_.meshcomps;
+			vec.erase(std::remove(vec.begin(), vec.end(), tmp), vec.end());
+        
+    	}
+		else if (auto tmp = dynamic_cast<ECS::Components::CameraComponent*>(c.get())){
+			auto& vec= basicrendercomponents_.camcomps;
+			vec.erase(std::remove(vec.begin(), vec.end(), tmp), vec.end());
+		}
+	}
+	actors_.erase(id);
+}
+
 void Scene::OnAddComponent(ECS::Components::Component& component){
     if (auto tmp = dynamic_cast<ECS::Components::MeshComponent*>(&component)){
         basicrendercomponents_.meshcomps.push_back(tmp);
