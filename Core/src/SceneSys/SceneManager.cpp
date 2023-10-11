@@ -20,6 +20,7 @@ SceneManager::~SceneManager(){
 
 void SceneManager::CreateScene(){
     scenep_ = std::make_unique<Scene>();
+	scenep_->DeleteActorEvent.AddListener(std::bind(&SceneManager::OnDeleteActor,this,std::placeholders::_1));
 }
 
 void SceneManager::DestroyScene(){

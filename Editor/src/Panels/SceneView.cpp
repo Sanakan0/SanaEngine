@@ -143,6 +143,9 @@ void SceneView::RenderTick(float deltat){
     if (enable_line){
         rtcontext_.core_renderer_->SetRasterizationMode(SRender::Setting::SRasterization::LINE);
         rtcontext_.core_renderer_->SetRasterizationLineWdith(1);
+    }else if (enable_point){
+        rtcontext_.core_renderer_->SetRasterizationMode(SRender::Setting::SRasterization::POINT);
+        rtcontext_.core_renderer_->SetRasterizationPointSize(1);
     }else{
         rtcontext_.core_renderer_->SetRasterizationMode(SRender::Setting::SRasterization::FILL);
     }

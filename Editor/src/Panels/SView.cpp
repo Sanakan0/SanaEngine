@@ -64,6 +64,8 @@ void SView::DrawContent(){
     ImGui::Checkbox("enable normal", &enable_normal);
     ImGui::SameLine();
     ImGui::Checkbox("line view", &enable_line);
+    ImGui::SameLine();
+    ImGui::Checkbox("point view", &enable_point);
     ImGui::EndChild();
 
 

@@ -44,7 +44,9 @@ void Scene::DeleteActor(const ECS::ActorID id){
 			vec.erase(std::remove(vec.begin(), vec.end(), tmp), vec.end());
 		}
 	}
+	DeleteActorEvent.Invoke(*actors_[id]);
 	actors_.erase(id);
+	
 }
 
 void Scene::OnAddComponent(ECS::Components::Component& component){

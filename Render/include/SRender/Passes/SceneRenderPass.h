@@ -18,7 +18,7 @@ public:
     SceneRenderPass();
     ~SceneRenderPass()=default;
     void Draw();
-    void BindDistortionInfo(const LowRenderer::Camera& cam);
+    void BindDistortionInfo(LowRenderer::RadialDistortion* distinfo);
     void EnableDistortion(){shaderp_ = distortion_shaderp_.get();}
     void DisableDistortion(){shaderp_ = unlit_shaderp_.get();}
 private: 

@@ -36,8 +36,9 @@ public:
 
     virtual void Deserialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_root) override;
 
-
+    SCore::Event<ECS::Actor&> DeleteActorEvent;
 private:
+    
     std::unordered_map<ECS::ActorID , std::unique_ptr<ECS::Actor>> actors_;
     BasicRenderComponents basicrendercomponents_;
     ECS::ActorID actor_id_cnt_=1;

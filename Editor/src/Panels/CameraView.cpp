@@ -25,15 +25,21 @@ CameraView::CameraView(Core::RuntimeContext& rtcontext):rtcontext_(rtcontext){
 void CameraView::LogicTick(float deltat){
     
     //update camctl if changed
-    if (auto curcam = rtcontext_.scene_manager_->GetActiveCamera();curcam!=nullptr&&curcam!=active_camera_actor_){
+    if (auto curcam = rtcontext_.scene_manager_->GetActiveCamera();curcam!=active_camera_actor_){
         active_camera_actor_=curcam;
-        auto camcomp = static_cast<ECS::Components::CameraComponent*>(
-            active_camera_actor_->GetComponent("CameraComponent")
-        );
-        auto transcomp = active_camera_actor_->GetTransformComponent();
-        camctrl_.SetCamInExParam(camcomp->cam_, transcomp->trans_);
-    
-        scenerenderpass_.BindDistortionInfo(camcomp->cam_);
+        if (active_camera_actor_ == nullptr){
+            camctrl_.SetCamInExParam(cam_, cam_extrinsic_);
+            scenerenderpass_.BindDistortionInfo(nullptr);
+        }else{
+            auto camcomp = static_cast<ECS::Components::CameraComponent*>(
+                active_camera_actor_->GetComponent("CameraComponent")
+            );
+            auto transcomp = active_camera_actor_->GetTransformComponent();
+            camctrl_.SetCamInExParam(camcomp->cam_, transcomp->trans_);
+        
+            scenerenderpass_.BindDistortionInfo(&camcomp->cam_.distortion_);
+        }
+        
     }
 
     camctrl_.cam_->CacheProjectionMat(camctrl_.cam_->Getaspect_ratio(),1);

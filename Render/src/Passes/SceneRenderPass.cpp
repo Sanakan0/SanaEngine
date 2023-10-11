@@ -53,8 +53,8 @@ void SceneRenderPass::Draw(){
    
 }
 
-void SceneRenderPass::BindDistortionInfo(const LowRenderer::Camera& cam){
-    distortioninfo_ = &cam.distortion_;
+void SceneRenderPass::BindDistortionInfo(LowRenderer::RadialDistortion* distinfo){
+    distortioninfo_ = distinfo;
 }
 
 

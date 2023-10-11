@@ -1,6 +1,7 @@
 #include "VisualLoc/RenderBasedLocEngine.h"
 #include "SCore/Global/ServiceLocator.h"
 #include "SEditor/Core/CameraCtrl.h"
+#include "SMath/Quaternion.h"
 #include "SRender/Core/EntityRenderer.h"
 #include "SRender/Passes/SimpleRenderPipeline.h"
 #include "glm/ext/matrix_transform.hpp"
@@ -24,6 +25,7 @@
 #include <opencv2/imgproc.hpp>
 #include <utility>
 #include <vector>
+#include <random>
 namespace VisualLoc{
 
 RenderBasedLocEngine::RenderBasedLocEngine()
@@ -58,14 +60,43 @@ matchpairvec RenderBasedLocEngine::TestFeatureMatch(const cv::Mat& ref_img,ECS::
     return res;
 }
 
-void RenderBasedLocEngine::LocPipeline(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting){
+
+void RenderBasedLocEngine::LocPipelineMultiRandom(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting){
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_real_distribution<double> distrib(-1.0,1.0);
     acam_.InitFromActor(initialcam);
+    auto pos0 = acam_.GetPos();
+    auto orien0 = acam_.GetOrien();
+    for (int i=0;i<30;++i){
+        double transStep=10;
+        double rotatStep=30;
+        double dx = distrib(mt)*transStep;
+        double dy = distrib(mt)*transStep;
+        double dz = distrib(mt)*transStep;
+        double dh = distrib(mt)*rotatStep;
+        double dv = distrib(mt)*rotatStep;
+        acam_.SetExtrinsic(orien0, pos0);
+        acam_.translate({dx,dy,dz});
+        acam_.FpsRotate(dh, dv);
+        int ret = RunVisLocSingle(ref_img,setting);
+        if (ret) return;
+    }
+    acam_.SetExtrinsic(orien0, pos0);
+}
+void RenderBasedLocEngine::LocPipeline(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting){
+
+    acam_.InitFromActor(initialcam);
+    RunVisLocSingle(ref_img,setting);
+}
+
+int RenderBasedLocEngine::RunVisLocSingle(const cv::Mat& ref_img,const LocPipelineSetting& setting){
     renderpipline_.RenderTick();
     
     auto res = SURFFeatureMatch(ref_img, Fbo2Cvmat(),setting.fm_lowesratio);
     std::vector<cv::Point3f> objpts;
     std::vector<cv::Point2f> imgpts;
-    if (res.size()<4) return;
+    if (res.size()<4) return 0;
     for (auto& i:res){
         imgpts.push_back(i.pt1.pt);
         auto tmp = RetrievPosFromPixel(i.pt2.pt.x, i.pt2.pt.y);
@@ -88,9 +119,14 @@ void RenderBasedLocEngine::LocPipeline(const cv::Mat& ref_img,ECS::Actor& initia
     auto[orien,trans,inliers] = RansacPnpPass(objpts,imgpts,inmat,distCoeffs,useExtrinsicGuess,iterationscount,reprojectionerror,confidence);
     if (inliers.size().width==0){ //failed
         spdlog::warn("[VISLOC] Pipeline Failed");
-        return;
+        return 0;
     }
+    auto tmpeul = sm::Quat2Eul( acam_.GetOrien());
+    spdlog::info("[VISLOC] Pipeline Success, Inliers: {} trans: {} {} {} rotat: {} {} {}",
+        inliers.size().height, acam_.GetPos().x,acam_.GetPos().y,acam_.GetPos().z,
+        tmpeul.x,tmpeul.y,tmpeul.z);
     acam_.SetExtrinsic(orien, trans);
+    return inliers.size().width;
 }
 
 std::tuple<glm::quat,glm::vec3,cv::Mat> RenderBasedLocEngine::RansacPnpPass(const std::vector<cv::Point3f>& objpts,const std::vector<cv::Point2f>& imgpts,

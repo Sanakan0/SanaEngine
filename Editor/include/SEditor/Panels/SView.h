@@ -23,6 +23,7 @@ public:
     bool cursor_selecting=false;
     bool enable_normal=false;
     bool enable_line = false;
+    bool enable_point = false;
 };
 
 }

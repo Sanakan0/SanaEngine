@@ -4,6 +4,7 @@
 #include "SRender/LowRenderer/Camera.h"
 #include "SRender/Resources/STextureLoader.h"
 #include "SGUI/Widgets/CustomWidgets.h"
+#include "SResourceManager/Util.h"
 #include "SceneSys/SceneManager.h"
 #include "imgui/imgui.h"
 #include "spdlog/spdlog.h"
@@ -63,13 +64,13 @@ void VisLocPanel::DrawContent(){
     ImGui::Image((void*)(uint64_t)locengine.fbo_.tex_buf_id_,ImVec2(locengine.fbo_.buf_size_.first/scale,locengine.fbo_.buf_size_.second/scale),ImVec2(0,1),ImVec2(1,0) );
 
     ImGui::PopStyleVar();
-    static SRender::LowRenderer::RadialDistortion distortioninfo{{0,0,0},SRender::LowRenderer::DistortionModel::INDEX};
-    static float norm_fh=1;
-    static float sensor_scale=1;
-    undistpipeline.Run(*imgp1, norm_fh,sensor_scale, distortioninfo);
-    auto uimgw=undistpipeline.GetFbo().buf_size_.first;
-    auto uimgh=undistpipeline.GetFbo().buf_size_.second;
-    ImGui::Image((void*)(uint64_t)undistpipeline.GetFbo().tex_buf_id_, {(float)uimgw/scale,(float)uimgh/scale},ImVec2(0,1),ImVec2(1,0));
+    // static SRender::LowRenderer::RadialDistortion distortioninfo{{0,0,0},SRender::LowRenderer::DistortionModel::INDEX};
+    // static float norm_fh=1;
+    // static float sensor_scale=1;
+    // undistpipeline.Run(*imgp1, norm_fh,sensor_scale, distortioninfo);
+    // auto uimgw=undistpipeline.GetFbo().buf_size_.first;
+    // auto uimgh=undistpipeline.GetFbo().buf_size_.second;
+    // ImGui::Image((void*)(uint64_t)undistpipeline.GetFbo().tex_buf_id_, {(float)uimgw/scale,(float)uimgh/scale},ImVec2(0,1),ImVec2(1,0));
     static VisualLoc::matchpairvec res ;
     
     lupos1.x+=(float)imgp1->width/scale;
@@ -84,9 +85,10 @@ void VisLocPanel::DrawContent(){
     }
     ImGui::Spacing();
     ImGui::DragFloat("img scale",&scale,0.01);
-    ImGui::DragFloat("sensor scale",&sensor_scale,0.01);
+    // ImGui::DragFloat("sensor scale",&sensor_scale,0.01);
     if (ImGui::Button("打开文件")){
-        auto filepth = Util::NfdDialog::OpenFileDlg();
+        static std::vector<nfdfilteritem_t> filters={{"Image","png,jpg,jpeg"}};
+        auto filepth = Util::NfdDialog::OpenFileDlg(filters,ResourceManager::PathManager::GetProjectPath());
         if (filepth!=""){
             auto tmptex = SRender::Resources::STextureLoader::LoadFromFile(filepth);
             if (tmptex!=nullptr){
@@ -99,35 +101,35 @@ void VisLocPanel::DrawContent(){
             
         }
     }
-    const char* models[] = { "NONE","INDEX","POLY3","POLY5","PTLENS" ,"DIVISION"};
-    ImGui::Combo("Distortion Model", &distortioninfo.dist_type, models, IM_ARRAYSIZE(models));
-    ImGui::PushItemWidth(80);
-    switch (distortioninfo.dist_type) {
-    case 0:
-        break;
-    case 1:
-        ImGui::DragFloat("k",&distortioninfo.dist_para[0],0.001);
-        break;
-    case 2:
-        ImGui::DragFloat("k",&distortioninfo.dist_para[0],0.001);
-        break;
-    case 3:
-        ImGui::DragFloat("k1",&distortioninfo.dist_para[0],0.001);
-        ImGui::SameLine();
-        ImGui::DragFloat("k2",&distortioninfo.dist_para[1],0.001);
-        break;
-    case 4:
-        ImGui::DragFloat("a",&distortioninfo.dist_para[0],0.001);
-        ImGui::SameLine();
-        ImGui::DragFloat("b",&distortioninfo.dist_para[1],0.001);
-        ImGui::SameLine();
-        ImGui::DragFloat("c",&distortioninfo.dist_para[2],0.001);
-        break;
-    case 5:
-        ImGui::DragFloat("K",&distortioninfo.dist_para[0],0.001);
-        break;
-    }
-    ImGui::DragFloat("norm_fh",&norm_fh,0.001);
+    // const char* models[] = { "NONE","INDEX","POLY3","POLY5","PTLENS" ,"DIVISION"};
+    // ImGui::Combo("Distortion Model", &distortioninfo.dist_type, models, IM_ARRAYSIZE(models));
+    // ImGui::PushItemWidth(80);
+    // switch (distortioninfo.dist_type) {
+    // case 0:
+    //     break;
+    // case 1:
+    //     ImGui::DragFloat("k",&distortioninfo.dist_para[0],0.001);
+    //     break;
+    // case 2:
+    //     ImGui::DragFloat("k",&distortioninfo.dist_para[0],0.001);
+    //     break;
+    // case 3:
+    //     ImGui::DragFloat("k1",&distortioninfo.dist_para[0],0.001);
+    //     ImGui::SameLine();
+    //     ImGui::DragFloat("k2",&distortioninfo.dist_para[1],0.001);
+    //     break;
+    // case 4:
+    //     ImGui::DragFloat("a",&distortioninfo.dist_para[0],0.001);
+    //     ImGui::SameLine();
+    //     ImGui::DragFloat("b",&distortioninfo.dist_para[1],0.001);
+    //     ImGui::SameLine();
+    //     ImGui::DragFloat("c",&distortioninfo.dist_para[2],0.001);
+    //     break;
+    // case 5:
+    //     ImGui::DragFloat("K",&distortioninfo.dist_para[0],0.001);
+    //     break;
+    // }
+    // ImGui::DragFloat("norm_fh",&norm_fh,0.001);
 
     ImGui::Separator();
     
@@ -149,6 +151,15 @@ void VisLocPanel::DrawContent(){
         }
         else{
             locengine.LocPipeline(img1,*scenemanager_.GetActiveCamera(),locsetting);
+        }
+    }
+    if (ImGui::Button("run pipeline multi random")){
+        auto tmp = scenemanager_.GetActiveCamera();
+        if (tmp==nullptr){
+            spdlog::error("[VISLOC] No Camera Activated");
+        }
+        else{
+            locengine.LocPipelineMultiRandom(img1,*scenemanager_.GetActiveCamera(),locsetting);
         }
     }
     

@@ -42,8 +42,20 @@ public:
     void OnAddComponent(ECS::Components::Component& component){
         if (auto tmp = dynamic_cast<ECS::Components::LightComponent*>(&component)){
             main_light_p_ = &tmp->parentactor_;
+        }
     }
-}
+
+    void OnDeleteActor(ECS::Actor& actor){
+        if (actor.GetID() == active_camera_id_){
+            active_camera_id_ = 0;
+            active_camera_p_ = nullptr;
+        }
+        if (actor.GetID() == selected_actor_id_){
+            selected_actor_id_=0;
+            selected_actor_p_=nullptr;
+        }
+    }
+
 private:
     SRender::Resources::ModelLoadSetting SceneLoadSetting_;
     std::unique_ptr<Scene> scenep_;

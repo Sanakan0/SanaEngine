@@ -30,6 +30,8 @@ class RenderBasedLocEngine{
 public:
     RenderBasedLocEngine();
     void LocPipeline(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting);
+    void LocPipelineMultiRandom(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting);
+    int RunVisLocSingle(const cv::Mat& ref_img,const LocPipelineSetting& setting);
     std::tuple<glm::quat,glm::vec3,cv::Mat> RansacPnpPass(const std::vector<cv::Point3f>& objpts,const std::vector<cv::Point2f>& imgpts,
         const cv::Mat& inmat,const cv::Mat& distCoeffs,
         bool useExtrinsicGuess ,
@@ -50,6 +52,7 @@ public:
     
     SRender::Buffers::GLFrameBuffer fbo_;
 private:
+    
     SRender::LowRenderer::Camera defaultcam_;
     sm::Transform defaultex_;
     SEditor::Core::ACamera acam_;
