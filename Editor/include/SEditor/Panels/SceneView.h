@@ -20,6 +20,7 @@ public:
     SceneView(Core::RuntimeContext& rtcontext);
     void LogicTick(float deltat);
     void RenderTick(float deltat);
+    std::vector<glm::vec3> ctlpts;
 private:   
     void SetEngineUboControlMask(uint32_t mask);
     void ActorPickerTick(float deltat);

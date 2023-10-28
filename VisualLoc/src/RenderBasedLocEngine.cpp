@@ -1,6 +1,9 @@
 #include "VisualLoc/RenderBasedLocEngine.h"
 #include "SCore/Global/ServiceLocator.h"
 #include "SEditor/Core/CameraCtrl.h"
+#include "SEditor/Panels/SceneView.h"
+#include "SEditor/Panels/TestView.h"
+#include "SGUI/Core/UImanager.h"
 #include "SMath/Quaternion.h"
 #include "SRender/Core/EntityRenderer.h"
 #include "SRender/Passes/SimpleRenderPipeline.h"
@@ -90,6 +93,15 @@ void RenderBasedLocEngine::LocPipeline(const cv::Mat& ref_img,ECS::Actor& initia
     RunVisLocSingle(ref_img,setting);
 }
 
+static void VisualizeCtrlPoints(const std::vector<cv::Point3f>& objpts){
+    auto& testview =  SANASERVICE(SGUI::Core::UImanager).GetPanel<SEditor::Panels::TestView>("Test View");
+    auto& sceneview =  SANASERVICE(SGUI::Core::UImanager).GetPanel<SEditor::Panels::SceneView>("Scene View");
+    sceneview.ctlpts.clear();
+    for (auto& i:objpts){
+        sceneview.ctlpts.push_back({i.x,i.y,i.z});
+    }
+}
+
 int RenderBasedLocEngine::RunVisLocSingle(const cv::Mat& ref_img,const LocPipelineSetting& setting){
     renderpipline_.RenderTick();
     
@@ -102,6 +114,7 @@ int RenderBasedLocEngine::RunVisLocSingle(const cv::Mat& ref_img,const LocPipeli
         auto tmp = RetrievPosFromPixel(i.pt2.pt.x, i.pt2.pt.y);
         objpts.push_back({tmp.x,tmp.y,tmp.z});
     }
+    VisualizeCtrlPoints(objpts);
     double fpix = (double)acam_.cam_->Getfocal_length()*ref_img.size().height/acam_.cam_->Getsensor_size_h();
     
     auto inmat = GetIntrinsicMat(fpix, fpix, ref_img.size().width/2.0 , ref_img.size().height/2.0);

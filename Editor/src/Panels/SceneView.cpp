@@ -203,6 +203,9 @@ void SceneView::RenderTick(float deltat){
     
 
     rtcontext_.core_renderer_->SetRasterizationMode(SRender::Setting::SRasterization::FILL);
+    for (auto& i:ctlpts){
+        shape_drawer.DrawPoint(i, {0,0,0,1});
+    }
     fbo_.Unbind();
     
 }
