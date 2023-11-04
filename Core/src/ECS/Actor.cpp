@@ -1,4 +1,5 @@
 #include "ECS/Component/CameraComponent.h"
+#include "ECS/Component/LightComponent.h"
 #include "ECS/Component/MeshComponent.h"
 #include "ECS/Component/RectifyComponent.h"
 #include "ECS/Component/TransformComponent.h"
@@ -73,6 +74,7 @@ void Actor::Deserialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_actor
 				else if (componentType == typeid(Components::MeshComponent).name())			component = &AddComponent<Components::MeshComponent>();
 				else if (componentType == typeid(Components::CameraComponent).name())			component = &AddComponent<Components::CameraComponent>();
 				else if (componentType == typeid(Components::RectifyComponent).name())			component = &AddComponent<Components::RectifyComponent>();
+				else if (componentType == typeid(Components::LightComponent).name()) 		component = &AddComponent<Components::LightComponent>();
 				if (component)
 					component->Deserialize(p_doc, currentComponent->FirstChildElement("data"));
 
@@ -82,6 +84,18 @@ void Actor::Deserialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_actor
 	}
 
 
+}
+
+void Actor::OnUpdate(float delta_t){
+	for (auto& [n,c]:components_){
+		c->OnUpdate(delta_t);
+	}
+}
+
+void Actor::OnDrawGizmo(float delta_t){
+	for (auto& [n,c]:components_){
+		c->OnDrawGizmo(delta_t);
+	}
 }
 
 }

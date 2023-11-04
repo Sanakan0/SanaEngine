@@ -15,6 +15,8 @@ public:
 
     virtual void Tick(float delta_t);
 
+    virtual void OnUpdate(float delta_t){}
+    virtual void OnDrawGizmo(float delta_t){}
     //Draw IMGUI for interact
     DrawCmd GetInspectorDrawCmd(){
         return std::bind(&Component::DrawInspector,this);

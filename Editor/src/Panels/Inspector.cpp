@@ -15,14 +15,15 @@ const std::string Inspector::componentlist[]{
     "MeshComponent",
     "CameraComponent",
     "RectifyComponent",
-    "LightComponent"
+    "LightComponent",
+    "DatasetGenComponent"
 };
 
 Inspector::Inspector():
 scenemanager_(SANASERVICE(SceneSys::SceneManager)),
 sceneview_(SANASERVICE(SGUI::Core::UImanager).GetPanel<SEditor::Panels::SceneView>("Scene View"))
 {
-    name_="Inspector";
+    name_="实体编辑";
 }
 
 void Inspector::RightClickMenu(){

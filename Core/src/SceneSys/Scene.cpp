@@ -110,6 +110,17 @@ void Scene::Deserialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_root)
 	}
 }
 
+void Scene::Update(float delta_t){
+	for (auto& [id,a]:actors_){
+		a->OnUpdate(delta_t);
+	}
+}
+
+void Scene::DrawGizmo(float delta_t){
+	for (auto& [id,a]:actors_){
+		a->OnDrawGizmo(delta_t);
+	}
+}
 
 }
 

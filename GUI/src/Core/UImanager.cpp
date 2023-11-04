@@ -232,7 +232,7 @@ void UImanager::StartAFrame(){
 }
 
 void UImanager::RenderTick(float deltat){
-    ImGui::ShowDemoWindow();
+    //ImGui::ShowDemoWindow();
     for (auto& panel : panels_){
         panel->DrawTick(deltat);
     }

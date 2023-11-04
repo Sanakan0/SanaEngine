@@ -17,7 +17,7 @@
 namespace SEditor::Panels{
 
 CameraView::CameraView(Core::RuntimeContext& rtcontext):rtcontext_(rtcontext){
-    name_="Camera View";
+    name_="相机视图";
 }
 
 
@@ -51,7 +51,15 @@ void CameraView::LogicTick(float deltat){
 void CameraView::RenderTick(float deltat){   
     UpdateViewCam(deltat);
     rtcontext_.core_renderer_->SetViewPort(0, 0,canvas_size_.first ,canvas_size_.second );
-
+    if (enable_line){
+        rtcontext_.core_renderer_->SetRasterizationMode(SRender::Setting::SRasterization::LINE);
+        rtcontext_.core_renderer_->SetRasterizationLineWdith(1);
+    }else if (enable_point){
+        rtcontext_.core_renderer_->SetRasterizationMode(SRender::Setting::SRasterization::POINT);
+        rtcontext_.core_renderer_->SetRasterizationPointSize(1);
+    }else{
+        rtcontext_.core_renderer_->SetRasterizationMode(SRender::Setting::SRasterization::FILL);
+    }
     fbo_.Bind();
     
     auto& renderer = *(rtcontext_.core_renderer_);

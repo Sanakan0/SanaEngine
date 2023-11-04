@@ -36,6 +36,8 @@ public:
 
     virtual void Deserialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_root) override;
 
+    void Update(float delta_t);
+    void DrawGizmo(float delta_t);
     SCore::Event<ECS::Actor&> DeleteActorEvent;
 private:
     

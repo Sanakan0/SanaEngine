@@ -156,9 +156,29 @@ void DistrotionRectifierPanel::DrawContent(){
     //     ImVec2 p2(lupos1.x+i.pt2.pt.x/scale,lupos1.y+i.pt2.pt.y/scale);
     //     draw_list->AddLine(p1, p2,IM_COL32(255,255,255,255));
     // }
+    ImGui::DragFloat("图像缩放",&scale,0.01);
+    ImGui::DragFloat("CCD尺寸缩放",&sensor_scale,0.01);
+    if (ImGui::Button("打开...")){
+        static std::vector<nfdfilteritem_t> filters={{"Image","png,jpg,jpeg"}};
+        auto filepth = Util::NfdDialog::OpenFileDlg(filters,ResourceManager::PathManager::GetProjectPath());
+        if (filepth!=""){
+            auto path = std::filesystem::u8path(filepth);
+            auto filename = path.filename().u8string();
+            auto savepth = Util::NfdDialog::SaveDlg(filters,filename,ResourceManager::PathManager::GetProjectPath());
+            if (savepth!=""){
+                std::filesystem::copy_file(std::filesystem::u8path(filepth),std::filesystem::u8path(savepth),std::filesystem::copy_options::overwrite_existing );
+            }
+            auto relative = std::filesystem::relative(std::filesystem::u8path(savepth),
+            std::filesystem::u8path(ResourceManager::PathManager::GetProjectPath()));
+            std::cout <<"fk" << relative.generic_u8string()<<std::endl;
+            Rectifycomp->img_pth_="@"+relative.generic_u8string();
+            
+        }
+    }
     ImGui::Spacing();
     //add line
-    ImGui::Text("LINES:");
+    ImGui::Separator();
+    ImGui::Text("直线标定:");
 
    
     //ImGui::PushItemWidth(50);
@@ -186,19 +206,26 @@ void DistrotionRectifierPanel::DrawContent(){
         
     }
     //ImGui::PopItemWidth();
-    if (ImGui::Button("add line")){
+    if (ImGui::Button("添加直线")){
         lines.push_back({});
         selected=lines.size()-1;
     }
     double aspect_ratio = (double)uimgp->width/uimgp->height;
-    if (ImGui::Button("Rectify")){
+    ImGui::Separator();
+
+    if (ImGui::Button("标定弧度误差")){
 
         Rectifycomp->lossval_= rectifier_.RectifyWithLines(lines, aspect_ratio, distortioninfo);
     }
-    if (ImGui::Button("Rectify using Distance loss")){
+    if (ImGui::Button("标定距离误差")){
 
         Rectifycomp->lossval_= rectifier_.RectifyWithLines(lines, aspect_ratio, distortioninfo,true);
     }
+
+    
+    ImGui::Separator();
+    ImGui::Text("标定信息:");
+    ImGui::Spacing();
     ImGui::Text("error: %.8f",Rectifycomp->lossval_);
     VisualLoc::LinesT distlines;
     auto [dloss,aloss,dderiv,aderiv] = rectifier_.GetCurLoss(lines, aspect_ratio, distortioninfo,&distlines);
@@ -275,28 +302,12 @@ void DistrotionRectifierPanel::DrawContent(){
 
 
 
-
-    ImGui::DragFloat("img scale",&scale,0.01);
-    ImGui::DragFloat("sensor scale",&sensor_scale,0.01);
-    if (ImGui::Button("打开文件")){
-        static std::vector<nfdfilteritem_t> filters={{"Image","png,jpg,jpeg"}};
-        auto filepth = Util::NfdDialog::OpenFileDlg(filters,ResourceManager::PathManager::GetProjectPath());
-        if (filepth!=""){
-            auto path = std::filesystem::u8path(filepth);
-            auto filename = path.filename().u8string();
-            auto savepth = Util::NfdDialog::SaveDlg(filters,filename,ResourceManager::PathManager::GetProjectPath());
-            if (savepth!=""){
-                std::filesystem::copy_file(std::filesystem::u8path(filepth),std::filesystem::u8path(savepth),std::filesystem::copy_options::overwrite_existing );
-            }
-            auto relative = std::filesystem::relative(std::filesystem::u8path(savepth),
-            std::filesystem::u8path(ResourceManager::PathManager::GetProjectPath()));
-            std::cout <<"fk" << relative.generic_u8string()<<std::endl;
-            Rectifycomp->img_pth_="@"+relative.generic_u8string();
-            
-        }
-    }
+    ImGui::Separator();
+    ImGui::Text("畸变参数:");
+    
+    
      const char* models[] = { "NONE","INDEX","POLY3","POLY5","PTLENS" ,"DIVISION"};
-    ImGui::Combo("Distortion Model", &distortioninfo.dist_type, models, IM_ARRAYSIZE(models));
+    ImGui::Combo("畸变模型", &distortioninfo.dist_type, models, IM_ARRAYSIZE(models));
     ImGui::PushItemWidth(80);
     switch (distortioninfo.dist_type) {
     case 0:

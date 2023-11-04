@@ -71,7 +71,9 @@ public:
 
     virtual void Deserialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_node) override;
 
-    
+    void OnUpdate(float delta_t);
+    void OnDrawGizmo(float delta_t);
+
 private:
     Actor(const Actor& p_actor) = delete;
     

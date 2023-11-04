@@ -60,7 +60,7 @@ void SView::DrawContent(){
     }
     ImGui::EndChild();
     ImGui::SameLine();
-    ImGui::BeginChild("childwnd2",{h*10,h},0,ImGuiWindowFlags_NoBackground|ImGuiWindowFlags_NoScrollbar);
+    ImGui::BeginChild("childwnd2",{h*14,h},0,ImGuiWindowFlags_NoBackground|ImGuiWindowFlags_NoScrollbar);
     ImGui::Checkbox("enable normal", &enable_normal);
     ImGui::SameLine();
     ImGui::Checkbox("line view", &enable_line);

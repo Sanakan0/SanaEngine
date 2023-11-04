@@ -40,7 +40,7 @@ modelmanager(SANASERVICE(ResourceManager::ModelManager)),
 actorpickerrenderpass(camctrl_),
 imgprj_depth_fbo_(0,0,1)
 {
-    name_="Scene View";
+    name_="场景视图";
     has_cursor_=true;
     camctrl_.is_fps_cam_mod_=false;
     camctrl_.cam_->Setfovy(50);
@@ -199,10 +199,12 @@ void SceneView::RenderTick(float deltat){
         shape_drawer.DrawTransGizmo(actor->GetTransformComponent()->trans_.GetPosW(),camctrl_.cam_->GetViewMat());
     }
    
-
     
 
     rtcontext_.core_renderer_->SetRasterizationMode(SRender::Setting::SRasterization::FILL);
+
+    rtcontext_.scene_manager_->GetScene()->DrawGizmo(deltat);
+
     for (auto& i:ctlpts){
         shape_drawer.DrawPoint(i, {0,0,0,1});
     }

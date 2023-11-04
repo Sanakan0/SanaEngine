@@ -10,7 +10,7 @@ namespace SEditor::Panels{
 Hierarchy::Hierarchy():
 scenemanager_(SANASERVICE(SceneSys::SceneManager))
 {
-    name_="Hierarchy";
+    name_="实体集合";
 }
 
 void Hierarchy::RightClickMenu(){
@@ -90,6 +90,16 @@ void Hierarchy::DrawContent(){
                     }
                 }
                 
+            }
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("dataset generator")){
+            for  (auto& [_,actor]:scenemanager_.GetScene()->GetActors()){
+                if (actor->GetComponent("DatasetGenComponent")){
+                    if (ActorSelectable(*actor)){
+                        scenemanager_.SetSelectedActor(actor->GetID());
+                    }
+                }
             }
             ImGui::TreePop();
         }

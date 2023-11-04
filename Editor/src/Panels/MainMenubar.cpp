@@ -1,4 +1,5 @@
 #include "ECS/Component/CameraComponent.h"
+#include "ECS/Component/DatasetGenComponent.h"
 #include "ECS/Component/RectifyComponent.h"
 #include "SCore/Global/ServiceLocator.h"
 #include "SEditor/Core/AssetLoader.h"
@@ -67,7 +68,7 @@ void MainMenubar::DrawImpl(float deltat){
 
     int loadtileopen=0;
     if (ImGui::BeginMainMenuBar()){
-        if (ImGui::BeginMenu("File")){
+        if (ImGui::BeginMenu("文件")){
             static std::vector<nfdfilteritem_t> filters{{"scene","sanascene"}};
             if (ImGui::MenuItem("open","O")){
                 
@@ -82,7 +83,7 @@ void MainMenubar::DrawImpl(float deltat){
             }
             ImGui::EndMenu();
         }
-        if (ImGui::BeginMenu("SanaEngine")){
+        if (ImGui::BeginMenu("编辑")){
             if (ImGui::MenuItem("Load tile")){
                 loadtileopen=1;
             }
@@ -111,11 +112,18 @@ void MainMenubar::DrawImpl(float deltat){
                     //tmpa.GetTransformComponent()->trans_.SetPosW(scenemanager_.cursor_pos_);
                     scenemanager_.SetSelectedActor(tmpa.GetID());
                 }
+                if (ImGui::MenuItem("DatasetGen")){
+                    auto& tmpa=scenemanager_.GetScene()->CreateActor("DatasetGen");
+                    tmpa.AddComponent<ECS::Components::DatasetGenComponent>();
+                    tmpa.AddComponent<ECS::Components::TransformComponent>();
+                    //tmpa.GetTransformComponent()->trans_.SetPosW(scenemanager_.cursor_pos_);
+                    scenemanager_.SetSelectedActor(tmpa.GetID());
+                }
                 ImGui::EndMenu();
             }
             ImGui::EndMenu();
         }
-        if (ImGui::BeginMenu("Windows")){
+        if (ImGui::BeginMenu("窗口")){
             ImGui::MenuItem("Scene View", NULL, show_scene_view_);
             ImGui::MenuItem("Test View", NULL, show_test_view_);
             ImGui::MenuItem("Camera View", NULL, show_camera_view_);

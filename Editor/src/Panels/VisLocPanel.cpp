@@ -84,9 +84,9 @@ void VisLocPanel::DrawContent(){
         draw_list->AddLine(p1, p2,IM_COL32(255,255,255,255));
     }
     ImGui::Spacing();
-    ImGui::DragFloat("img scale",&scale,0.01);
+    ImGui::DragFloat("图像缩放",&scale,0.01);
     // ImGui::DragFloat("sensor scale",&sensor_scale,0.01);
-    if (ImGui::Button("打开文件")){
+    if (ImGui::Button("打开...")){
         static std::vector<nfdfilteritem_t> filters={{"Image","png,jpg,jpeg"}};
         auto filepth = Util::NfdDialog::OpenFileDlg(filters,ResourceManager::PathManager::GetProjectPath());
         if (filepth!=""){
@@ -135,25 +135,17 @@ void VisLocPanel::DrawContent(){
     
     ImGui::PushItemWidth(ImGui::GetFontSize() * 8);
     
-    ImGui::Text("SURF setting:");
+    ImGui::Text("SURF 设置:");
     ImGui::InputFloat("lowe's ratio", &locsetting.fm_lowesratio);
-    ImGui::Text("Pnp setting:");
+    ImGui::Text("Pnp 设置:");
     ImGui::InputInt("iterationscount", &locsetting.pnp_iterationscount);
     ImGui::InputDouble("confidence", &locsetting.pnp_confidence);
     ImGui::InputFloat("reprojectionerror", &locsetting.pnp_reprojectionerror);
 
     ImGui::PopItemWidth();
     ImGui::Separator();
-    if (ImGui::Button("run pipeline")){
-        auto tmp = scenemanager_.GetActiveCamera();
-        if (tmp==nullptr){
-            spdlog::error("[VISLOC] No Camera Activated");
-        }
-        else{
-            locengine.LocPipeline(img1,*scenemanager_.GetActiveCamera(),locsetting);
-        }
-    }
-    if (ImGui::Button("run pipeline multi random")){
+    
+    if (ImGui::Button("随机采样位姿求解")){
         auto tmp = scenemanager_.GetActiveCamera();
         if (tmp==nullptr){
             spdlog::error("[VISLOC] No Camera Activated");
@@ -162,9 +154,17 @@ void VisLocPanel::DrawContent(){
             locengine.LocPipelineMultiRandom(img1,*scenemanager_.GetActiveCamera(),locsetting);
         }
     }
+    if (ImGui::Button("位姿优化")){
+        auto tmp = scenemanager_.GetActiveCamera();
+        if (tmp==nullptr){
+            spdlog::error("[VISLOC] No Camera Activated");
+        }
+        else{
+            locengine.LocPipeline(img1,*scenemanager_.GetActiveCamera(),locsetting);
+        }
+    }
     
-    
-    if (ImGui::Button("feature test")){
+    if (ImGui::Button("特征测试")){
         auto tmp = scenemanager_.GetActiveCamera();
         if (tmp==nullptr){
             spdlog::error("[VISLOC] No Camera Activated");
@@ -175,12 +175,12 @@ void VisLocPanel::DrawContent(){
         }
     }
     ImGui::SameLine();
-    if (ImGui::Button("project img")){
+    if (ImGui::Button("图像投影")){
         scenemanager_.enable_img_prj_^=1;
         scenemanager_.img_tex_ = imgp1;
     }
 
-    if (ImGui::Button("save")){
+    if (ImGui::Button("保存图像")){
         auto tmp = scenemanager_.GetActiveCamera();
         if (tmp==nullptr){
             spdlog::error("[VISLOC] No Camera Activated");
