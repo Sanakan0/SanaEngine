@@ -13,6 +13,8 @@
 #include "glm/gtc/quaternion.hpp"
 #include "glm/matrix.hpp"
 #include "spdlog/spdlog.h"
+#include <iterator>
+#include <map>
 #include <opencv2/calib3d.hpp>
 #include <opencv2/core.hpp>
 #include <opencv2/core/base.hpp>
@@ -60,6 +62,7 @@ matchpairvec RenderBasedLocEngine::TestFeatureMatch(const cv::Mat& ref_img,ECS::
     renderpipline_.RenderTick();
     
     auto res = SURFFeatureMatch(ref_img, Fbo2Cvmat(),setting.fm_lowesratio);
+    res = FeatureMatchFilter(res, 200, 200);
     return res;
 }
 
@@ -106,6 +109,7 @@ int RenderBasedLocEngine::RunVisLocSingle(const cv::Mat& ref_img,const LocPipeli
     renderpipline_.RenderTick();
     
     auto res = SURFFeatureMatch(ref_img, Fbo2Cvmat(),setting.fm_lowesratio);
+    res = FeatureMatchFilter(res, 200, 200);
     std::vector<cv::Point3f> objpts;
     std::vector<cv::Point2f> imgpts;
     if (res.size()<4) return 0;
@@ -199,6 +203,38 @@ glm::vec3 RenderBasedLocEngine::RetrievPosFromPixel(int x,int y){
     ndcpos.z = 2.0f*depth-1.0f;
     auto tmp =glm::inverse(acam_.cam_->GetProjectionMat()*acam_.cam_->GetViewMat())*ndcpos;
     return tmp/tmp.w;
+}
+
+
+matchpairvec RenderBasedLocEngine::FeatureMatchFilter(matchpairvec& match,int stepx,int stepy){
+    
+    matchpairvec res;
+    std::map<std::pair<int, int>, 
+        std::map<std::pair<int, int>, matchpairvec>> gridpair;
+    for (auto& i:match){
+        int gx = i.pt1.pt.x/stepx;
+        int gy = i.pt1.pt.y/stepy;
+        auto gp = std::make_pair(gx, gy);
+        if (gridpair.count(gp)==0) gridpair[gp]=std::map<std::pair<int, int>, matchpairvec>();
+        int gx2 = i.pt2.pt.x/stepx;
+        int gy2 = i.pt2.pt.y/stepy;
+        auto gp2 = std::make_pair(gx2, gy2);
+        if (gridpair[gp].count(gp2)==0) gridpair[gp][gp2]=matchpairvec();
+        gridpair[gp][gp2].push_back(i);
+    }
+    for (auto&[keyy,val]:gridpair){
+        int maxcnt=0;
+        std::pair<int, int> coord;
+        for (auto& [key2,val2]:val){
+            if (val2.size()>maxcnt){
+                maxcnt=val2.size();
+                coord = key2;
+            }
+        }
+        auto& maxpairvec =val[coord]; 
+        res.insert(std::end(res),std::begin(maxpairvec),std::end(maxpairvec));
+    }
+    return res;
 }
 
 matchpairvec RenderBasedLocEngine::SURFFeatureMatch(const cv::Mat& img1,const cv::Mat& img2,float lowe_nnr){

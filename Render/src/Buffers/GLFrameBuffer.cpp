@@ -1,4 +1,5 @@
 #include "SRender/Buffers/GLFrameBuffer.h"
+#include <vector>
 
 namespace SRender::Buffers{
 
@@ -63,7 +64,7 @@ void GLFrameBuffer::SetupDepthonly(int w,int h){
     glReadBuffer(GL_NONE);
     Unbind();
 }
-void GLFrameBuffer::SetupIndependentDepthStencil(int w,int h){
+void GLFrameBuffer::SetupDepth32(int w,int h){
     glGenFramebuffers(1,&fbo_id_);
     glGenTextures(1,&tex_buf_id_);
     glGenTextures(1,&depth_buf_id_);
@@ -75,24 +76,24 @@ void GLFrameBuffer::SetupIndependentDepthStencil(int w,int h){
     glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,w,h,0,GL_RGB,GL_UNSIGNED_BYTE,0);
 	glBindTexture(GL_TEXTURE_2D, 0);
     
+    // glBindRenderbuffer(GL_RENDERBUFFER,depth_buf_id_);
+    // glRenderbufferStorage(GL_RENDERBUFFER,GL_DEPTH_COMPONENT32F,w,h);
+    // glBindRenderbuffer(GL_RENDERBUFFER,0);
+
     glBindTexture(GL_TEXTURE_2D, depth_buf_id_);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D,0,GL_DEPTH_COMPONENT32F,w,h,0,GL_DEPTH_COMPONENT,GL_FLOAT,0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 
-    glBindTexture(GL_TEXTURE_2D, stencil_buf_id_);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D,0,GL_STENCIL_INDEX8,w,h,0,GL_STENCIL_INDEX,GL_UNSIGNED_BYTE,0);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	/* Setup framebuffer */
+
     
 
     Bind();
     glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, tex_buf_id_, 0);
     glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depth_buf_id_, 0);
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, stencil_buf_id_, 0);
+    //glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_buf_id_);
+
     Unbind();
 }
 
@@ -104,11 +105,11 @@ void GLFrameBuffer::DeleteBuf(){
     glDeleteTextures(1,&stencil_buf_id_);
 }
 
-GLFrameBuffer::GLFrameBuffer(int w,int h,bool depth_only,bool independent_depthstencil):
-buf_size_(w,h),depth_only_(depth_only),independent_depthstencil_(independent_depthstencil){
+GLFrameBuffer::GLFrameBuffer(int w,int h,bool depth_only,bool independent_depth32):
+buf_size_(w,h),depth_only_(depth_only),independent_depth32_(independent_depth32){
     buf_size_=std::make_pair(w,h);
     if (depth_only_) SetupDepthonly(w,h);
-    else if(independent_depthstencil_) SetupIndependentDepthStencil(w, h);
+    else if(independent_depth32_) SetupDepth32(w, h);
     else Setup(w, h);
 }
 
@@ -132,9 +133,30 @@ void GLFrameBuffer::Resize(int w,int h){
     buf_size_=std::make_pair(w,h);
     DeleteBuf();
     if (depth_only_) SetupDepthonly(w, h);
-    else if(independent_depthstencil_) SetupIndependentDepthStencil(w, h);
+    else if(independent_depth32_) SetupDepth32(w, h);
     else Setup(w, h);
 }
 
+std::vector<uint8_t> GLFrameBuffer::DownloadColor(){
+    std::vector<uint8_t> res;
+    res.resize(buf_size_.first*buf_size_.second*3);
+    Bind();
+    glPixelStorei(GL_PACK_ALIGNMENT,1);
+    glReadPixels(0, 0, buf_size_.first, buf_size_.second, GL_RGB, GL_UNSIGNED_BYTE, res.data());
+    glPixelStorei(GL_PACK_ALIGNMENT,4);
+    Unbind();
+    return res;
+}
+
+std::vector<float> GLFrameBuffer::DownloadDepth(){
+    std::vector<float> res;
+    res.resize(buf_size_.first*buf_size_.second);
+    Bind();
+    //glPixelStorei(GL_PACK_ALIGNMENT,1);
+    glReadPixels(0, 0, buf_size_.first, buf_size_.second, GL_DEPTH_COMPONENT, GL_FLOAT, res.data());
+    //glPixelStorei(GL_PACK_ALIGNMENT,4);
+    Unbind();
+    return res;
+}
 
 }

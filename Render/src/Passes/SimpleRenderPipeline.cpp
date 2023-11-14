@@ -12,11 +12,18 @@ renderer_(SANASERVICE(Core::EntityRenderer)){
     scenerenderpass_ = std::make_unique<Passes::SceneRenderPass>();
 }
 
-void SimpleRenderPipeline::Init(SEditor::Core::ACamera* acam, Buffers::GLFrameBuffer *fbo,int w,int h){
+void SimpleRenderPipeline::Init(SEditor::Core::ACamera* acam, Buffers::GLFrameBuffer *fbo,int w,int h,bool enable_distortion){
     acam_=acam;
     fbo_=fbo;
     w_=w;
     h_=h;
+    if (enable_distortion){
+        scenerenderpass_->BindDistortionInfo(&acam_->cam_->distortion_);
+        scenerenderpass_->EnableDistortion();
+    }else{
+        scenerenderpass_->BindDistortionInfo(nullptr);
+        scenerenderpass_->DisableDistortion();
+    }
 }
 
 void SimpleRenderPipeline::RenderTick(){
@@ -28,7 +35,7 @@ void SimpleRenderPipeline::RenderTick(){
     auto& editor_ubo = SANASERVICE(SRender::Buffers::GLUniformBuffer);
     acam_->CalcAndFillUBO(editor_ubo);
     renderer_.SetViewPort(0, 0, w_,  h_);
-    renderer_.SetClearColor(0.2f, 0.2f, 0.2f);
+    renderer_.SetClearColor(0,0,0);
     renderer_.ApplyGLstate(SRender::Core::Default_GLstate);
     glStencilMask(0xFF); // stencil mask also influence glclear()
     renderer_.ClearBuffer();

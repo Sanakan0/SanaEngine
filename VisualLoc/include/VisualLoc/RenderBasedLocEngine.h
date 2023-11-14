@@ -49,7 +49,7 @@ public:
 
     matchpairvec ORBFeatureMatch(const cv::Mat& img1,const cv::Mat& img2);
     matchpairvec SURFFeatureMatch(const cv::Mat& img1,const cv::Mat& img2,float lowe_nnr=0.65);
-    
+    matchpairvec FeatureMatchFilter(matchpairvec& match,int stepx,int stepy);
     SRender::Buffers::GLFrameBuffer fbo_;
 private:
     

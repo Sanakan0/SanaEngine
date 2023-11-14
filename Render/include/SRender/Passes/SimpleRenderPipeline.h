@@ -15,7 +15,7 @@ class SimpleRenderPipeline{
 public:
     SimpleRenderPipeline();
     ~SimpleRenderPipeline()=default;
-    void Init( SEditor::Core::ACamera* acam,Buffers::GLFrameBuffer* fbo,int w,int h);
+    void Init( SEditor::Core::ACamera* acam,Buffers::GLFrameBuffer* fbo,int w,int h,bool enable_distortion=0);
     void RenderTick();
     float k=0;
 private:
