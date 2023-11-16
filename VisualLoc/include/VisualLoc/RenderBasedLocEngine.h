@@ -38,6 +38,9 @@ public:
             int iterationscount,
             float reprojectionerror,
             double confidence);
+
+    std::tuple<int,double> CalcCurInliersAndReprjErr(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting);
+
     matchpairvec TestFeatureMatch(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting);
     cv::Mat TestRenderCapture(ECS::Actor& initialcam);
     

@@ -174,6 +174,10 @@ void VisLocPanel::DrawContent(){
             res =locengine.TestFeatureMatch(img1,*scenemanager_.GetActiveCamera(),locsetting);
         }
     }
+    if (ImGui::Button("calcinliersandreprj")){
+        auto[inliers,err] = locengine.CalcCurInliersAndReprjErr(img1,*scenemanager_.GetActiveCamera() ,locsetting);
+        spdlog::info("Inliers: {}  reprjerror: {}",inliers,err);
+    }
     ImGui::SameLine();
     if (ImGui::Button("图像投影")){
         scenemanager_.enable_img_prj_^=1;
