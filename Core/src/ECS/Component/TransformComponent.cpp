@@ -44,7 +44,7 @@ void TransformComponent::DrawInspector(){
         ImGui::DragFloat("yaw (z-axis)", &euler_xyz_deg.z);
         trans_.SetEulerW(euler_xyz_deg);
         
-        ImGui::InputFloat3("Deserialized eular", &tmp_deg_.x,"%.4f",ImGuiInputTextFlags_ReadOnly);
+        //ImGui::InputFloat3("Deserialized eular", &tmp_deg_.x,"%.4f",ImGuiInputTextFlags_ReadOnly);
         if (ImGui::Button("reset trans")){
             trans_.SetPosW(-trans_.GetPosL());
         }

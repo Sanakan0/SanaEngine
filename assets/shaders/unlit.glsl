@@ -48,8 +48,14 @@ void calcimgprj(){
 
     if (imgcoordinimg.z<depth+bias){
         if (imgcoordinimg.x>1||imgcoordinimg.x<0||imgcoordinimg.y>1||imgcoordinimg.y<0) return;
-        FRAGMENT_COLOR = texture2D(img_colortex,imgcoordinimg.xy)*diffuse_color;
-        //FRAGMENT_COLOR = depth*diffuse_color;
+        if (min( min(imgcoordinimg.x,1.0-imgcoordinimg.x),
+            min(imgcoordinimg.y,1.0-imgcoordinimg.y))<0.004){
+                FRAGMENT_COLOR = vec4(0.2,1,0,1);
+        }else{
+            FRAGMENT_COLOR = texture2D(img_colortex,imgcoordinimg.xy)*diffuse_color;
+            //FRAGMENT_COLOR = depth*diffuse_color;
+        }
+        
     }
 }
 

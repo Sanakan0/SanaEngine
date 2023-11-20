@@ -1,5 +1,6 @@
 #include "SEditor/Panels/SceneView.h"
 #include "ECS/Actor.h"
+#include "ECS/Component/CameraComponent.h"
 #include "ECS/Component/MeshComponent.h"
 #include "ECS/Component/TransformComponent.h"
 #include "SCore/Global/ServiceLocator.h"
@@ -179,6 +180,32 @@ void SceneView::RenderTick(float deltat){
         rtcontext_.scene_manager_->img_tex_->Bind(6);
         fbo_.Bind();
         rtcontext_.core_renderer_->SetViewPort(0, 0,canvas_size_.first ,canvas_size_.second );
+
+
+
+        auto prjcam = rtcontext_.scene_manager_->GetActiveCamera();
+        if (prjcam){
+            auto& prjcamtrans= prjcam->GetTransformComponent()->trans_;
+            auto camcomp = static_cast<ECS::Components::CameraComponent*>(
+                prjcam->GetComponent("CameraComponent"));
+            
+            
+
+            auto hheight = camcomp->cam_.far_ * camcomp->cam_.Getsensor_size_h()/camcomp->cam_.Getfocal_length() * 0.5;
+            auto wwidth =  hheight*camcomp->cam_.Getaspect_ratio();
+            glm::vec3 tmp(0,0,-camcomp->cam_.far_);
+            static int mvx[]={1,-1,1,-1};
+            static int mvy[]={1,1,-1,-1};
+            for (int i=0;i<4;++i){
+                tmp.x=wwidth*mvx[i];
+                tmp.y=hheight*mvy[i];
+                auto delta = prjcamtrans.GetOrienW()*tmp;
+                auto p2 = prjcamtrans.GetPosW()+delta;
+                renderer.GetShapeDrawer()->DrawLine(prjcamtrans.GetPosW(),p2, {0,1,0});
+            }
+        }
+        
+
     }else{
         imgprj_depth_fbo_.Resize(0, 0); //release when dont use
     }
