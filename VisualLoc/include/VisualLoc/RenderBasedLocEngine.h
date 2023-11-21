@@ -31,6 +31,7 @@ public:
     RenderBasedLocEngine();
     void LocPipeline(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting);
     void LocPipelineMultiRandom(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting);
+    void LocPipelineMultiRandomOneRansac(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting,int sampleNum=30);
     int RunVisLocSingle(const cv::Mat& ref_img,const LocPipelineSetting& setting);
     std::tuple<glm::quat,glm::vec3,cv::Mat> RansacPnpPass(const std::vector<cv::Point3f>& objpts,const std::vector<cv::Point2f>& imgpts,
         const cv::Mat& inmat,const cv::Mat& distCoeffs,
@@ -40,6 +41,8 @@ public:
             double confidence);
 
     std::tuple<int,double> CalcCurInliersAndReprjErr(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting);
+
+    void Find2D3DPair(const cv::Mat& ref_img,const LocPipelineSetting& setting,std::vector<cv::Point3f> &objpts,std::vector<cv::Point2f> &imgpts);
 
     matchpairvec TestFeatureMatch(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting);
     cv::Mat TestRenderCapture(ECS::Actor& initialcam);

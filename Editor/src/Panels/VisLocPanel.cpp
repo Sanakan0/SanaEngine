@@ -144,7 +144,8 @@ void VisLocPanel::DrawContent(){
 
     ImGui::PopItemWidth();
     ImGui::Separator();
-    
+    static int sampleNum=30;
+    ImGui::InputInt("Sample Num", &sampleNum);
     if (ImGui::Button("随机采样位姿求解")){
         auto tmp = scenemanager_.GetActiveCamera();
         if (tmp==nullptr){
@@ -154,12 +155,22 @@ void VisLocPanel::DrawContent(){
             locengine.LocPipelineMultiRandom(img1,*scenemanager_.GetActiveCamera(),locsetting);
         }
     }
+    if (ImGui::Button("随机采样位姿求解2")){
+        auto tmp = scenemanager_.GetActiveCamera();
+        if (tmp==nullptr){
+            spdlog::error("[VISLOC] No Camera Activated");
+        }
+        else{
+            locengine.LocPipelineMultiRandomOneRansac(img1,*scenemanager_.GetActiveCamera(),locsetting,sampleNum);
+        }
+    }
     if (ImGui::Button("位姿优化")){
         auto tmp = scenemanager_.GetActiveCamera();
         if (tmp==nullptr){
             spdlog::error("[VISLOC] No Camera Activated");
         }
         else{
+            spdlog::info("[VISLOC] st");
             locengine.LocPipeline(img1,*scenemanager_.GetActiveCamera(),locsetting);
         }
     }

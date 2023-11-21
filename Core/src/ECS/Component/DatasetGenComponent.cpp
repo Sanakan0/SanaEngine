@@ -16,6 +16,7 @@
 #include "nfd.h"
 #include <cmath>
 #include <filesystem>
+#include "spdlog/spdlog.h"
 #include "stb_image/stb_image_write.h"
 namespace ECS::Components {
 
@@ -56,9 +57,11 @@ void DatasetGenComponent::DrawInspector() {
             RenderImg(defaultCam_,defaultTran_);
         }
         if (ImGui::Button("Gen Data by cur cam")){
+            spdlog::info("[DatasetGen] st");
             auto& tmp = scenemanager_.GetScene()->GetBasicRenderComponent().camcomps;
             auto camcomp = tmp[0];
             RenderImg(camcomp->cam_, camcomp->parentactor_.GetTransformComponent()->trans_);
+            spdlog::info("[DatasetGen] ed");
         }
     }
 }

@@ -9,6 +9,7 @@
 #include "SResourceManager/Util.h"
 #include "SceneSys/SceneManager.h"
 #include "imgui/imgui.h"
+#include "spdlog/spdlog.h"
 #include <cstddef>
 #include <filesystem>
 #include <vector>
@@ -214,12 +215,14 @@ void DistrotionRectifierPanel::DrawContent(){
     ImGui::Separator();
 
     if (ImGui::Button("标定弧度误差")){
-
+        spdlog::info("[Recifier] curv st");
         Rectifycomp->lossval_= rectifier_.RectifyWithLines(lines, aspect_ratio, distortioninfo);
+        spdlog::info("[Recifier] curv ed");
     }
     if (ImGui::Button("标定距离误差")){
-
+        spdlog::info("[Recifier] dist st");
         Rectifycomp->lossval_= rectifier_.RectifyWithLines(lines, aspect_ratio, distortioninfo,true);
+        spdlog::info("[Recifier] dist ed");
     }
 
     

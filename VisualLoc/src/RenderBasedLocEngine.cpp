@@ -33,6 +33,15 @@
 #include <random>
 namespace VisualLoc{
 
+static void VisualizeCtrlPoints(const std::vector<cv::Point3f>& objpts){
+    auto& testview =  SANASERVICE(SGUI::Core::UImanager).GetPanel<SEditor::Panels::TestView>("Test View");
+    auto& sceneview =  SANASERVICE(SGUI::Core::UImanager).GetPanel<SEditor::Panels::SceneView>("Scene View");
+    sceneview.ctlpts.clear();
+    for (auto& i:objpts){
+        sceneview.ctlpts.push_back({i.x,i.y,i.z});
+    }
+}
+
 RenderBasedLocEngine::RenderBasedLocEngine()
 :acam_(defaultcam_,defaultex_),
 renderer_(SANASERVICE(SRender::Core::EntityRenderer)){
@@ -66,6 +75,60 @@ matchpairvec RenderBasedLocEngine::TestFeatureMatch(const cv::Mat& ref_img,ECS::
     return res;
 }
 
+void RenderBasedLocEngine::LocPipelineMultiRandomOneRansac(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting,int sampleNum){
+    spdlog::info("[MultiRenderOneRansac] st");
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_real_distribution<double> distrib(-1.0,1.0);
+    acam_.InitFromActor(initialcam);
+    auto pos0 = acam_.GetPos();
+    auto orien0 = acam_.GetOrien();
+    std::vector<cv::Point3f> objpts;
+    std::vector<cv::Point2f> imgpts;
+    for (int i=0;i<sampleNum;++i){
+        double transStep=10;
+        double rotatStep=30;
+        double dx = distrib(mt)*transStep;
+        double dy = distrib(mt)*transStep;
+        double dz = distrib(mt)*transStep;
+        double dh = distrib(mt)*rotatStep;
+        double dv = distrib(mt)*rotatStep;
+        acam_.SetExtrinsic(orien0, pos0);
+        acam_.translate({dx,dy,dz});
+        acam_.FpsRotate(dh, dv);
+        Find2D3DPair(ref_img,setting,objpts,imgpts);
+    }
+    acam_.SetExtrinsic(orien0, pos0);
+    spdlog::info("[MultiRenderOneRansac] render complete");
+    {
+        VisualizeCtrlPoints(objpts);
+        double fpix = (double)acam_.cam_->Getfocal_length()*ref_img.size().height/acam_.cam_->Getsensor_size_h();
+        
+        auto inmat = GetIntrinsicMat(fpix, fpix, ref_img.size().width/2.0 , ref_img.size().height/2.0);
+        
+        cv::Mat distCoeffs = cv::Mat::zeros(4, 1, CV_64FC1);
+        
+        cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);
+        cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);
+
+        bool useExtrinsicGuess = false;
+        int iterationscount=setting.pnp_iterationscount;
+        float reprojectionerror=setting.pnp_reprojectionerror;
+        double confidence=setting.pnp_confidence;
+        
+        auto[orien,trans,inliers] = RansacPnpPass(objpts,imgpts,inmat,distCoeffs,useExtrinsicGuess,iterationscount,reprojectionerror,confidence);
+        if (inliers.size().width==0){ //failed
+            spdlog::warn("[VISLOC] LocPipelineMultiRandomOneRansac Failed");
+            return;
+        }
+        auto tmpeul = sm::Quat2Eul( acam_.GetOrien());
+        spdlog::info("[VISLOC] Pipeline Success, Inliers: {} trans: {} {} {} rotat: {} {} {}",
+            inliers.size().height, acam_.GetPos().x,acam_.GetPos().y,acam_.GetPos().z,
+            tmpeul.x,tmpeul.y,tmpeul.z);
+        acam_.SetExtrinsic(orien, trans);
+    }
+    spdlog::info("[MultiRenderOneRansac] RansacPnP Complete");
+}
 
 void RenderBasedLocEngine::LocPipelineMultiRandom(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting){
     std::random_device rd;
@@ -96,12 +159,17 @@ void RenderBasedLocEngine::LocPipeline(const cv::Mat& ref_img,ECS::Actor& initia
     RunVisLocSingle(ref_img,setting);
 }
 
-static void VisualizeCtrlPoints(const std::vector<cv::Point3f>& objpts){
-    auto& testview =  SANASERVICE(SGUI::Core::UImanager).GetPanel<SEditor::Panels::TestView>("Test View");
-    auto& sceneview =  SANASERVICE(SGUI::Core::UImanager).GetPanel<SEditor::Panels::SceneView>("Scene View");
-    sceneview.ctlpts.clear();
-    for (auto& i:objpts){
-        sceneview.ctlpts.push_back({i.x,i.y,i.z});
+
+
+void RenderBasedLocEngine::Find2D3DPair(const cv::Mat& ref_img,const LocPipelineSetting& setting,std::vector<cv::Point3f> &objpts,std::vector<cv::Point2f> &imgpts){
+    renderpipline_.RenderTick();
+    
+    auto res = SURFFeatureMatch(ref_img, Fbo2Cvmat(),setting.fm_lowesratio);
+    res = FeatureMatchFilter(res, 200, 200);
+    for (auto& i:res){
+        imgpts.push_back(i.pt1.pt);
+        auto tmp = RetrievPosFromPixel(i.pt2.pt.x, i.pt2.pt.y);
+        objpts.push_back({tmp.x,tmp.y,tmp.z});
     }
 }
 
