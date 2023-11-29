@@ -18,7 +18,7 @@ Context::Context(contextSETTING s):setting(s){
     }   
 
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    Wnd_p = glfwCreateWindow(setting.W_WIDTH, setting.W_HEIGHT, "SanaEngine", NULL, NULL);
+    Wnd_p = glfwCreateWindow(setting.W_WIDTH, setting.W_HEIGHT, "相机标定工具", NULL, NULL);
 
     if (Wnd_p == NULL)
     {
