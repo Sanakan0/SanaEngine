@@ -17,6 +17,7 @@ public:
     ~SimpleRenderPipeline()=default;
     void Init( SEditor::Core::ACamera* acam,Buffers::GLFrameBuffer* fbo,int w,int h,bool enable_distortion=0);
     void RenderTick();
+    SEditor::Core::ACamera* GetCam(){return acam_;}
     float k=0;
 private:
     SEditor::Core::ACamera* acam_;

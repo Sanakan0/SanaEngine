@@ -16,6 +16,13 @@
 #include "nfd.h"
 #include <cmath>
 #include <filesystem>
+#include <opencv2/core.hpp>
+#include <opencv2/core/hal/interface.h>
+#include <opencv2/core/mat.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc.hpp>
+#include <stdint.h>
+#include <vector>
 #include "spdlog/spdlog.h"
 #include "stb_image/stb_image_write.h"
 namespace ECS::Components {
@@ -119,10 +126,47 @@ void DatasetGenComponent::OnDrawGizmo(float delta_t){
 void DatasetGenComponent::SaveFbo(const std::string& name){
     auto tmp = dist_fbo_.DownloadColor();
     auto tmpdepth = dist_fbo_.DownloadDepth();
+    //return;
     auto pth = ResourceManager::PathManager::GetFullPath(save_pth_);
     auto imgpth = pth+"/"+name+".png";
     auto depthpth = pth + "/"+name+"_depth.png";
+
+    {
+        std::vector<uint8_t> newdepth;
+        auto nearr = renderpipeline_.GetCam()->cam_->near_;
+        auto farr = renderpipeline_.GetCam()->cam_->far_;
+
+        for (auto &i:tmpdepth) {
+            auto lineardepth = 2*nearr/((farr+nearr)-(2*i-1)*(farr-nearr));
+            uint8_t cr = (1.0-lineardepth)*255;
+            newdepth.push_back(cr);
+            newdepth.push_back(cr);
+            newdepth.push_back(cr);
+            newdepth.push_back(255);
+        }
+        auto c1depthpth = pth + "/"+name+"_depth_c1.png";
+        cv::Mat C1depthA(dist_fbo_.buf_size_.second,dist_fbo_.buf_size_.first,CV_8UC4,newdepth.data());
+        //cv::cvtColor(depthA,depthA, cv::COLOR_RGBA2GRAY);
+        //cv::cvtColor(depthA,depthA, cv::COLOR_BGRA2RGBA);
+        cv::flip(C1depthA,C1depthA,0);
+        cv::imwrite(c1depthpth, C1depthA,{cv::IMWRITE_PNG_COMPRESSION,0});
+    }
+
+
+    cv::Mat A(dist_fbo_.buf_size_.second,dist_fbo_.buf_size_.first,CV_8UC3,tmp.data());
+    cv::Mat depthA(dist_fbo_.buf_size_.second,dist_fbo_.buf_size_.first,CV_8UC4,tmpdepth.data());
+    
+    cv::cvtColor(A,A, cv::COLOR_BGR2RGB);
+    cv::cvtColor(depthA,depthA, cv::COLOR_BGRA2RGBA);
+    cv::flip(A,A,0);
+    cv::flip(depthA,depthA,0);
+
+    cv::imwrite(imgpth, A,{cv::IMWRITE_PNG_COMPRESSION,0});
+    cv::imwrite(depthpth, depthA,{cv::IMWRITE_PNG_COMPRESSION,0});
+    
+    return;
     stbi_flip_vertically_on_write(1);
+    stbi_write_png_compression_level = 0;
     stbi_write_png(imgpth.c_str(), 
     dist_fbo_.buf_size_.first, dist_fbo_.buf_size_.second, 3, (void*)tmp.data(), dist_fbo_.buf_size_.first*3);
     stbi_write_png(depthpth.c_str(), 

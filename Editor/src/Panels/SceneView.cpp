@@ -233,7 +233,7 @@ void SceneView::RenderTick(float deltat){
     rtcontext_.scene_manager_->GetScene()->DrawGizmo(deltat);
 
     for (auto& i:ctlpts){
-        shape_drawer.DrawPoint(i, {0,0,0,1});
+        shape_drawer.DrawPoint(i, {1,0.4,0,1});
     }
     fbo_.Unbind();
     
