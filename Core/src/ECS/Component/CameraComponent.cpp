@@ -43,8 +43,8 @@ void CameraComponent::DrawInspector() {
             cam_.Setaspect_ratio(1.0f*whr[0]/whr[1]);
         }
 
-        ImGui::DragFloat("near",&cam_.near_,std::numeric_limits<float>::min(),cam_.far_);
-        ImGui::DragFloat("far",&cam_.far_,cam_.near_,std::numeric_limits<float>::max());
+        ImGui::DragFloat("near",&cam_.near_,0.5,std::numeric_limits<float>::min(),cam_.far_);
+        ImGui::DragFloat("far",&cam_.far_,0.5,cam_.near_,std::numeric_limits<float>::max());
 
         ImGui::ColorEdit4("background color", &cam_.clear_color_.r);
         

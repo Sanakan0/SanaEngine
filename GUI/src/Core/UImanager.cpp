@@ -9,7 +9,9 @@ namespace SGUI::Core{
 UImanager::UImanager(const SWnd::Context& context,const std::string& version){
     if (context.moniter_info_.height==1440)
         baseFontSize_ = 22.0f;
-    
+    if (context.moniter_info_.height==1080)
+        baseFontSize_ = 22.0f;
+
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
