@@ -16,12 +16,15 @@
 #include "nfd.h"
 #include <cmath>
 #include <filesystem>
+#include <fstream>
 #include <opencv2/core.hpp>
 #include <opencv2/core/hal/interface.h>
 #include <opencv2/core/mat.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 #include <stdint.h>
+#include <string>
+#include <tuple>
 #include <vector>
 #include "spdlog/spdlog.h"
 #include "stb_image/stb_image_write.h"
@@ -30,11 +33,31 @@ namespace ECS::Components {
 DatasetGenComponent::DatasetGenComponent(Actor& parentactor):
 Component(parentactor),acam_(defaultCam_,defaultTran_),dist_fbo_(0,0,0,1),
 scenemanager_(SANASERVICE(SceneSys::SceneManager)){
+    threadpool_.init();
+}
 
+DatasetGenComponent::~DatasetGenComponent(){
+    threadpool_.shutdown();
 }
 
 void DatasetGenComponent::Tick(float delta_t){
 
+}
+
+void DatasetGenComponent::OnUpdate(float delta_t){
+    if (startGen&&cnt_<totalImgCnt_){
+        auto& tmp = scenemanager_.GetScene()->GetBasicRenderComponent().camcomps;
+        auto camcomp = tmp[0];
+        auto tmpcam = camcomp->cam_;
+        auto[f,k] = lens_[cnt_];
+        tmpcam.Setfocal_length(f);
+        tmpcam.Setsensor_size_h(24);
+        tmpcam.Setaspect_ratio(1.5);
+        tmpcam.distortion_.dist_para[0]=k;
+        tmpcam.distortion_.dist_type=SRender::LowRenderer::DistortionModel::INDEX;
+        RenderImg(tmpcam, camcomp->parentactor_.GetTransformComponent()->trans_,std::to_string(cnt_));
+        cnt_++;
+    }
 }
 
 void DatasetGenComponent::DrawInspector() {
@@ -50,6 +73,7 @@ void DatasetGenComponent::DrawInspector() {
         ImGui::Separator();
         ImGui::InputInt("Resolution:", &resolution_);
         ImGui::Text(("save_path: "+save_pth_).c_str());
+        ImGui::SameLine();
         if (ImGui::Button("打开...")){
         
             auto savepth =SEditor::Util::NfdDialog::OpenFolderDlg(ResourceManager::PathManager::GetProjectPath());
@@ -58,17 +82,49 @@ void DatasetGenComponent::DrawInspector() {
             std::cout <<"fk" << relative.generic_u8string()<<std::endl;
             save_pth_="@"+relative.generic_u8string();
         }
-        if (ImGui::Button("save img")){
-            auto& trans = parentactor_.GetTransformComponent()->trans_;
-            defaultTran_=trans;
-            RenderImg(defaultCam_,defaultTran_);
+        ImGui::Text(("LensDatafile_path: "+lensdata_pth_).c_str());
+        ImGui::SameLine();
+        if (ImGui::Button("打开...##second")){
+            auto savepth = SEditor::Util::NfdDialog::OpenFileDlg({{"Lens config","txt"}},ResourceManager::PathManager::GetProjectPath());
+            auto relative = std::filesystem::relative(std::filesystem::u8path(savepth),
+            std::filesystem::u8path(ResourceManager::PathManager::GetProjectPath()));
+            std::cout <<"fk" << relative.generic_u8string()<<std::endl;
+            lensdata_pth_="@"+relative.generic_u8string();
         }
+        if (ImGui::Button("load")){
+            LoadLensData();
+        }
+
+        // if (ImGui::Button("save img")){
+        //     auto& trans = parentactor_.GetTransformComponent()->trans_;
+        //     defaultTran_=trans;
+        //     RenderImg(defaultCam_,defaultTran_);
+        // }
         if (ImGui::Button("Gen Data by cur cam")){
             spdlog::info("[DatasetGen] st");
             auto& tmp = scenemanager_.GetScene()->GetBasicRenderComponent().camcomps;
             auto camcomp = tmp[0];
-            RenderImg(camcomp->cam_, camcomp->parentactor_.GetTransformComponent()->trans_);
+            for (int i=0;i<10;++i){
+                RenderImg(camcomp->cam_, camcomp->parentactor_.GetTransformComponent()->trans_,std::to_string(i));
+            }
+            
             spdlog::info("[DatasetGen] ed");
+        }
+        if (ImGui::Button("genall")){
+            totalImgCnt_=lens_.size();
+            cnt_=0;
+            startGen=1;
+        }
+        
+        if (totalImgCnt_){
+            ImGui::Separator();
+            char buf[32];
+            sprintf(buf, "%d/%d", (int)cnt_, totalImgCnt_);
+            ImGui::ProgressBar(1.0*cnt_/totalImgCnt_, ImVec2(0.f, 0.f), buf);
+            if (ImGui::Button(startGen?"Stop":"Continue")){
+                startGen^=1;
+            }
+            ImGui::Text("queue size: %d", threadpool_.queueSize());
         }
     }
 }
@@ -76,12 +132,14 @@ void DatasetGenComponent::Serialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLN
     SCore::Serializer::SerializeInt(p_doc, p_node, "resolution", resolution_);
     SCore::Serializer::SerializeVec3(p_doc, p_node, "extends", extends_);
     SCore::Serializer::SerializeString(p_doc, p_node, "save_pth", save_pth_);
+    SCore::Serializer::SerializeString(p_doc, p_node, "lensdata_pth", lensdata_pth_);
 }
 
 void DatasetGenComponent::Deserialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_node) {
     SCore::Serializer::DeserializeInt(p_doc, p_node, "resolution", resolution_);
     SCore::Serializer::DeserializeVec3(p_doc, p_node, "extends", extends_);
     SCore::Serializer::DeserializeString(p_doc, p_node, "save_pth", save_pth_);
+    SCore::Serializer::DeserializeString(p_doc, p_node, "lensdata_pth", lensdata_pth_);
 }
 
 
@@ -123,7 +181,57 @@ void DatasetGenComponent::OnDrawGizmo(float delta_t){
     }
 }
 
-void DatasetGenComponent::SaveFbo(const std::string& name){
+static void SaveFbothreads(std::vector<uint8_t> color,std::vector<float> depth,std::pair<int,int> bufsize, const std::string& save_pth,const std::string& name){
+    auto& tmp = color;
+    auto& tmpdepth = depth;
+    //return;
+    auto pth = save_pth;
+    auto imgpth = pth+"/"+name+".png";
+    auto depthpth = pth + "/"+name+"_depth.png";
+
+    // {
+    //     std::vector<uint8_t> newdepth;
+    //     auto nearr = renderpipeline_.GetCam()->cam_->near_;
+    //     auto farr = renderpipeline_.GetCam()->cam_->far_;
+
+    //     for (auto &i:tmpdepth) {
+    //         auto lineardepth = 2*nearr/((farr+nearr)-(2*i-1)*(farr-nearr));
+    //         uint8_t cr = (1.0-lineardepth)*255;
+    //         newdepth.push_back(cr);
+    //         newdepth.push_back(cr);
+    //         newdepth.push_back(cr);
+    //         newdepth.push_back(255);
+    //     }
+    //     auto c1depthpth = pth + "/"+name+"_depth_c1.png";
+    //     cv::Mat C1depthA(bufsize.second,bufsize.first,CV_8UC4,newdepth.data());
+    //     //cv::cvtColor(depthA,depthA, cv::COLOR_RGBA2GRAY);
+    //     //cv::cvtColor(depthA,depthA, cv::COLOR_BGRA2RGBA);
+    //     cv::flip(C1depthA,C1depthA,0);
+    //     cv::imwrite(c1depthpth, C1depthA,{cv::IMWRITE_PNG_COMPRESSION,0});
+    // }
+
+
+    cv::Mat A(bufsize.second,bufsize.first,CV_8UC3,tmp.data());
+    cv::Mat depthA(bufsize.second,bufsize.first,CV_8UC4,tmpdepth.data());
+    
+    cv::cvtColor(A,A, cv::COLOR_BGR2RGB);
+    cv::cvtColor(depthA,depthA, cv::COLOR_BGRA2RGBA);
+    cv::flip(A,A,0);
+    cv::flip(depthA,depthA,0);
+
+    cv::imwrite(imgpth, A,{cv::IMWRITE_PNG_COMPRESSION,0});
+    cv::imwrite(depthpth, depthA,{cv::IMWRITE_PNG_COMPRESSION,0});
+    
+    return;
+    stbi_flip_vertically_on_write(1);
+    stbi_write_png_compression_level = 0;
+    stbi_write_png(imgpth.c_str(), 
+    bufsize.first, bufsize.second, 3, (void*)tmp.data(), bufsize.first*3);
+    stbi_write_png(depthpth.c_str(), 
+    bufsize.first, bufsize.second, 4, (void*)tmpdepth.data(), bufsize.first*4);
+}
+
+void DatasetGenComponent::SaveFbo( const std::string& name){
     auto tmp = dist_fbo_.DownloadColor();
     auto tmpdepth = dist_fbo_.DownloadDepth();
     //return;
@@ -173,7 +281,7 @@ void DatasetGenComponent::SaveFbo(const std::string& name){
     dist_fbo_.buf_size_.first, dist_fbo_.buf_size_.second, 4, (void*)tmpdepth.data(), dist_fbo_.buf_size_.first*4);
 }
 
-void DatasetGenComponent::RenderImg(SRender::LowRenderer::Camera& intrinsic,sm::Transform& extrinsic){
+void DatasetGenComponent::RenderImg(SRender::LowRenderer::Camera& intrinsic,sm::Transform& extrinsic,const std::string& name){
     acam_.SetCamInExParam(intrinsic, extrinsic);
     //acam_.SetExtrinsic(orien, pos);
     auto aspect = acam_.cam_->Getaspect_ratio();
@@ -184,7 +292,8 @@ void DatasetGenComponent::RenderImg(SRender::LowRenderer::Camera& intrinsic,sm::
 
     // acam_.cam_->distortion_.dist_para[0]=1.5;
     renderpipeline_.RenderTick();
-    SaveFbo("test");
+    //SaveFbo("test");
+    threadpool_.submit(SaveFbothreads,dist_fbo_.DownloadColor(),dist_fbo_.DownloadDepth(),dist_fbo_.buf_size_,ResourceManager::PathManager::GetFullPath(save_pth_),name);
     //RENDER undistort
     auto k = acam_.cam_->distortion_.dist_para[0];
     auto focal = acam_.cam_->Getfocal_length();
@@ -195,9 +304,41 @@ void DatasetGenComponent::RenderImg(SRender::LowRenderer::Camera& intrinsic,sm::
     acam_.cam_->Setsensor_size_h(alpha*sensorh);
     renderpipeline_.Init(&acam_, &dist_fbo_, width*alpha, resolution_*alpha,0);
     renderpipeline_.RenderTick();
-    SaveFbo("testori");
-
+    //SaveFbo("testori");
+    threadpool_.submit(SaveFbothreads,dist_fbo_.DownloadColor(),dist_fbo_.DownloadDepth(),dist_fbo_.buf_size_,ResourceManager::PathManager::GetFullPath(save_pth_),name+"_ori");
     acam_.cam_->Setsensor_size_h(sensorh);
+
+}
+
+void DatasetGenComponent::LoadLensData(){
+    auto& lens=lens_;
+    lens.clear();
+    std::ifstream input(ResourceManager::PathManager::GetFullPath(lensdata_pth_));
+    std::string line;
+    for (int i=0;i<4;++i) input.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    while(input.peek()!=EOF){
+        for (int i=0;i<8;++i){
+            if (i==3){
+                float recv;
+                float focal,k;
+                for (int j=0;j<8;++j){
+                    input>>recv;
+                    if (j==1){
+                        focal= recv;
+                    }
+                    if (j==7){
+                        k=recv;
+                    }
+                }
+                lens.push_back({focal,k});
+                
+            }
+            input.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            
+        }
+    }
+    
+
 }
 
 }

@@ -34,7 +34,8 @@ void SceneManager::DestroyScene(){
 }
 
 void SceneManager::LoadScene(std::string pth){
-    DestroyScene();
+    if (pth=="") return;
+	DestroyScene();
     CreateScene();
     tinyxml2::XMLDocument doc;
 	std::ifstream in(std::filesystem::u8path(pth));
