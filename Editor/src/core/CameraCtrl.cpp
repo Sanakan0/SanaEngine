@@ -53,11 +53,12 @@ void CameraCtrl::HandleInputs(float delta_time){
                 std::max(view_.canvas_size_.first-2*bias,0),
                 std::max(view_.canvas_size_.second-2*bias,0)};
             
-            x=x-biaspos.first+biassize.first;
-            y=y-biaspos.second+biassize.second;
-            x=biaspos.first+x%biassize.first;
-            y=biaspos.second+y%biassize.second;
-            inputmanager_.SetCursorPos(x,y);
+            auto nx=x-biaspos.first+biassize.first;
+            auto ny=y-biaspos.second+biassize.second;
+            nx=biaspos.first+nx%biassize.first;
+            ny=biaspos.second+ny%biassize.second;
+            if (nx!=x||ny!=y)
+                inputmanager_.SetCursorPos(nx,ny);
         }
         
     }else{
