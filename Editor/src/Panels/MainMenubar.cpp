@@ -143,7 +143,7 @@ void MainMenubar::DrawImpl(float deltat){
         firstfrm=0;
     }else{
         if (ResourceManager::PathManager::GetProjectPath()==""){
-            ImGui::OpenPopup("ProjectSelection");
+            ImGui::OpenPopup("开始");
             show_project_wnd_=true;
         }else{
             show_project_wnd_=false;
@@ -205,12 +205,14 @@ void MainMenubar::DrawImpl(float deltat){
         if (ImGui::Button("Cancel", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
         ImGui::EndPopup();
     }
-
-    if (ImGui::BeginPopupModal("ProjectSelection", &show_project_wnd_, ImGuiWindowFlags_AlwaysAutoResize))
+     
+    ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowSize({500,200});
+    if (ImGui::BeginPopupModal("开始", &show_project_wnd_,ImGuiWindowFlags_AlwaysAutoResize))
     {
-        ImGui::Text("Project Selection\n\n");
+        ImGui::Text("工程选择");
         
-        if (ImGui::Button("Open Project")){
+        if (ImGui::Button("打开..")){
             static std::vector<nfdfilteritem_t> filters{{"Project","sanaprj"}};
             auto pth = Util::NfdDialog::OpenFileDlg(filters);
             if (pth!=""){
@@ -224,7 +226,7 @@ void MainMenubar::DrawImpl(float deltat){
             }
             
         }
-        if (ImGui::Button("New Project")){
+        if (ImGui::Button("新建工程")){
             static std::vector<nfdfilteritem_t> filters{{"Project folder",""}};
             auto pth = Util::NfdDialog::SaveDlg(filters,"");
             std::cout << pth << std::endl;

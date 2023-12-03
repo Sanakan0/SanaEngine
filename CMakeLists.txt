@@ -2,8 +2,8 @@ project(SanaEngine)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /source-charset:utf-8 /execution-charset:utf-8")
 
-add_compile_options(/fsanitize=address)
-add_link_options(/fsanitize=address)
+# add_compile_options(/fsanitize=address)
+# add_link_options(/fsanitize=address)
 
 
 include_directories(dependencies/assimp/include)

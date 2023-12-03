@@ -130,7 +130,7 @@ void SceneView::SetEngineUboControlMask(uint32_t mask){
 
 
 void SceneView::LogicTick(float deltat){
-   
+    rtcontext_.scene_manager_->GetScene()->Update(deltat);
     
     //rtcontext_.shape_drawer_->SetViewPrj(cam_.GetProjectionMat()*cam_.GetViewMat());
 }

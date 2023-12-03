@@ -25,7 +25,7 @@ void InfoPanel::DrawImpl(float deltat){
     if (ImGui::Begin("Info overlay", &open_, window_flags))
     {
 
-        ImGui::Text("Info overlay\n" "in the corner_ of the screen.\n" "(right-click to change position)");
+        ImGui::Text("Info overlay\n" "(right-click to change position)");
         ImGui::Separator();
         ImGui::Text("FPS: %.1f",1.0f/deltat);
         if (ImGui::IsMousePosValid())

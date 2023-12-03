@@ -15,6 +15,7 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 #include <stdint.h>
+#include <utility>
 
 namespace SEditor::Panels {
 
@@ -62,8 +63,25 @@ void VisLocPanel::DrawContent(){
     ImGui::SameLine();
     //ImGui::Image((void*)(uint64_t)imgp2->id, {(float)imgp2->width/scale,(float)imgp2->height/scale});
     ImGui::Image((void*)(uint64_t)locengine.fbo_.tex_buf_id_,ImVec2(locengine.fbo_.buf_size_.first/scale,locengine.fbo_.buf_size_.second/scale),ImVec2(0,1),ImVec2(1,0) );
+    
 
     ImGui::PopStyleVar();
+    
+    static float alpha1=0.5;
+    static float alpha2=0.5;
+    ImVec2 tmppos(ImGui::GetCursorScreenPos());
+    ImGui::Image((void*)(uint64_t)imgp1->id, {(float)imgp1->width/scale,(float)imgp1->height/scale},ImVec2(0,1),ImVec2(1,0),{1,1,1,alpha1});
+    ImVec2 tmppos2(ImGui::GetCursorScreenPos());
+    //ImGui::SetCursorPos(tmppos);
+    ImGui::SetCursorScreenPos(tmppos);
+    //ImGui::Image((void*)(uint64_t)imgp1->id, {(float)imgp1->width/scale,(float)imgp1->height/scale},ImVec2(1,0),ImVec2(0,1),{1,1,1,0.5});
+    
+    ImGui::Image((void*)(uint64_t)locengine.fbo_.tex_buf_id_,ImVec2(locengine.fbo_.buf_size_.first/scale,locengine.fbo_.buf_size_.second/scale),ImVec2(0,1),ImVec2(1,0) ,{1,1,1,alpha2});
+    ImGui::SetCursorScreenPos(tmppos2);
+    
+    ImGui::DragFloat("a1",&alpha1,0.05,0,1);
+    ImGui::DragFloat("a2",&alpha2,0.05,0,1);
+
     // static SRender::LowRenderer::RadialDistortion distortioninfo{{0,0,0},SRender::LowRenderer::DistortionModel::INDEX};
     // static float norm_fh=1;
     // static float sensor_scale=1;
@@ -71,8 +89,8 @@ void VisLocPanel::DrawContent(){
     // auto uimgw=undistpipeline.GetFbo().buf_size_.first;
     // auto uimgh=undistpipeline.GetFbo().buf_size_.second;
     // ImGui::Image((void*)(uint64_t)undistpipeline.GetFbo().tex_buf_id_, {(float)uimgw/scale,(float)uimgh/scale},ImVec2(0,1),ImVec2(1,0));
-    static VisualLoc::matchpairvec res ;
-    
+    static VisualLoc::matchpairvec res ,correctres;
+
     lupos1.x+=(float)imgp1->width/scale;
 
 	ImDrawList* draw_list = ImGui::GetWindowDrawList();
@@ -82,6 +100,11 @@ void VisLocPanel::DrawContent(){
         ImVec2 p1(lupos.x+i.pt1.pt.x/scale,lupos.y+i.pt1.pt.y/scale);
         ImVec2 p2(lupos1.x+i.pt2.pt.x/scale,lupos1.y+i.pt2.pt.y/scale);
         draw_list->AddLine(p1, p2,IM_COL32(255,255,255,255));
+    }
+    for (auto &i :correctres){
+        ImVec2 p1(tmppos.x+i.pt1.pt.x/scale,tmppos.y+i.pt1.pt.y/scale);
+        ImVec2 p2(tmppos.x+i.pt2.pt.x/scale,tmppos.y+i.pt2.pt.y/scale);
+        draw_list->AddLine(p1, p2,IM_COL32(0,255,0,255));
     }
     ImGui::Spacing();
     ImGui::DragFloat("图像缩放",&scale,0.01);
@@ -132,7 +155,7 @@ void VisLocPanel::DrawContent(){
     // ImGui::DragFloat("norm_fh",&norm_fh,0.001);
 
     ImGui::Separator();
-    
+    ImGui::BeginGroup();
     ImGui::PushItemWidth(ImGui::GetFontSize() * 8);
     
     ImGui::Text("SURF 设置:");
@@ -141,11 +164,16 @@ void VisLocPanel::DrawContent(){
     ImGui::InputInt("iterationscount", &locsetting.pnp_iterationscount);
     ImGui::InputDouble("confidence", &locsetting.pnp_confidence);
     ImGui::InputFloat("reprojectionerror", &locsetting.pnp_reprojectionerror);
-
+    ImGui::InputDouble("transRange", &locsetting.transStep);
+    ImGui::InputDouble("rotatRange", &locsetting.rotatStep);
     ImGui::PopItemWidth();
     ImGui::Separator();
-    static int sampleNum=30;
-    ImGui::InputInt("Sample Num", &sampleNum);
+    ImGui::EndGroup();ImGui::SameLine();
+
+
+    ImGui::BeginGroup();
+    static int sampleNum=10;
+    
     if (ImGui::Button("随机采样位姿求解")){
         auto tmp = scenemanager_.GetActiveCamera();
         if (tmp==nullptr){
@@ -155,7 +183,8 @@ void VisLocPanel::DrawContent(){
             locengine.LocPipelineMultiRandom(img1,*scenemanager_.GetActiveCamera(),locsetting);
         }
     }
-    if (ImGui::Button("随机采样位姿求解2")){
+    ImGui::SameLine();
+    if (ImGui::Button("随机采样位姿单次求解")){
         auto tmp = scenemanager_.GetActiveCamera();
         if (tmp==nullptr){
             spdlog::error("[VISLOC] No Camera Activated");
@@ -164,6 +193,11 @@ void VisLocPanel::DrawContent(){
             locengine.LocPipelineMultiRandomOneRansac(img1,*scenemanager_.GetActiveCamera(),locsetting,sampleNum);
         }
     }
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(120);
+    ImGui::InputInt("Sample Num", &sampleNum);
+    static int maxIter=1;
+    static double reprjerr=-1;
     if (ImGui::Button("位姿优化")){
         auto tmp = scenemanager_.GetActiveCamera();
         if (tmp==nullptr){
@@ -171,10 +205,15 @@ void VisLocPanel::DrawContent(){
         }
         else{
             spdlog::info("[VISLOC] st");
-            locengine.LocPipeline(img1,*scenemanager_.GetActiveCamera(),locsetting);
+            reprjerr=locengine.LocPipeline(img1,*scenemanager_.GetActiveCamera(),locsetting,maxIter);
         }
     }
-    
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(80);
+    ImGui::DragInt("Maxiter", &maxIter,1,1,10);
+    ImGui::SameLine();
+    ImGui::Text("重投影误差：%.3f", reprjerr);
+    ImGui::Separator();
     if (ImGui::Button("特征测试")){
         auto tmp = scenemanager_.GetActiveCamera();
         if (tmp==nullptr){
@@ -185,9 +224,11 @@ void VisLocPanel::DrawContent(){
             res =locengine.TestFeatureMatch(img1,*scenemanager_.GetActiveCamera(),locsetting);
         }
     }
-    if (ImGui::Button("calcinliersandreprj")){
+    if (ImGui::Button("计算当前重投影误差")){
         auto[inliers,err] = locengine.CalcCurInliersAndReprjErr(img1,*scenemanager_.GetActiveCamera() ,locsetting);
-        spdlog::info("Inliers: {}  reprjerror: {}",inliers,err);
+        correctres = std::move(inliers);
+        reprjerr=err;
+        spdlog::info("Inliers: {}  reprjerror: {}",inliers.size(),err);
     }
     ImGui::SameLine();
     if (ImGui::Button("图像投影")){
@@ -195,20 +236,20 @@ void VisLocPanel::DrawContent(){
         scenemanager_.img_tex_ = imgp1;
     }
 
-    if (ImGui::Button("保存图像")){
-        auto tmp = scenemanager_.GetActiveCamera();
-        if (tmp==nullptr){
-            spdlog::error("[VISLOC] No Camera Activated");
-        }
-        else{
-            img1 = locengine.TestRenderCapture(*scenemanager_.GetActiveCamera());
-            cv::Mat tmp;
-            cv::cvtColor(img1, tmp, cv::COLOR_BGR2RGBA);
-            imgp1.reset(SRender::Resources::STextureLoader::LoadFromMemory(tmp.data, tmp.size().width, tmp.size().height, "img2"));
-        }
-    }
+    // if (ImGui::Button("保存图像")){
+    //     auto tmp = scenemanager_.GetActiveCamera();
+    //     if (tmp==nullptr){
+    //         spdlog::error("[VISLOC] No Camera Activated");
+    //     }
+    //     else{
+    //         img1 = locengine.TestRenderCapture(*scenemanager_.GetActiveCamera());
+    //         cv::Mat tmp;
+    //         cv::cvtColor(img1, tmp, cv::COLOR_BGR2RGBA);
+    //         imgp1.reset(SRender::Resources::STextureLoader::LoadFromMemory(tmp.data, tmp.size().width, tmp.size().height, "img2"));
+    //     }
+    // }
     //ImGui::Image((void*)(uint64_t)locengine.fbo_.tex_buf_id_,ImVec2(locengine.fbo_.buf_size_.first/10.0,locengine.fbo_.buf_size_.second/10.0),ImVec2(0,1),ImVec2(1,0) );
-
+    ImGui::EndGroup();
 }
 
 

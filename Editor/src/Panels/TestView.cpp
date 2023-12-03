@@ -43,12 +43,12 @@ void TestView::RenderTick(float deltat){
     
 
     static SimpleJoint sgun;
-    static SRender::Resources::SModel model,model2;
+    static SRender::Resources::SModel model;
     static std::vector<SRender::Resources::SAnimation> animas;
     static int initflag=1;
     if (initflag) {
         SRender::Resources::SModelLoader::LoadModelWithAnima("..\\assets\\models\\GUN.fbx", model, animas),--initflag;
-        SRender::Resources::SModelLoader::LoadSimpleModel(R"(../assets/models/adamHead/adamHead.gltf)", model2);
+        //SRender::Resources::SModelLoader::LoadSimpleModel(R"(../assets/models/adamHead/adamHead.gltf)", model2);
     }
     static std::unique_ptr<SRender::Resources::GLShader> shaderp(SRender::Resources::GLShaderLoader::LoadFromFile( "..\\assets\\shaders\\animation.glsl"));
     

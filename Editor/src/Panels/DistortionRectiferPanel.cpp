@@ -213,7 +213,7 @@ void DistrotionRectifierPanel::DrawContent(){
     }
     double aspect_ratio = (double)uimgp->width/uimgp->height;
     ImGui::Separator();
-
+    ImGui::BeginGroup();
     if (ImGui::Button("标定弧度误差")){
         spdlog::info("[Recifier] curv st");
         Rectifycomp->lossval_= rectifier_.RectifyWithLines(lines, aspect_ratio, distortioninfo);
@@ -224,9 +224,9 @@ void DistrotionRectifierPanel::DrawContent(){
         Rectifycomp->lossval_= rectifier_.RectifyWithLines(lines, aspect_ratio, distortioninfo,true);
         spdlog::info("[Recifier] dist ed");
     }
-
+    ImGui::EndGroup();ImGui::SameLine();
     
-    ImGui::Separator();
+    ImGui::BeginGroup();
     ImGui::Text("标定信息:");
     ImGui::Spacing();
     ImGui::Text("error: %.8f",Rectifycomp->lossval_);
@@ -234,7 +234,7 @@ void DistrotionRectifierPanel::DrawContent(){
     auto [dloss,aloss,dderiv,aderiv] = rectifier_.GetCurLoss(lines, aspect_ratio, distortioninfo,&distlines);
     ImGui::Text("Angle Loss: %.8f Dist Loss: %.8f Dist Loss pixel wise: %.8f", aloss,dloss,dloss*uimgp->width/2.0);
     ImGui::Text("Angle deriv: %.8f Dist deriv: %.8f", aderiv,dderiv);
-    
+    ImGui::EndGroup();
 
 
 
