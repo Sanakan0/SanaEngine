@@ -86,8 +86,8 @@ void RenderBasedLocEngine::LocPipelineMultiRandomOneRansac(const cv::Mat& ref_im
     std::vector<cv::Point3f> objpts;
     std::vector<cv::Point2f> imgpts;
     for (int i=0;i<sampleNum;++i){
-        double transStep=10;
-        double rotatStep=30;
+        double transStep=setting.transStep;
+        double rotatStep=setting.rotatStep;
         double dx = distrib(mt)*transStep;
         double dy = distrib(mt)*transStep;
         double dz = distrib(mt)*transStep;
@@ -138,8 +138,8 @@ void RenderBasedLocEngine::LocPipelineMultiRandom(const cv::Mat& ref_img,ECS::Ac
     auto pos0 = acam_.GetPos();
     auto orien0 = acam_.GetOrien();
     for (int i=0;i<30;++i){
-        double transStep=10;
-        double rotatStep=30;
+        double transStep=setting.transStep;
+        double rotatStep=setting.rotatStep;
         double dx = distrib(mt)*transStep;
         double dy = distrib(mt)*transStep;
         double dz = distrib(mt)*transStep;
@@ -148,15 +148,22 @@ void RenderBasedLocEngine::LocPipelineMultiRandom(const cv::Mat& ref_img,ECS::Ac
         acam_.SetExtrinsic(orien0, pos0);
         acam_.translate({dx,dy,dz});
         acam_.FpsRotate(dh, dv);
-        int ret = RunVisLocSingle(ref_img,setting);
+        auto[ ret,err] = RunVisLocSingle(ref_img,setting);
         if (ret) return;
     }
     acam_.SetExtrinsic(orien0, pos0);
 }
-void RenderBasedLocEngine::LocPipeline(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting){
+double RenderBasedLocEngine::LocPipeline(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting,int iterCnt){
 
     acam_.InitFromActor(initialcam);
-    RunVisLocSingle(ref_img,setting);
+    double hiserr = 1000l;
+    for (int i=0;i<iterCnt;++i){
+        auto[inliers,err] = RunVisLocSingle(ref_img,setting);
+        if (err<hiserr) hiserr=err;
+        else break;
+    }
+    return hiserr;
+    
 }
 
 
@@ -173,49 +180,7 @@ void RenderBasedLocEngine::Find2D3DPair(const cv::Mat& ref_img,const LocPipeline
     }
 }
 
-int RenderBasedLocEngine::RunVisLocSingle(const cv::Mat& ref_img,const LocPipelineSetting& setting){
-    renderpipline_.RenderTick();
-    
-    auto res = SURFFeatureMatch(ref_img, Fbo2Cvmat(),setting.fm_lowesratio);
-    res = FeatureMatchFilter(res, 200, 200);
-    std::vector<cv::Point3f> objpts;
-    std::vector<cv::Point2f> imgpts;
-    if (res.size()<4) return 0;
-    for (auto& i:res){
-        imgpts.push_back(i.pt1.pt);
-        auto tmp = RetrievPosFromPixel(i.pt2.pt.x, i.pt2.pt.y);
-        objpts.push_back({tmp.x,tmp.y,tmp.z});
-    }
-    VisualizeCtrlPoints(objpts);
-    double fpix = (double)acam_.cam_->Getfocal_length()*ref_img.size().height/acam_.cam_->Getsensor_size_h();
-    
-    auto inmat = GetIntrinsicMat(fpix, fpix, ref_img.size().width/2.0 , ref_img.size().height/2.0);
-    
-    cv::Mat distCoeffs = cv::Mat::zeros(4, 1, CV_64FC1);
-    
-    cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);
-    cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);
-
-    bool useExtrinsicGuess = false;
-    int iterationscount=setting.pnp_iterationscount;
-    float reprojectionerror=setting.pnp_reprojectionerror;
-    double confidence=setting.pnp_confidence;
-    
-    auto[orien,trans,inliers] = RansacPnpPass(objpts,imgpts,inmat,distCoeffs,useExtrinsicGuess,iterationscount,reprojectionerror,confidence);
-    if (inliers.size().width==0){ //failed
-        spdlog::warn("[VISLOC] Pipeline Failed");
-        return 0;
-    }
-    auto tmpeul = sm::Quat2Eul( acam_.GetOrien());
-    spdlog::info("[VISLOC] Pipeline Success, Inliers: {} trans: {} {} {} rotat: {} {} {}",
-        inliers.size().height, acam_.GetPos().x,acam_.GetPos().y,acam_.GetPos().z,
-        tmpeul.x,tmpeul.y,tmpeul.z);
-    acam_.SetExtrinsic(orien, trans);
-    return inliers.size().width;
-}
-
-std::tuple<int,double> RenderBasedLocEngine::CalcCurInliersAndReprjErr(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting){
-    acam_.InitFromActor(initialcam);
+std::tuple<int,double> RenderBasedLocEngine::RunVisLocSingle(const cv::Mat& ref_img,const LocPipelineSetting& setting){
     renderpipline_.RenderTick();
     
     auto res = SURFFeatureMatch(ref_img, Fbo2Cvmat(),setting.fm_lowesratio);
@@ -252,18 +217,71 @@ std::tuple<int,double> RenderBasedLocEngine::CalcCurInliersAndReprjErr(const cv:
     spdlog::info("[VISLOC] Pipeline Success, Inliers: {} trans: {} {} {} rotat: {} {} {}",
         inliers.size().height, acam_.GetPos().x,acam_.GetPos().y,acam_.GetPos().z,
         tmpeul.x,tmpeul.y,tmpeul.z);
-    //acam_.SetExtrinsic(orien, trans);
-    //calc reprj err
+    acam_.SetExtrinsic(orien, trans);
+    matchpairvec correctpairs;
     double meanreprjerr=0;
     for (int i=0;i<inliers.size().height;++i){
         auto idx = inliers.at<int>(i,0);
         cv::Point2f dist = res[idx].pt1.pt-res[idx].pt2.pt;
         meanreprjerr+=std::sqrt( dist.x*dist.x+dist.y*dist.y);
+        correctpairs.push_back(res[idx]);
+    }
+    meanreprjerr/=inliers.size().height;
+    return {inliers.size().width,meanreprjerr};
+}
+
+std::tuple<matchpairvec,double> RenderBasedLocEngine::CalcCurInliersAndReprjErr(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting){
+    acam_.InitFromActor(initialcam);
+    renderpipline_.RenderTick();
+    
+    auto res = SURFFeatureMatch(ref_img, Fbo2Cvmat(),setting.fm_lowesratio);
+    res = FeatureMatchFilter(res, 200, 200);
+    std::vector<cv::Point3f> objpts;
+    std::vector<cv::Point2f> imgpts;
+    if (res.size()<4) return {{},0};
+    for (auto& i:res){
+        imgpts.push_back(i.pt1.pt);
+        auto tmp = RetrievPosFromPixel(i.pt2.pt.x, i.pt2.pt.y);
+        objpts.push_back({tmp.x,tmp.y,tmp.z});
+    }
+    VisualizeCtrlPoints(objpts);
+    double fpix = (double)acam_.cam_->Getfocal_length()*ref_img.size().height/acam_.cam_->Getsensor_size_h();
+    
+    auto inmat = GetIntrinsicMat(fpix, fpix, ref_img.size().width/2.0 , ref_img.size().height/2.0);
+    
+    cv::Mat distCoeffs = cv::Mat::zeros(4, 1, CV_64FC1);
+    
+    cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);
+    cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);
+
+    bool useExtrinsicGuess = false;
+    int iterationscount=setting.pnp_iterationscount;
+    float reprojectionerror=setting.pnp_reprojectionerror;
+    double confidence=setting.pnp_confidence;
+    
+    auto[orien,trans,inliers] = RansacPnpPass(objpts,imgpts,inmat,distCoeffs,useExtrinsicGuess,iterationscount,reprojectionerror,confidence);
+    if (inliers.size().width==0){ //failed
+        spdlog::warn("[VISLOC] Pipeline Failed");
+        return {{},0};
+    }
+    auto tmpeul = sm::Quat2Eul( acam_.GetOrien());
+    spdlog::info("[VISLOC] Pipeline Success, Inliers: {} trans: {} {} {} rotat: {} {} {}",
+        inliers.size().height, acam_.GetPos().x,acam_.GetPos().y,acam_.GetPos().z,
+        tmpeul.x,tmpeul.y,tmpeul.z);
+    //acam_.SetExtrinsic(orien, trans);
+    //calc reprj err
+    matchpairvec correctpairs;
+    double meanreprjerr=0;
+    for (int i=0;i<inliers.size().height;++i){
+        auto idx = inliers.at<int>(i,0);
+        cv::Point2f dist = res[idx].pt1.pt-res[idx].pt2.pt;
+        meanreprjerr+=std::sqrt( dist.x*dist.x+dist.y*dist.y);
+        correctpairs.push_back(res[idx]);
     }
     meanreprjerr/=inliers.size().height;
     
 
-    return {inliers.size().height,meanreprjerr};
+    return {correctpairs,meanreprjerr};
 }
 
 std::tuple<glm::quat,glm::vec3,cv::Mat> RenderBasedLocEngine::RansacPnpPass(const std::vector<cv::Point3f>& objpts,const std::vector<cv::Point2f>& imgpts,

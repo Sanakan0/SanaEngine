@@ -24,15 +24,17 @@ struct LocPipelineSetting{
     int pnp_iterationscount=1000;
     float pnp_reprojectionerror=8;
     double pnp_confidence=0.99;
+    double transStep=30;
+    double rotatStep=10;
 };
 
 class RenderBasedLocEngine{
 public:
     RenderBasedLocEngine();
-    void LocPipeline(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting);
+    double LocPipeline(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting,int iterCnt=1);
     void LocPipelineMultiRandom(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting);
     void LocPipelineMultiRandomOneRansac(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting,int sampleNum=30);
-    int RunVisLocSingle(const cv::Mat& ref_img,const LocPipelineSetting& setting);
+    std::tuple<int,double> RunVisLocSingle(const cv::Mat& ref_img,const LocPipelineSetting& setting);
     std::tuple<glm::quat,glm::vec3,cv::Mat> RansacPnpPass(const std::vector<cv::Point3f>& objpts,const std::vector<cv::Point2f>& imgpts,
         const cv::Mat& inmat,const cv::Mat& distCoeffs,
         bool useExtrinsicGuess ,
@@ -40,7 +42,7 @@ public:
             float reprojectionerror,
             double confidence);
 
-    std::tuple<int,double> CalcCurInliersAndReprjErr(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting);
+    std::tuple<matchpairvec,double> CalcCurInliersAndReprjErr(const cv::Mat& ref_img,ECS::Actor& initialcam,const LocPipelineSetting& setting);
 
     void Find2D3DPair(const cv::Mat& ref_img,const LocPipelineSetting& setting,std::vector<cv::Point3f> &objpts,std::vector<cv::Point2f> &imgpts);
 
