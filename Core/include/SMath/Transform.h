@@ -36,6 +36,7 @@ public:
     inline void SetScaleL(const glm::vec3& scale){ local_scale_=scale;}
 
     inline const glm::quat& GetOrienW(){ return world_orien_;}
+    inline const glm::vec3& GetOrienVecW(){ return world_orien_*sm::OglCamPrimForward;}
     inline void SetOrienW(const glm::quat& orien){ 
         world_orien_=orien;
         world_euler_xyz_deg_=Quat2Eul(world_orien_);

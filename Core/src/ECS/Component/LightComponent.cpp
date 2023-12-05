@@ -1,12 +1,13 @@
 #include "ECS/Component/LightComponent.h"
 #include "Serialize/Serializer.h"
 #include "glm/fwd.hpp"
+#include "ECS/Actor.h"
 #include "imgui/imgui.h"
 
 namespace ECS::Components {
 
 LightComponent::LightComponent(Actor& parentactor):
-Component(parentactor){
+Component(parentactor),light_(parentactor_.GetTransformComponent().trans_){
 
 }
 

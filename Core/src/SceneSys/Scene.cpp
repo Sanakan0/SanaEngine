@@ -43,6 +43,10 @@ void Scene::DeleteActor(const ECS::ActorID id){
 			auto& vec= basicrendercomponents_.camcomps;
 			vec.erase(std::remove(vec.begin(), vec.end(), tmp), vec.end());
 		}
+		else if (auto tmp = dynamic_cast<ECS::Components::LightComponent*>(c.get())){
+			auto& vec= basicrendercomponents_.lightcomps;
+			vec.erase(std::remove(vec.begin(), vec.end(), tmp), vec.end());
+		}
 	}
 	DeleteActorEvent.Invoke(*actors_[id]);
 	actors_.erase(id);
@@ -67,6 +71,9 @@ void Scene::OnAddComponent(ECS::Components::Component& component){
     }
     else if (auto tmp = dynamic_cast<ECS::Components::CameraComponent*>(&component)){
         basicrendercomponents_.camcomps.push_back(tmp);
+    }
+	else if (auto tmp = dynamic_cast<ECS::Components::LightComponent*>(&component)){
+        basicrendercomponents_.lightcomps.push_back(tmp);
     }
 }
 

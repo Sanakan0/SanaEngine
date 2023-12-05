@@ -42,6 +42,7 @@ public:
     void OnAddComponent(ECS::Components::Component& component){
         if (auto tmp = dynamic_cast<ECS::Components::LightComponent*>(&component)){
             main_light_p_ = &tmp->parentactor_;
+            main_light_id_= tmp->parentactor_.GetID();
         }
     }
 
@@ -54,6 +55,16 @@ public:
             selected_actor_id_=0;
             selected_actor_p_=nullptr;
         }
+        if (actor.GetID() == main_light_id_){
+            if (GetScene()->GetBasicRenderComponent().lightcomps.size()>0){
+                main_light_p_=&GetScene()->GetBasicRenderComponent().lightcomps[0]->parentactor_;
+                main_light_id_=main_light_p_->GetID();
+            }else{
+                main_light_id_=0;
+                main_light_p_=nullptr;
+            }
+            
+        }
     }
 
 private:
@@ -63,7 +74,7 @@ private:
     ECS::Actor* selected_actor_p_=nullptr;
     ECS::ActorID active_camera_id_=0;
     ECS::Actor* active_camera_p_=nullptr;
-    
+    ECS::ActorID main_light_id_=0;
     ECS::Actor* main_light_p_=nullptr;
 };
 

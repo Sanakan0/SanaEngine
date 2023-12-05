@@ -1,4 +1,5 @@
 #pragma once
+#include "SRender/Resources/SLight.h"
 #include <ECS/Component/Component.h>
 #include <memory>
 namespace ECS::Components {
@@ -15,7 +16,7 @@ public:
 
     virtual void Deserialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_node) override;
 
-
+    SRender::Resources::SLight light_;
     
 };
 

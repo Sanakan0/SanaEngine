@@ -32,6 +32,7 @@
 #include <memory>
 #include <stdint.h>
 #include <thread>
+#include <vector>
 namespace SEditor::Panels{
 SceneView::SceneView(Core::RuntimeContext& rtcontext):
 rtcontext_(rtcontext),
@@ -134,8 +135,19 @@ void SceneView::LogicTick(float deltat){
     
     //rtcontext_.shape_drawer_->SetViewPrj(cam_.GetProjectionMat()*cam_.GetViewMat());
 }
+
+void SceneView::UpdateEngineLights(SceneSys::Scene& scene){
+    auto& lights = scene.GetBasicRenderComponent().lightcomps;
+    std::vector<glm::mat4> lightdata;
+    for (auto& i:lights){
+        lightdata.push_back(i->light_.GenLightMat());
+    }
+    rtcontext_.light_ssbo_->SendBlocks<glm::mat4>(lightdata.data(), lightdata.size()*sizeof(glm::mat4));
+}
+
 void SceneView::RenderTick(float deltat){   
     UpdateViewCam(deltat);
+    UpdateEngineLights(*rtcontext_.scene_manager_->GetScene());
     rtcontext_.core_renderer_->SetViewPort(0, 0,canvas_size_.first ,canvas_size_.second );
     // static bool rasflag=0;
     // if(ImGui::Button("switch ras")){
@@ -386,9 +398,6 @@ void SceneView::ActorPickerTick(float deltat){
 
 }
 
-void SceneView::UpdateEngineLights(SceneSys::Scene& scene){
-    auto& lightcomps= scene.GetBasicRenderComponent().lightcomps;
 
-}
 
 }

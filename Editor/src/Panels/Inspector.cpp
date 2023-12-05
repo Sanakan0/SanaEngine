@@ -57,7 +57,7 @@ void Inspector::DrawContent(){
     }
     
     if (selected_actor_){
-        ImGui::Text(selected_actor_->GetName().c_str());
+        //ImGui::Text(selected_actor_->GetName().c_str());
         if (selected_actor_->GetComponent("CameraComponent")) {
             if (ImGui::Button("Set Active Cam")) scenemanager_.SetActiveCamera(selected_actor_->GetID());
         }
@@ -65,15 +65,16 @@ void Inspector::DrawContent(){
             auto meshcomp = (ECS::Components::MeshComponent*)selected_actor_->GetComponent("MeshComponent");
             sceneview_.camctrl_.Move2Target(selected_actor_->GetTransformComponent().trans_.GetPosW(), meshcomp?meshcomp->GetModel()->GetBoundingSphere()->radius:5); 
         }
-
+        ImVec4 titlecol{ 0.95f, 0.75f, 0.0f,1};
         std::stringstream ss;
         auto tmp = selected_actor_->GetName();
         static char cbuf[50];
         strcpy_s(cbuf,tmp.c_str());
-        ImGui::InputText("name", cbuf,IM_ARRAYSIZE(cbuf));
+        ImGui::TextColored(titlecol, "NAME");ImGui::SameLine();
+        ImGui::InputText("", cbuf,IM_ARRAYSIZE(cbuf));
         selected_actor_->SetName(cbuf);
-        ss <<"id_"<<selected_actor_->GetID();
-        ImGui::Text(ss.str().c_str());
+        ss <<"Actor ID: "<<selected_actor_->GetID();
+        ImGui::TextColored(titlecol,ss.str().c_str());
         component_drawlist_.Invoke();    
     }
     ImGui::PopItemWidth();
