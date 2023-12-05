@@ -44,8 +44,9 @@ RuntimeContext::RuntimeContext(){
     );
 
     anima_ssbo_ = std::make_unique<SRender::Buffers::GLShaderStorageBuffer>();
+    light_ssbo_ = std::make_unique<SRender::Buffers::GLShaderStorageBuffer>();
     anima_ssbo_->Bind(0);
-    
+    light_ssbo_->Bind(1);
 
     
     //setup resource manager

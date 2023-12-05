@@ -60,7 +60,7 @@ private:
 
     SceneSys::SceneManager& scenemanager_;
 
-    ThreadPool threadpool_{10};
+    ThreadPool threadpool_{16};
 };
 
 

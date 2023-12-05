@@ -22,9 +22,7 @@ void MeshComponent::Tick(float delta_t){
 
 void MeshComponent::SetModel(SRender::Resources::SModel* model){
     model_=model;
-    // if (auto Ctrans=parentactor_.GetTransformComponent();Ctrans!=nullptr){
-    //     Ctrans->GetTransFromBounds();
-    // }
+
 }
 
 

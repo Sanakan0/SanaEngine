@@ -39,7 +39,7 @@ in vec3 worldpos;
 out vec4 fragcolor;
 
 #include "./UBOlayout.h"
-
+#include "./SSBOlayout.h"
 uniform vec3 sunDir;
 uniform float earthR,atmosR,aerosolR;
 uniform float betaR[3],betaM[3];

@@ -13,6 +13,8 @@ class SView:public SGUI::Panels::WndPanel{
 public:
     SView();
     void FillUBO();
+    
+    //Update Engine UBO data and upload to ubo
     void UpdateViewCam(float deltat);
     void DrawContent() override;
     SRender::LowRenderer::Camera cam_;

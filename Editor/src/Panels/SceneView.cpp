@@ -119,7 +119,7 @@ void SceneView::task1(std::string pth,int idx){
     if (tmpmodel->GetMaterial()){
         //add matcomp
     }
-    tmpa.AddComponent<ECS::Components::TransformComponent>();
+    //tmpa.AddComponent<ECS::Components::TransformComponent>();
 }
 
 
@@ -185,7 +185,7 @@ void SceneView::RenderTick(float deltat){
 
         auto prjcam = rtcontext_.scene_manager_->GetActiveCamera();
         if (prjcam){
-            auto& prjcamtrans= prjcam->GetTransformComponent()->trans_;
+            auto& prjcamtrans= prjcam->GetTransformComponent().trans_;
             auto camcomp = static_cast<ECS::Components::CameraComponent*>(
                 prjcam->GetComponent("CameraComponent"));
             
@@ -223,7 +223,7 @@ void SceneView::RenderTick(float deltat){
     
     if (auto actor = rtcontext_.scene_manager_->GetSelectedActor();actor!=nullptr){
         renderer.DrawActorOutline(*actor);
-        shape_drawer.DrawTransGizmo(actor->GetTransformComponent()->trans_.GetPosW(),camctrl_.cam_->GetViewMat());
+        shape_drawer.DrawTransGizmo(actor->GetTransformComponent().trans_.GetPosW(),camctrl_.cam_->GetViewMat());
     }
    
     
@@ -252,7 +252,7 @@ void SceneView::HandleGizmoPick(float deltat){
         auto gizvec = glm::vec3(0);
         gizvec[tmpid] =1;
         campos = camctrl_.extrinsic_->GetPosW();
-        auto gizpos = rtcontext_.scene_manager_->GetSelectedActor()->GetTransformComponent()->trans_.GetPosW();
+        auto gizpos = rtcontext_.scene_manager_->GetSelectedActor()->GetTransformComponent().trans_.GetPosW();
         prjpoint = gizpos + gizvec * glm::dot(campos-gizpos, gizvec);
         disvec = prjpoint-campos;
         dist = glm::length(disvec);
@@ -290,7 +290,7 @@ void SceneView::HandleGizmoPick(float deltat){
 
     float res = prjpoint[tmpid]+delta;
 
-    auto& actortrans = rtcontext_.scene_manager_->GetSelectedActor()->GetTransformComponent()->trans_;
+    auto& actortrans = rtcontext_.scene_manager_->GetSelectedActor()->GetTransformComponent().trans_;
     auto tmppos = actortrans.GetPosW();
     tmppos[tmpid]=res;
     actortrans.SetPosW(tmppos);
@@ -331,7 +331,7 @@ void SceneView::ActorPickerTick(float deltat){
         if (ImGui::IsKeyPressed(ImGuiKey_F)){
             if (auto actor = rtcontext_.scene_manager_->GetSelectedActor()){
                 auto meshcomp = (ECS::Components::MeshComponent*)actor->GetComponent("MeshComponent");
-                camctrl_.Move2Target(actor->GetTransformComponent()->trans_.GetPosW(), meshcomp->GetModel()->GetBoundingSphere()->radius); 
+                camctrl_.Move2Target(actor->GetTransformComponent().trans_.GetPosW(), meshcomp->GetModel()->GetBoundingSphere()->radius); 
             }
         }
     }
@@ -385,4 +385,10 @@ void SceneView::ActorPickerTick(float deltat){
     actor_picker_fbo_.Unbind();
 
 }
+
+void SceneView::UpdateEngineLights(SceneSys::Scene& scene){
+    auto& lightcomps= scene.GetBasicRenderComponent().lightcomps;
+
+}
+
 }

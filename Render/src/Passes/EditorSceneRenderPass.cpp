@@ -38,22 +38,20 @@ void EditorSceneRenderPass::Draw(){
     shaderp_->SetUniFloat("k", k);
     glm::mat4 tmpmodel = glm::mat4(1);
     for (auto& meshcomp:scenemanager_.GetScene()->GetBasicRenderComponent().meshcomps){
-        auto transcomp =meshcomp->parentactor_.GetTransformComponent();
+        auto& transcomp =meshcomp->parentactor_.GetTransformComponent();
 
-        if (transcomp) {
-            shaderp_->SetUniMat4("ModelMat", transcomp->GetMat());
-        }else{
-            shaderp_->SetUniMat4("ModelMat", tmpmodel);
-        }
+        
+        shaderp_->SetUniMat4("ModelMat", transcomp.GetMat());
+        
         renderer_.DrawModel(*meshcomp->GetModel());
     }
 
     renderer_.GetShapeDrawer()->DrawGrid();
     
     for (auto& camcomp:scenemanager_.GetScene()->GetBasicRenderComponent().camcomps){
-        auto transcomp =camcomp->parentactor_.GetTransformComponent();
+        auto& transcomp =camcomp->parentactor_.GetTransformComponent();
         bool is_active = (&camcomp->parentactor_ == scenemanager_.GetActiveCamera()) ? true:false;
-        renderer_.GetShapeDrawer()->DrawCamFrame(transcomp->GetMat(), camcomp->cam_.Getfocal_length()/camcomp->cam_.Getsensor_size_h(), camcomp->cam_.Getaspect_ratio(), {0,0,0,1},is_active);
+        renderer_.GetShapeDrawer()->DrawCamFrame(transcomp.GetMat(), camcomp->cam_.Getfocal_length()/camcomp->cam_.Getsensor_size_h(), camcomp->cam_.Getaspect_ratio(), {0,0,0,1},is_active);
     }
     
     //renderer_.GetShapeDrawer()->DrawArrow(glm::translate(glm::mat4(1),scenemanager_.cursor_pos_));

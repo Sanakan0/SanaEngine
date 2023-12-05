@@ -34,8 +34,8 @@ void CameraView::LogicTick(float deltat){
             auto camcomp = static_cast<ECS::Components::CameraComponent*>(
                 active_camera_actor_->GetComponent("CameraComponent")
             );
-            auto transcomp = active_camera_actor_->GetTransformComponent();
-            camctrl_.SetCamInExParam(camcomp->cam_, transcomp->trans_);
+            auto& transcomp = active_camera_actor_->GetTransformComponent();
+            camctrl_.SetCamInExParam(camcomp->cam_, transcomp.trans_);
         
             scenerenderpass_.BindDistortionInfo(&camcomp->cam_.distortion_);
         }

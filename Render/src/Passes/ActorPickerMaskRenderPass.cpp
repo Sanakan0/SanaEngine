@@ -25,13 +25,11 @@ void ActorPickerMaskRenderPass::Draw(){
     shaderp_->Bind();
     glm::mat4 tmpmodel = glm::mat4(1);
     for (auto& meshcomp:scenemanager_.GetScene()->GetBasicRenderComponent().meshcomps){
-        auto transcomp =meshcomp->parentactor_.GetTransformComponent();
+        auto& transcomp =meshcomp->parentactor_.GetTransformComponent();
 
-        if (transcomp) {
-            shaderp_->SetUniMat4("ModelMat", transcomp->GetMat());
-        }else{
-            shaderp_->SetUniMat4("ModelMat", tmpmodel);
-        }
+        
+        shaderp_->SetUniMat4("ModelMat", transcomp.GetMat());
+        
         uint32_t actorid = static_cast<uint32_t>( meshcomp->parentactor_.GetID());
         auto bytep = reinterpret_cast<uint8_t*>(&actorid);
         shaderp_->SetUniVec4("diffuse_color", glm::vec4(bytep[0]/255.0f,bytep[1]/255.0f,bytep[2]/255.0f,1.0f));
@@ -40,12 +38,12 @@ void ActorPickerMaskRenderPass::Draw(){
     for (auto& camcomp:scenemanager_.GetScene()->GetBasicRenderComponent().camcomps){
         uint32_t actorid = static_cast<uint32_t>( camcomp->parentactor_.GetID());
         auto bytep = reinterpret_cast<uint8_t*>(&actorid);
-        auto transcomp =camcomp->parentactor_.GetTransformComponent();
-        renderer_.GetShapeDrawer()->DrawCamFrame(transcomp->GetMat(), camcomp->cam_.Getfocal_length()/camcomp->cam_.Getsensor_size_h(), camcomp->cam_.Getaspect_ratio(), glm::vec4(bytep[0]/255.0f,bytep[1]/255.0f,bytep[2]/255.0f,1.0f),true,10.0f);
+        auto& transcomp =camcomp->parentactor_.GetTransformComponent();
+        renderer_.GetShapeDrawer()->DrawCamFrame(transcomp.GetMat(), camcomp->cam_.Getfocal_length()/camcomp->cam_.Getsensor_size_h(), camcomp->cam_.Getaspect_ratio(), glm::vec4(bytep[0]/255.0f,bytep[1]/255.0f,bytep[2]/255.0f,1.0f),true,10.0f);
     }
     //render Gizmo pick id
     if (auto actor = scenemanager_.GetSelectedActor();actor!=nullptr){
-        renderer_.GetShapeDrawer()->DrawTransGizmo(actor->GetTransformComponent()->trans_.GetPosW(),viewcamctl_.cam_->GetViewMat(),true);
+        renderer_.GetShapeDrawer()->DrawTransGizmo(actor->GetTransformComponent().trans_.GetPosW(),viewcamctl_.cam_->GetViewMat(),true);
     }
     shaderp_->Unbind();
 }

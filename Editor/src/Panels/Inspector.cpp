@@ -63,7 +63,7 @@ void Inspector::DrawContent(){
         }
         if (ImGui::Button("Move to Actor")){
             auto meshcomp = (ECS::Components::MeshComponent*)selected_actor_->GetComponent("MeshComponent");
-            sceneview_.camctrl_.Move2Target(selected_actor_->GetTransformComponent()->trans_.GetPosW(), meshcomp?meshcomp->GetModel()->GetBoundingSphere()->radius:5); 
+            sceneview_.camctrl_.Move2Target(selected_actor_->GetTransformComponent().trans_.GetPosW(), meshcomp?meshcomp->GetModel()->GetBoundingSphere()->radius:5); 
         }
 
         std::stringstream ss;

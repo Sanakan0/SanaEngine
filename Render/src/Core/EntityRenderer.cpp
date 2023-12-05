@@ -82,24 +82,21 @@ void EntityRenderer::DrawActorOutline(ECS::Actor& actor,float linewidth){
         auto camcomp = static_cast<ECS::Components::CameraComponent*>(
             actor.GetComponent("CameraComponent"));
         if (camcomp){
-            auto transcomp = actor.GetTransformComponent();
-            SANA_ASSERT(transcomp!=nullptr&&"camera actor must have a transform component");
-            shapedrawer_->DrawCamFrame(transcomp->GetMat(), camcomp->cam_.Getfocal_length()/camcomp->cam_.Getsensor_size_h(), camcomp->cam_.Getaspect_ratio(), {1,0.2,0,1},false,3.0f,false);
+            auto& transcomp = actor.GetTransformComponent();
+            shapedrawer_->DrawCamFrame(transcomp.GetMat(), camcomp->cam_.Getfocal_length()/camcomp->cam_.Getsensor_size_h(), camcomp->cam_.Getaspect_ratio(), {1,0.2,0,1},false,3.0f,false);
         }
     }else{
         auto model = meshcomp->GetModel();
         
-        auto transcomp = actor.GetTransformComponent();
+        auto& transcomp = actor.GetTransformComponent();
         
         
         
         unlitshader_->Bind();
 
-        if (transcomp) {
-            unlitshader_->SetUniMat4("ModelMat", transcomp->GetMat());
-        }else{
-            unlitshader_->SetUniMat4("ModelMat", glm::mat4(1));
-        }
+        
+        unlitshader_->SetUniMat4("ModelMat", transcomp.GetMat());
+       
 
         
         //draw to stencil
@@ -158,8 +155,8 @@ void EntityRenderer::DrawAtmosphere(ECS::Actor* sunLight) {
     atmosphere_shader_->SetUniFloatV("betaR", betaR, 3);
     atmosphere_shader_->SetUniFloatV("betaM", betaM, 3);
 
-    auto lightTrans = sunLight->GetTransformComponent();
-	glm::vec3 sundir = -(lightTrans->trans_.GetOrienW()*sm::OglCamPrimForward);
+    auto& lightTrans = sunLight->GetTransformComponent();
+	glm::vec3 sundir = -(lightTrans.trans_.GetOrienW()*sm::OglCamPrimForward);
 
     atmosphere_shader_->SetUniVec3("sunDir", sundir);
     //atmosphere_shader_->SetUniFloatV("sunDir",  &sundir[0], 3);

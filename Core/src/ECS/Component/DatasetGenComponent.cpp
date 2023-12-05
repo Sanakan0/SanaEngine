@@ -55,7 +55,7 @@ void DatasetGenComponent::OnUpdate(float delta_t){
         tmpcam.Setaspect_ratio(1.5);
         tmpcam.distortion_.dist_para[0]=k;
         tmpcam.distortion_.dist_type=SRender::LowRenderer::DistortionModel::INDEX;
-        RenderImg(tmpcam, camcomp->parentactor_.GetTransformComponent()->trans_,std::to_string(cnt_));
+        RenderImg(tmpcam, camcomp->parentactor_.GetTransformComponent().trans_,std::to_string(cnt_));
         cnt_++;
     }
 }
@@ -96,7 +96,7 @@ void DatasetGenComponent::DrawInspector() {
         }
 
         // if (ImGui::Button("save img")){
-        //     auto& trans = parentactor_.GetTransformComponent()->trans_;
+        //     auto& trans = parentactor_.GetTransformComponent().trans_;
         //     defaultTran_=trans;
         //     RenderImg(defaultCam_,defaultTran_);
         // }
@@ -105,7 +105,7 @@ void DatasetGenComponent::DrawInspector() {
             auto& tmp = scenemanager_.GetScene()->GetBasicRenderComponent().camcomps;
             auto camcomp = tmp[0];
             for (int i=0;i<10;++i){
-                RenderImg(camcomp->cam_, camcomp->parentactor_.GetTransformComponent()->trans_,std::to_string(i));
+                RenderImg(camcomp->cam_, camcomp->parentactor_.GetTransformComponent().trans_,std::to_string(i));
             }
             
             spdlog::info("[DatasetGen] ed");
@@ -166,7 +166,7 @@ void DatasetGenComponent::OnDrawGizmo(float delta_t){
         }
     };
     
-    auto& trans = parentactor_.GetTransformComponent()->trans_;
+    auto& trans = parentactor_.GetTransformComponent().trans_;
     auto pos = trans.GetPosW()+trans.GetPosL()-extends_;
     auto num =  extends_*2.0f/step_;
     

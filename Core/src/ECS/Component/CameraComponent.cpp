@@ -1,9 +1,12 @@
 #include "ECS/Component/CameraComponent.h"
 #include "ECS/Component/Component.h"
+#include "SEditor/Util/NfdDialog.h"
 #include "SRender/LowRenderer/Camera.h"
+#include "SResourceManager/Util.h"
 #include "Serialize/Serializer.h"
 #include "glm/fwd.hpp"
 #include "imgui/imgui.h"
+#include <filesystem>
 #include <limits>
 namespace ECS::Components {
 
@@ -82,8 +85,18 @@ void CameraComponent::DrawInspector() {
             break;
         }
         ImGui::PopItemWidth();
-        
-        
+        ImGui::Separator();
+        ImGui::Text("RefImgPth:%s", refImgPth_.c_str());ImGui::SameLine();
+        if (ImGui::Button("打开...")){
+            auto savepth = SEditor::Util::NfdDialog::OpenFileDlg({{"Img","png,jpg,jpeg"}},ResourceManager::PathManager::GetProjectPath());
+            if (savepth!=""){
+                auto relative = std::filesystem::relative(std::filesystem::u8path(savepth),
+                std::filesystem::u8path(ResourceManager::PathManager::GetProjectPath()));
+                // std::cout <<"fk" << relative.generic_u8string()<<std::endl;
+                refImgPth_="@"+relative.generic_u8string();
+            }
+            
+        }
     }
 }
 
@@ -101,6 +114,7 @@ void CameraComponent::Serialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode*
     SCore::Serializer::SerializeVec3(p_doc,p_node, "Distortion_Parameter",tmppara);
     auto distname = SRender::LowRenderer::MODEL_NAMES[cam_.distortion_.dist_type];
     SCore::Serializer::SerializeString(p_doc,p_node, "Distortion_Type",distname);
+    SCore::Serializer::SerializeString(p_doc,p_node, "refImgPth",refImgPth_);
 }
 
 void CameraComponent::Deserialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_node) {
@@ -130,6 +144,7 @@ void CameraComponent::Deserialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNod
             break;
         }
     }
+    SCore::Serializer::DeserializeString(p_doc,p_node, "refImgPth",refImgPth_);
 
 
 }

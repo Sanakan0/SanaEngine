@@ -86,11 +86,6 @@ void AssetLoader::LoadTiles(const std::string& folderpth,int st,int cnt,const SR
         // spdlog::info("[ASSET Loader] mesh upload finished");
         modelmanager_.LoadResourcesMultiThread();
         
-        for (auto&[_ ,actor]:scenemanager_.GetScene()->GetActors()){
-            if (actor->GetTransformComponent()==nullptr){
-                actor->AddComponent<ECS::Components::TransformComponent>();
-            }
-        }
 
         texturemanager_.UploadAll();
         spdlog::info("[ASSET Loader] texture upload finished");
@@ -151,11 +146,7 @@ void AssetLoader::LoadTilesAbs(const std::string& filename,int st,int cnt,const 
         // spdlog::info("[ASSET Loader] mesh upload finished");
         modelmanager_.LoadResourcesMultiThread();
         
-        for (auto&[_ ,actor]:scenemanager_.GetScene()->GetActors()){
-            if (actor->GetTransformComponent()==nullptr){
-                actor->AddComponent<ECS::Components::TransformComponent>();
-            }
-        }
+        
 
         texturemanager_.UploadAll();
         spdlog::info("[ASSET Loader] texture upload finished");
@@ -172,7 +163,7 @@ void AssetLoader::LoadAModelTask(std::string pth,int idx){
     if (tmpmodel->GetMaterial()){
         //add matcomp
     }
-    tmpa.AddComponent<ECS::Components::TransformComponent>();
+    //tmpa.AddComponent<ECS::Components::TransformComponent>();
 }
 
 }

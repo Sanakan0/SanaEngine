@@ -10,7 +10,8 @@
 namespace ECS {
 
 
-Actor::Actor(ActorID id,const std::string& name):id_(id),name_(name){
+Actor::Actor(ActorID id,const std::string& name):
+id_(id),name_(name),transform_(AddComponent<Components::TransformComponent>()){
     
 }
 
@@ -71,7 +72,7 @@ void Actor::Deserialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_actor
 
 				// TODO: Use component name instead of typeid (unsafe)
 
-				if (componentType == typeid(Components::TransformComponent).name())			component = &AddComponent<Components::TransformComponent>();
+				if (componentType == typeid(Components::TransformComponent).name())			component = &transform_;
 				else if (componentType == typeid(Components::MeshComponent).name())			component = &AddComponent<Components::MeshComponent>();
 				else if (componentType == typeid(Components::CameraComponent).name())			component = &AddComponent<Components::CameraComponent>();
 				else if (componentType == typeid(Components::RectifyComponent).name())			component = &AddComponent<Components::RectifyComponent>();

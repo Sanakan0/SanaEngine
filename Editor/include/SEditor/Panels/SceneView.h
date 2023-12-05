@@ -25,6 +25,7 @@ private:
     void SetEngineUboControlMask(uint32_t mask);
     void ActorPickerTick(float deltat);
     void HandleGizmoPick(float deltat);
+    void UpdateEngineLights(SceneSys::Scene& scene);
     ECS::ActorID selectedgizmoid_=0;
     bool gizpickhandler_init_flag_=0;
     Core::RuntimeContext& rtcontext_;

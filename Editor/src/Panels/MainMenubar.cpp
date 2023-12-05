@@ -92,8 +92,8 @@ void MainMenubar::DrawImpl(float deltat){
                 if (ImGui::MenuItem("Add Camera")){
                     auto& tmpa=scenemanager_.GetScene()->CreateActor("Camera");
                     tmpa.AddComponent<ECS::Components::CameraComponent>();
-                    tmpa.AddComponent<ECS::Components::TransformComponent>();
-                    tmpa.GetTransformComponent()->trans_.SetPosW(scenemanager_.cursor_pos_);
+                    //tmpa.AddComponent<ECS::Components::TransformComponent>();
+                    tmpa.GetTransformComponent().trans_.SetPosW(scenemanager_.cursor_pos_);
                     scenemanager_.SetActiveCamera(tmpa.GetID());
                     scenemanager_.SetSelectedActor(tmpa.GetID());
                 }
@@ -101,22 +101,22 @@ void MainMenubar::DrawImpl(float deltat){
                     auto& tmpa=scenemanager_.GetScene()->CreateActor("Distortion Rectifier");
                     tmpa.AddComponent<ECS::Components::RectifyComponent>();
                     tmpa.AddComponent<ECS::Components::CameraComponent>();
-                    tmpa.AddComponent<ECS::Components::TransformComponent>();
-                    //tmpa.GetTransformComponent()->trans_.SetPosW(scenemanager_.cursor_pos_);
+                    //tmpa.AddComponent<ECS::Components::TransformComponent>();
+                    //tmpa.GetTransformComponent().trans_.SetPosW(scenemanager_.cursor_pos_);
                     scenemanager_.SetSelectedActor(tmpa.GetID());
                 }
                 if (ImGui::MenuItem("Light")){
                     auto& tmpa=scenemanager_.GetScene()->CreateActor("Light");
                     tmpa.AddComponent<ECS::Components::LightComponent>();
-                    tmpa.AddComponent<ECS::Components::TransformComponent>();
-                    //tmpa.GetTransformComponent()->trans_.SetPosW(scenemanager_.cursor_pos_);
+                    //tmpa.AddComponent<ECS::Components::TransformComponent>();
+                    //tmpa.GetTransformComponent().trans_.SetPosW(scenemanager_.cursor_pos_);
                     scenemanager_.SetSelectedActor(tmpa.GetID());
                 }
                 if (ImGui::MenuItem("DatasetGen")){
                     auto& tmpa=scenemanager_.GetScene()->CreateActor("DatasetGen");
                     tmpa.AddComponent<ECS::Components::DatasetGenComponent>();
-                    tmpa.AddComponent<ECS::Components::TransformComponent>();
-                    //tmpa.GetTransformComponent()->trans_.SetPosW(scenemanager_.cursor_pos_);
+                    //tmpa.AddComponent<ECS::Components::TransformComponent>();
+                    //tmpa.GetTransformComponent().trans_.SetPosW(scenemanager_.cursor_pos_);
                     scenemanager_.SetSelectedActor(tmpa.GetID());
                 }
                 ImGui::EndMenu();
@@ -207,7 +207,7 @@ void MainMenubar::DrawImpl(float deltat){
     }
      
     ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-    ImGui::SetNextWindowSize({500,200});
+    ImGui::SetNextWindowSize({300,200});
     if (ImGui::BeginPopupModal("开始", &show_project_wnd_,ImGuiWindowFlags_AlwaysAutoResize))
     {
         ImGui::Text("工程选择");

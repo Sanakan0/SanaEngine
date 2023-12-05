@@ -252,7 +252,7 @@ void ACamera::SetCamInExParam(SRender::LowRenderer::Camera& intrinsic,sm::Transf
 void ACamera::InitFromActor(ECS::Actor& actor){
     auto camcomp = static_cast<ECS::Components::CameraComponent*>(actor.GetComponent("CameraComponent"));
     if (camcomp!=nullptr){
-        SetCamInExParam(camcomp->cam_, actor.GetTransformComponent()->trans_);
+        SetCamInExParam(camcomp->cam_, actor.GetTransformComponent().trans_);
     }
 }
 

@@ -32,7 +32,7 @@ public:
     std::unique_ptr<SRender::Core::EntityRenderer> core_renderer_;
     SRender::Core::GLShapeDrawer* shape_drawer_;
     std::unique_ptr<SRender::Buffers::GLUniformBuffer> editor_ubo_;
-    std::unique_ptr<SRender::Buffers::GLShaderStorageBuffer> anima_ssbo_;
+    std::unique_ptr<SRender::Buffers::GLShaderStorageBuffer> anima_ssbo_,light_ssbo_;
     std::unique_ptr<ResourceManager::ShaderManager> shader_manager_;
     std::unique_ptr<ResourceManager::ModelManager> model_manager_;
     std::unique_ptr<ResourceManager::TextureManager> texture_manager_;
