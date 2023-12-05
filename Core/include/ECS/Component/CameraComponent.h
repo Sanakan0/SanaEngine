@@ -1,6 +1,7 @@
 #pragma once
 #include "SRender/LowRenderer/Camera.h"
 #include <ECS/Component/Component.h>
+#include <string>
 namespace ECS::Components {
 
 class CameraComponent:public Component{
@@ -14,13 +15,14 @@ public:
     virtual void DrawInspector() override;
     
     
-    SRender::LowRenderer::Camera cam_;
+    
 
     virtual void Serialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_node) override;
 
     virtual void Deserialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_node) override;
 
-
+    SRender::LowRenderer::Camera cam_;
+    std::string refImgPth_="";
 private:
     
 };

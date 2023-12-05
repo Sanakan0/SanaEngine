@@ -31,11 +31,15 @@ void Hierarchy::DrawContent(){
         if (ImGui::BeginPopupContextItem()) // <-- use last item id as popup id
         {
             
-            ImGui::Text("actor %s",actor.GetName().c_str());
-            if (ImGui::Button("delete")){
+            ImGui::Text("actorID: %lld",actor.GetID());
+            ImGui::Separator();
+            if (ImGui::MenuItem("delete")){
                 scenemanager_.GetScene()->DeleteActor(actor.GetID());
             }
-            if (ImGui::Button("Close"))
+            if (ImGui::MenuItem("duplicate")){
+                scenemanager_.GetScene()->DuplicateActor(actor);
+            }
+            if (ImGui::MenuItem("Close"))
                 ImGui::CloseCurrentPopup();
             ImGui::EndPopup();
         }

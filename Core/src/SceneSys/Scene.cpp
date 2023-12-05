@@ -49,6 +49,18 @@ void Scene::DeleteActor(const ECS::ActorID id){
 	
 }
 
+void Scene::DuplicateActor(ECS::Actor& actor){
+	tinyxml2::XMLDocument doc;
+	
+	tinyxml2::XMLNode* actorsNode = doc.NewElement("actors");
+	actor.Serialize(doc, actorsNode);
+
+
+	tinyxml2::XMLElement* currentActor = actorsNode->FirstChildElement("actor");
+	auto& newactor = CreateActor();
+	newactor.Deserialize(doc, currentActor);	
+}
+
 void Scene::OnAddComponent(ECS::Components::Component& component){
     if (auto tmp = dynamic_cast<ECS::Components::MeshComponent*>(&component)){
         basicrendercomponents_.meshcomps.push_back(tmp);

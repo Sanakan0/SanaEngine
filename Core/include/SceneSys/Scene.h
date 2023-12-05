@@ -2,6 +2,7 @@
 #include "ECS/Actor.h"
 #include "ECS/Component/CameraComponent.h"
 #include "ECS/Component/Component.h"
+#include "ECS/Component/LightComponent.h"
 #include "ECS/Component/MeshComponent.h"
 #include "ECS/Component/TransformComponent.h"
 #include <memory>
@@ -19,6 +20,7 @@ enum SceneSetting{
 struct BasicRenderComponents{
     std::vector<ECS::Components::MeshComponent*> meshcomps;
     std::vector<ECS::Components::CameraComponent*> camcomps;
+    std::vector<ECS::Components::LightComponent*> lightcomps;
 };
 
 class Scene: public SCore::ISerializable{
@@ -27,6 +29,7 @@ public:
     ~Scene();
     ECS::Actor& CreateActor(const std::string& name="Default");
     void DeleteActor(const ECS::ActorID id);
+    void DuplicateActor(ECS::Actor& actor);
     auto& GetActors(){return actors_;}
     ECS::Actor* GetActorbyID(ECS::ActorID id);
     const BasicRenderComponents& GetBasicRenderComponent(){return basicrendercomponents_;}

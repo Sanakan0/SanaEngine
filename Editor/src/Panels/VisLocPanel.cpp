@@ -36,20 +36,18 @@ scenemanager_(SANASERVICE(SceneSys::SceneManager)){
 
 
 
-    std::string filepth=R"(C:\Users\cnt0\BUAA\DATA\ExperimentsData\Photos\中文测试\DJI_0314.JPG)";
-    auto tmptex = SRender::Resources::STextureLoader::LoadFromFile(filepth);
-    if (tmptex!=nullptr){
-        img1 = cv::Mat(tmptex->height,tmptex->width,CV_8UC4,tmptex->rawdata);
-        cv::cvtColor(img1, img1, cv::COLOR_RGBA2BGR);
-        cv::flip(img1, img1, 0);
-        imgp1.reset(tmptex);
-        imgp1->FreeRawData();
-    }
+    // std::string filepth=R"(C:\Users\cnt0\BUAA\DATA\ExperimentsData\Photos\中文测试\DJI_0314.JPG)";
+    // auto tmptex = SRender::Resources::STextureLoader::LoadFromFile(filepth);
+    // if (tmptex!=nullptr){
+    //     img1 = cv::Mat(tmptex->height,tmptex->width,CV_8UC4,tmptex->rawdata);
+    //     cv::cvtColor(img1, img1, cv::COLOR_RGBA2BGR);
+    //     cv::flip(img1, img1, 0);
+    //     imgp1.reset(tmptex);
+    //     imgp1->FreeRawData();
+    // }
 
     
 
-    // cv::cvtColor(img2, tmp, cv::COLOR_BGR2RGBA);
-    // imgp2.reset(SRender::Resources::STextureLoader::LoadFromMemory(tmp.data, tmp.size().width, tmp.size().height, "img2"));
 
 
 }
@@ -124,6 +122,36 @@ void VisLocPanel::DrawContent(){
             
         }
     }
+    
+    if (auto actorp = scenemanager_.GetActiveCamera();actorp){
+        auto Camcomp = static_cast<ECS::Components::CameraComponent*>(
+            actorp->GetComponent("CameraComponent"));
+        if (actorp&&imgp1->path!=Camcomp->refImgPth_){
+            
+            if (Camcomp->refImgPth_==""){
+                auto tmptex = SRender::Resources::STextureLoader::CreateColor(0);
+                img1 = cv::Mat(tmptex->height,tmptex->width,CV_8UC4,tmptex->rawdata);
+                cv::cvtColor(img1, img1, cv::COLOR_RGBA2BGR);
+                cv::flip(img1, img1, 0);
+                imgp1.reset(tmptex);
+                imgp1->FreeRawData();
+                imgp1->path="";
+            }else{
+                auto tmptex = SRender::Resources::STextureLoader::LoadFromFile(Camcomp->refImgPth_);
+                if (tmptex!=nullptr){
+                    img1 = cv::Mat(tmptex->height,tmptex->width,CV_8UC4,tmptex->rawdata);
+                    cv::cvtColor(img1, img1, cv::COLOR_RGBA2BGR);
+                    cv::flip(img1, img1, 0);
+                    imgp1.reset(tmptex);
+                    imgp1->FreeRawData();
+                }
+            }
+            
+            
+        }
+    }
+        
+    
     // const char* models[] = { "NONE","INDEX","POLY3","POLY5","PTLENS" ,"DIVISION"};
     // ImGui::Combo("Distortion Model", &distortioninfo.dist_type, models, IM_ARRAYSIZE(models));
     // ImGui::PushItemWidth(80);
