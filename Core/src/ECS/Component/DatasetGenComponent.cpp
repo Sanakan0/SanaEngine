@@ -31,7 +31,7 @@
 namespace ECS::Components {
 
 DatasetGenComponent::DatasetGenComponent(Actor& parentactor):
-Component(parentactor),acam_(defaultCam_,defaultTran_),dist_fbo_(0,0,0,1),
+Component(parentactor),dist_fbo_(0,0,0,1),acam_(defaultCam_,defaultTran_),
 scenemanager_(SANASERVICE(SceneSys::SceneManager)){
     threadpool_.init();
 }
@@ -45,19 +45,29 @@ void DatasetGenComponent::Tick(float delta_t){
 }
 
 void DatasetGenComponent::OnUpdate(float delta_t){
-    if (startGen&&cnt_<totalImgCnt_){
-        auto& tmp = scenemanager_.GetScene()->GetBasicRenderComponent().camcomps;
-        auto camcomp = tmp[0];
-        auto tmpcam = camcomp->cam_;
-        auto[f,k] = lens_[cnt_];
-        tmpcam.Setfocal_length(f);
-        tmpcam.Setsensor_size_h(24);
-        tmpcam.Setaspect_ratio(1.5);
-        tmpcam.distortion_.dist_para[0]=k;
-        tmpcam.distortion_.dist_type=SRender::LowRenderer::DistortionModel::INDEX;
-        RenderImg(tmpcam, camcomp->parentactor_.GetTransformComponent().trans_,std::to_string(cnt_));
-        cnt_++;
+    if (cnt_<totalImgCnt_&&camStartGen){
+        if (threadpool_.queueSize()>500) return;
+        if (genType_==0){
+            AutoGenrate();
+        }
+        else if (genType_==1){
+            auto& tmp = scenemanager_.GetScene()->GetBasicRenderComponent().camcomps;
+            auto camcomp = tmp[cnt_/lens_.size()];
+            auto tmpcam = camcomp->cam_;
+            auto[f,k] = lens_[cnt_%lens_.size()];k+=0.3;
+            tmpcam.Setfocal_length(f);
+            tmpcam.Setsensor_size_h(24);
+            tmpcam.Setaspect_ratio(1.5);
+            tmpcam.distortion_.dist_para[0]=k;
+            tmpcam.distortion_.dist_type=SRender::LowRenderer::DistortionModel::INDEX;
+            RenderImg(tmpcam, camcomp->parentactor_.GetTransformComponent().trans_,std::to_string(cnt_));
+            cnt_++;
+        }
+        
+    }else {
+        camStartGen=0;
     }
+   
 }
 
 void DatasetGenComponent::DrawInspector() {
@@ -79,7 +89,7 @@ void DatasetGenComponent::DrawInspector() {
             auto savepth =SEditor::Util::NfdDialog::OpenFolderDlg(ResourceManager::PathManager::GetProjectPath());
             auto relative = std::filesystem::relative(std::filesystem::u8path(savepth),
             std::filesystem::u8path(ResourceManager::PathManager::GetProjectPath()));
-            std::cout <<"fk" << relative.generic_u8string()<<std::endl;
+            //std::cout <<"fk" << relative.generic_u8string()<<std::endl;
             save_pth_="@"+relative.generic_u8string();
         }
         ImGui::Text(("LensDatafile_path: "+lensdata_pth_).c_str());
@@ -88,10 +98,12 @@ void DatasetGenComponent::DrawInspector() {
             auto savepth = SEditor::Util::NfdDialog::OpenFileDlg({{"Lens config","txt"}},ResourceManager::PathManager::GetProjectPath());
             auto relative = std::filesystem::relative(std::filesystem::u8path(savepth),
             std::filesystem::u8path(ResourceManager::PathManager::GetProjectPath()));
-            std::cout <<"fk" << relative.generic_u8string()<<std::endl;
+            //std::cout <<"fk" << relative.generic_u8string()<<std::endl;
             lensdata_pth_="@"+relative.generic_u8string();
-        }
-        if (ImGui::Button("load")){
+            LoadLensData();
+        } 
+        ImGui::SameLine();
+        if (ImGui::Button("加载")){
             LoadLensData();
         }
 
@@ -100,20 +112,29 @@ void DatasetGenComponent::DrawInspector() {
         //     defaultTran_=trans;
         //     RenderImg(defaultCam_,defaultTran_);
         // }
-        if (ImGui::Button("Gen Data by cur cam")){
-            spdlog::info("[DatasetGen] st");
-            auto& tmp = scenemanager_.GetScene()->GetBasicRenderComponent().camcomps;
-            auto camcomp = tmp[0];
-            for (int i=0;i<10;++i){
-                RenderImg(camcomp->cam_, camcomp->parentactor_.GetTransformComponent().trans_,std::to_string(i));
-            }
-            
-            spdlog::info("[DatasetGen] ed");
-        }
-        if (ImGui::Button("genall")){
-            totalImgCnt_=lens_.size();
+        if (ImGui::Button("通过阵列生成")){
+            auto tmpnum =  extends_*2.0f/step_;
+            auto camnum = ((int)tmpnum.x+1)*((int)tmpnum.y+1)*((int)tmpnum.z+1);
+            int roundsamplecnt_=3;
+            totalImgCnt_=lens_.size()*camnum*roundsamplecnt_;
             cnt_=0;
-            startGen=1;
+            camStartGen=1;
+            genType_=0;
+            // spdlog::info("[DatasetGen] st");
+            // auto& tmp = scenemanager_.GetScene()->GetBasicRenderComponent().camcomps;
+            // auto camcomp = tmp[0];
+            // for (int i=0;i<10;++i){
+            //     RenderImg(camcomp->cam_, camcomp->parentactor_.GetTransformComponent().trans_,std::to_string(i));
+            // }
+            
+            // spdlog::info("[DatasetGen] ed");
+        }
+        if (ImGui::Button("通过虚拟相机生成")){
+            auto camnum= scenemanager_.GetScene()->GetBasicRenderComponent().camcomps.size();
+            totalImgCnt_=lens_.size()*camnum;
+            cnt_=0;
+            camStartGen=1;
+            genType_=1;
         }
         
         if (totalImgCnt_){
@@ -121,16 +142,21 @@ void DatasetGenComponent::DrawInspector() {
             char buf[32];
             sprintf(buf, "%d/%d", (int)cnt_, totalImgCnt_);
             ImGui::ProgressBar(1.0*cnt_/totalImgCnt_, ImVec2(0.f, 0.f), buf);
-            if (ImGui::Button(startGen?"Stop":"Continue")){
-                startGen^=1;
+            if (ImGui::Button(camStartGen?"Stop":"Continue")){
+                camStartGen^=1;
             }
-            ImGui::Text("queue size: %d", threadpool_.queueSize());
+            if (cnt_>=totalImgCnt_){
+                ImGui::SameLine();
+                ImGui::TextColored({1,0.8,0,1}, "Done!");
+            }
+            ImGui::Text("Thread Pool Queue Size: %d", threadpool_.queueSize());
         }
     }
 }
 void DatasetGenComponent::Serialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_node) {
     SCore::Serializer::SerializeInt(p_doc, p_node, "resolution", resolution_);
     SCore::Serializer::SerializeVec3(p_doc, p_node, "extends", extends_);
+    SCore::Serializer::SerializeFloat(p_doc,p_node, "step", step_);
     SCore::Serializer::SerializeString(p_doc, p_node, "save_pth", save_pth_);
     SCore::Serializer::SerializeString(p_doc, p_node, "lensdata_pth", lensdata_pth_);
 }
@@ -138,12 +164,65 @@ void DatasetGenComponent::Serialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLN
 void DatasetGenComponent::Deserialize(tinyxml2::XMLDocument& p_doc, tinyxml2::XMLNode* p_node) {
     SCore::Serializer::DeserializeInt(p_doc, p_node, "resolution", resolution_);
     SCore::Serializer::DeserializeVec3(p_doc, p_node, "extends", extends_);
+    SCore::Serializer::DeserializeFloat(p_doc,p_node, "step", step_);
     SCore::Serializer::DeserializeString(p_doc, p_node, "save_pth", save_pth_);
     SCore::Serializer::DeserializeString(p_doc, p_node, "lensdata_pth", lensdata_pth_);
+    LoadLensData();
 }
 
 
+void DatasetGenComponent::AutoGenrate(){
+    static sm::Transform trans;
+    static glm::vec3 pos,num;
+    static int i=0,j=0,k=0;
+    static int lenscnt=0;
+    if (cnt_==0){
+        trans = parentactor_.GetTransformComponent().trans_;
+        pos = trans.GetPosW()+trans.GetPosL()-extends_;
+        num =  extends_*2.0f/step_;
+        i=0;j=0;k=0;
+        lenscnt=0;
+    }
+    auto drawaround = [&](glm::vec3 pos){
+        sm::Transform trans;
+        trans.SetPosW(pos);
+        glm::vec3 euler{0,0,0};
+        for (int i=0;i<1;++i){
+            euler.x = i*45+45;
+            for (int j=0;j<3;++j){
+                euler.z = j*120;
+                trans.SetEulerW(euler);
+                SRender::LowRenderer::Camera tmpcam;
+                auto[f,k] = lens_[lenscnt];k+=0.3;
+                tmpcam.Setfocal_length(f);
+                tmpcam.Setsensor_size_h(24);
+                tmpcam.Setaspect_ratio(1.5);
+                tmpcam.distortion_.dist_para[0]=k;
+                tmpcam.distortion_.dist_type=SRender::LowRenderer::DistortionModel::INDEX;
+                RenderImg(tmpcam, trans,std::to_string(cnt_));
+                cnt_++;
+            }
+        }
+    };
 
+    for (;i<=(int)num.x;++i){
+        for (;j<=(int)num.y;++j){
+            for (;k<=(int)num.z;++k){
+                for (;lenscnt<lens_.size();){
+                    auto curpos = pos+glm::vec3(i*step_,j*step_,k*step_);
+                    //renderer.GetShapeDrawer()->DrawPoint(curpos, {1,1,1,1});
+                    drawaround(curpos);
+                    lenscnt++;
+                    return;
+                }
+                lenscnt=0;
+            }
+            k=0;
+        }
+        j=0;
+    }
+    i=0;
+}
 
 void DatasetGenComponent::OnDrawGizmo(float delta_t){
     
@@ -314,6 +393,7 @@ void DatasetGenComponent::LoadLensData(){
     auto& lens=lens_;
     lens.clear();
     std::ifstream input(ResourceManager::PathManager::GetFullPath(lensdata_pth_));
+    if (input.fail()) return;
     std::string line;
     for (int i=0;i<4;++i) input.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     while(input.peek()!=EOF){

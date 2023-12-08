@@ -38,9 +38,14 @@ private:
     void SaveFbo(const std::string& name);
     void LoadLensData();
     
+    //draw one position per call
+    void AutoGenrate();
+
     int cnt_=0;
     int totalImgCnt_=0;
-    bool startGen=0;
+    bool camStartGen=0;
+    int genType_=0;
+    int camCnt_=0;
     std::vector<std::tuple<float,float>>lens_;
 
     glm::vec3 extends_{10,10,10};
@@ -60,7 +65,7 @@ private:
 
     SceneSys::SceneManager& scenemanager_;
 
-    ThreadPool threadpool_{16};
+    ThreadPool threadpool_{10};
 };
 
 
