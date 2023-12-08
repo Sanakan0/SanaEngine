@@ -31,6 +31,8 @@ void SceneManager::DestroyScene(){
     selected_actor_p_=nullptr;
     active_camera_id_=0;
     active_camera_p_=nullptr;
+	main_light_id_=0;
+    main_light_p_=nullptr;
 }
 
 void SceneManager::LoadScene(std::string pth){

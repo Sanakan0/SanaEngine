@@ -27,6 +27,8 @@ void main(){
 #FRAGMENT
 #version 430 core
 layout(binding = 0) uniform sampler2D diff_tex;
+layout(binding = 5) uniform sampler2D img_depthtex;
+layout(binding = 6) uniform sampler2D img_colortex;
 out vec4 FRAGMENT_COLOR;
 in VS_OUT{
     vec3 norm;
@@ -35,6 +37,30 @@ in VS_OUT{
 } fs_in;
 const vec3 Lightpos=vec3(200,200,200);
 uniform vec4 diffuse_color=vec4(1,1,1,1);
+
+#include "./UBOlayout.h"
+
+void calcimgprj(){
+    if (ubo_ctl_mask==0)return; 
+    vec4 tmppos = imgprj_PrjViewMat*vec4(fs_in.pos,1.0);
+    vec3 ndccoordinimg = vec3(tmppos/tmppos.w);
+    vec3 imgcoordinimg = (ndccoordinimg+1.0)*0.5;
+    float depth = texture2D(img_depthtex,imgcoordinimg.xy).r;
+    const float bias = 0.000005;
+
+    if (imgcoordinimg.z<depth+bias){
+        if (imgcoordinimg.x>1||imgcoordinimg.x<0||imgcoordinimg.y>1||imgcoordinimg.y<0) return;
+        if (min( min(imgcoordinimg.x,1.0-imgcoordinimg.x),
+            min(imgcoordinimg.y,1.0-imgcoordinimg.y))<0.004){
+                FRAGMENT_COLOR = vec4(0.2,1,0,1);
+        }else{
+            FRAGMENT_COLOR = texture2D(img_colortex,imgcoordinimg.xy)*diffuse_color;
+            //FRAGMENT_COLOR = depth*diffuse_color;
+        }
+        
+    }
+}
+
 void main(){
     vec3 ambcolor = vec3(texture(diff_tex,fs_in.tex_coord))*0.5;
     vec3 lightdir = normalize(Lightpos-fs_in.pos);
@@ -42,4 +68,5 @@ void main(){
     float cosa = dot(lightdir,normal);
     vec3 color = ambcolor+cosa*0.3;
     FRAGMENT_COLOR=vec4(color,1.0);
+    calcimgprj();
 }
