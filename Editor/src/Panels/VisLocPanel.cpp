@@ -261,6 +261,8 @@ void VisLocPanel::DrawContent(){
     ImGui::SameLine();
     if (ImGui::Button("图像投影")){
         scenemanager_.enable_img_prj_^=1;
+    }
+    if (scenemanager_.enable_img_prj_){
         scenemanager_.img_tex_ = imgp1;
     }
 

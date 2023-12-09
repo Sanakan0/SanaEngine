@@ -8,7 +8,7 @@ namespace SGUI::Core{
 
 UImanager::UImanager(const SWnd::Context& context,const std::string& version){
     if (context.moniter_info_.height==1440)
-        baseFontSize_ = 22.0f;
+        baseFontSize_ = 28.0f;
     if (context.moniter_info_.height==1080)
         baseFontSize_ = 22.0f;
 
@@ -234,7 +234,7 @@ void UImanager::StartAFrame(){
 }
 
 void UImanager::RenderTick(float deltat){
-    ImGui::ShowDemoWindow();
+    //ImGui::ShowDemoWindow();
     for (auto& panel : panels_){
         panel->DrawTick(deltat);
     }

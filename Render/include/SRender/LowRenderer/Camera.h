@@ -22,7 +22,7 @@ struct RadialDistortion{
 	float dist_para[3];
 	int dist_type=DistortionModel::NONE;
 };
-
+const RadialDistortion DefaultDistortion{{0,0,0},DistortionModel::NONE};
 //Opengl Camera model: forward -z,up y
 class Camera {
 public:
@@ -62,7 +62,7 @@ public:
 
 	
 	glm::vec4 clear_color_{0.2,0.2,0.5,1.0};
-	RadialDistortion distortion_;
+	RadialDistortion distortion_=DefaultDistortion;
 private:
 	float fovy_=27;
 	float focal_length_=50;
