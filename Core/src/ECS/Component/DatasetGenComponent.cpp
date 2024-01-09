@@ -193,7 +193,7 @@ void DatasetGenComponent::AutoGenrate(){
                 euler.z = j*120;
                 trans.SetEulerW(euler);
                 SRender::LowRenderer::Camera tmpcam;
-                auto[f,k] = lens_[lenscnt];k+=0.3;
+                auto[f,k] = lens_[lenscnt];
                 tmpcam.Setfocal_length(f);
                 tmpcam.Setsensor_size_h(24);
                 tmpcam.Setaspect_ratio(1.5);

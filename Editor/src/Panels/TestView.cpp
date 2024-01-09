@@ -53,8 +53,11 @@ void TestView::RenderTick(float deltat){
     static std::unique_ptr<SRender::Resources::GLShader> shaderp(SRender::Resources::GLShaderLoader::LoadFromFile( "..\\assets\\shaders\\animation.glsl"));
     
     //sgun.TickStatus(deltat);
-    animas[0].Play();
-    animas[0].Tick(deltat);
+    if (animas.size()>0){
+        animas[0].Play();
+        animas[0].Tick(deltat);
+    }
+    
     model.CalcDerivedJoint();
     model.CalcPalette();
     rtcontext_.anima_ssbo_->SendBlocks<glm::mat4>(model.palette_.data(), model.palette_.size()*sizeof(glm::mat4));
